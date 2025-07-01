@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, BookOpen, Target, TrendingUp, AlertTriangle, Lightbulb, Paperclip, BarChart3, Award } from 'lucide-react';
+import { Send, Loader2, BookOpen, Target, TrendingUp, AlertTriangle, Lightbulb, Paperclip, BarChart3, Award, Eye, Zap } from 'lucide-react';
 import { Subject, ChatMessage, QuestionAnalysis } from '../types';
 import { generateTutorResponse, generateFollowUpSuggestions } from '../services/geminiService';
 import { processUploadedFile, ProcessedFileContent } from '../services/fileProcessingService';
@@ -41,16 +41,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
     const analytics = adaptiveLearningService.getPerformanceAnalytics(subject);
     const suggestions = adaptiveLearningService.generateSuggestions(subject);
     
-    let welcomeMessage = `Hello! I'm your ${subject.name} tutor. `;
+    let welcomeMessage = `Hello! I'm your ${subject.name} tutor with advanced AI capabilities. `;
     
     if (progress.totalQuestions === 0) {
-      welcomeMessage += `I'm here to help you with JEE/NEET preparation. I'll adapt to your learning pace and provide questions that match your current level. Let's start with some basics!`;
+      welcomeMessage += `I'm here to help you with JEE/NEET preparation. I can read text from images, analyze mathematical content, and adapt to your learning pace. Let's start with some basics!`;
     } else {
       welcomeMessage += `Welcome back! I can see you're at ${analytics.level} level with ${analytics.accuracy}% accuracy. `;
       if (analytics.streak > 0) {
         welcomeMessage += `Great ${analytics.streak}-question streak! `;
       }
-      welcomeMessage += `Let's continue building on your progress.`;
+      welcomeMessage += `Feel free to upload images of problems or ask questions directly.`;
     }
     
     const welcomeChatMessage: ChatMessage = {
@@ -76,22 +76,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
     try {
       const processedContent = await processUploadedFile(file);
       
-      // Create a message showing the file was uploaded
-      const fileMessage: ChatMessage = {
+      // Create a message showing the file was uploaded with enhanced info
+      let fileMessage = `📎 Uploaded: ${file.name}`;
+      
+      if (processedContent.confidence !== undefined) {
+        fileMessage += ` (${(processedContent.confidence * 100).toFixed(1)}% text recognition confidence)`;
+      }
+      
+      if (processedContent.mathContent?.hasMath) {
+        fileMessage += ` 🧮 Mathematical content detected: ${processedContent.mathContent.mathIndicators.join(', ')}`;
+      }
+      
+      const fileUploadMessage: ChatMessage = {
         id: Date.now().toString(),
-        content: `📎 Uploaded: ${file.name}`,
+        content: fileMessage,
         isUser: true,
         timestamp: new Date(),
         subject,
         fileContent: processedContent
       };
       
-      setMessages(prev => [...prev, fileMessage]);
+      setMessages(prev => [...prev, fileUploadMessage]);
       
       // Auto-generate a response about the uploaded file
       const { response, analysis, suggestedDifficulty } = await generateTutorResponse(
         subject,
-        `I've uploaded a file: ${file.name}. Please help me understand the content.`,
+        processedContent.text,
         [],
         processedContent.text
       );
@@ -108,11 +118,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
       
       setMessages(prev => [...prev, tutorMessage]);
       
+      // Generate follow-up suggestions based on the file content
+      const suggestions = await generateFollowUpSuggestions(subject, processedContent.text);
+      setFollowUpSuggestions(suggestions);
+      
     } catch (error) {
       console.error('Error processing file:', error);
       const errorMessage: ChatMessage = {
         id: Date.now().toString(),
-        content: "I had trouble processing your file. Please try uploading it again or describe your question in text.",
+        content: `I had trouble processing your file: ${error instanceof Error ? error.message : 'Unknown error'}. Please try uploading it again or describe your question in text.`,
         isUser: false,
         timestamp: new Date(),
         subject
@@ -393,8 +407,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
               <div className={`h-5 w-5 ${subject.color}`} />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900">{subject.name} Tutor</h2>
-              <p className="text-sm text-gray-600">Adaptive AI Assistant</p>
+              <h2 className="font-semibold text-gray-900">{subject.name} AI Tutor</h2>
+              <div className="flex items-center space-x-3 text-sm text-gray-600">
+                <div className="flex items-center space-x-1">
+                  <Eye className="h-3 w-3" />
+                  <span>Vision AI</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Zap className="h-3 w-3" />
+                  <span>Adaptive Learning</span>
+                </div>
+              </div>
             </div>
           </div>
           <button
@@ -451,7 +474,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
               
               {message.fileContent && (
                 <div className="mt-2 p-2 bg-gray-100 rounded text-xs text-gray-600">
-                  📎 {message.fileContent.type.toUpperCase()} file: {message.fileContent.fileName}
+                  <div className="flex items-center space-x-2">
+                    <span>📎 {message.fileContent.type.toUpperCase()} file: {message.fileContent.fileName}</span>
+                    {message.fileContent.confidence !== undefined && (
+                      <span className="text-blue-600">
+                        ({(message.fileContent.confidence * 100).toFixed(1)}% confidence)
+                      </span>
+                    )}
+                  </div>
+                  {message.fileContent.mathContent?.hasMath && (
+                    <div className="mt-1 text-green-600">
+                      🧮 Math detected: {message.fileContent.mathContent.mathIndicators.join(', ')}
+                    </div>
+                  )}
                 </div>
               )}
               
@@ -487,7 +522,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
             <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center space-x-2">
               <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
               <span className="text-gray-600">
-                {isProcessingFile ? 'Processing file...' : 'Thinking...'}
+                {isProcessingFile ? 'Reading text from image with AI...' : 'Thinking...'}
               </span>
             </div>
           </div>
@@ -541,6 +576,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
                 : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
             }`}
             disabled={isLoading || isProcessingFile}
+            title="Upload images, PDFs, or text files"
           >
             <Paperclip className="h-5 w-5" />
           </button>
@@ -549,7 +585,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={`Ask your ${subject.name} question or upload a file...`}
+            placeholder={`Ask your ${subject.name} question or upload an image with AI text recognition...`}
             className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             rows={2}
             disabled={isLoading || isProcessingFile}
