@@ -1,9 +1,9 @@
 import React from 'react';
-import { BarChart3, BookOpen, MessageCircle, Target, Calendar } from 'lucide-react';
+import { BarChart3, BookOpen, MessageCircle, Target, Calendar, Brain } from 'lucide-react';
 
 interface NavigationProps {
-  currentPage: 'chat' | 'analytics' | 'mock-exams' | 'study-planner';
-  onPageChange: (page: 'chat' | 'analytics' | 'mock-exams' | 'study-planner') => void;
+  currentPage: 'chat' | 'analytics' | 'mock-exams' | 'study-planner' | 'learning-path';
+  onPageChange: (page: 'chat' | 'analytics' | 'mock-exams' | 'study-planner' | 'learning-path') => void;
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChange }) => {
@@ -13,6 +13,12 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChange }) =>
       name: 'AI Tutor',
       icon: MessageCircle,
       description: 'Chat with AI'
+    },
+    {
+      id: 'learning-path' as const,
+      name: 'Learning Path',
+      icon: Brain,
+      description: 'AI Recommendations'
     },
     {
       id: 'study-planner' as const,
