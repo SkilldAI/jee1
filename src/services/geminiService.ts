@@ -30,7 +30,9 @@ Keep your responses conversational but educational. If the question is complex, 
 
 For mathematical problems, show clear step-by-step solutions. For conceptual questions, provide thorough explanations with examples. Always end with a question or suggestion to keep the conversation going.
 
-When a student uploads a file (image, PDF, or document), acknowledge the upload and ask them to describe what specific help they need with the content.`;
+When a student uploads a file (image, PDF, or document), acknowledge the upload and ask them to describe what specific help they need with the content.
+
+IMPORTANT: When you identify new concepts or topics in the student's question that aren't in their current learning path, you should mention these concepts clearly so they can be automatically added to their personalized learning path.`;
 
 export const generateTutorResponse = async (
   subject: Subject,
@@ -92,6 +94,8 @@ When relevant, suggest specific topics from their learning path or identify prer
 
     adaptiveContext += `
 Please adapt your response to match the student's current level and target difficulty. Provide personalized recommendations based on their learning path progress.
+
+IMPORTANT: If you identify any new concepts or topics in the student's question that would benefit their learning, mention them clearly in your response so they can be added to their learning path automatically.
 `;
 
     const prompt = `${TUTOR_SYSTEM_PROMPT}
@@ -101,10 +105,47 @@ ${adaptiveContext}
 Subject: ${subject.name}
 ${context}${fileContext}Student Question: ${question}
 
-Please provide a helpful, conversational response appropriate for their ${analytics.level} level. Target difficulty should be ${difficulty}. Be encouraging and educational. If relevant, reference their learning path progress and suggest specific next steps.`;
+Please provide a helpful, conversational response appropriate for their ${analytics.level} level. Target difficulty should be ${difficulty}. Be encouraging and educational. If relevant, reference their learning path progress and suggest specific next steps. Clearly mention any new concepts or topics that should be added to their learning path.`;
 
     const result = await model.generateContent(prompt);
     const response = result.response.text();
+
+    // Extract concepts from the response and question for learning path integration
+    const conceptExtractionPrompt = `Analyze this ${subject.name} question and AI tutor response to identify key concepts that should be added to the student's learning path:
+
+Question: "${question}"
+Response: "${response.substring(0, 1000)}..."
+
+Extract and list the main concepts, topics, and subtopics mentioned. Format as a JSON array of strings:
+["concept1", "concept2", "concept3"]
+
+Focus on specific, actionable topics that can be studied, not general statements.`;
+
+    let identifiedConcepts: string[] = [];
+    try {
+      const conceptResult = await model.generateContent(conceptExtractionPrompt);
+      const conceptText = conceptResult.response.text();
+      const jsonMatch = conceptText.match(/\[[\s\S]*?\]/);
+      if (jsonMatch) {
+        identifiedConcepts = JSON.parse(jsonMatch[0]);
+      }
+    } catch (error) {
+      console.warn('Could not extract concepts:', error);
+    }
+
+    // Add topics to learning path if concepts were identified
+    if (currentPath && identifiedConcepts.length > 0) {
+      try {
+        await learningPathService.addTopicFromQuestion(
+          currentPath.id,
+          question,
+          identifiedConcepts,
+          difficulty
+        );
+      } catch (error) {
+        console.warn('Could not add topics to learning path:', error);
+      }
+    }
 
     // Generate analysis with adaptive considerations and learning path integration
     const analysisPrompt = `Analyze this ${subject.name} question for JEE/NEET preparation: "${question}"
@@ -143,7 +184,7 @@ Provide analysis in this JSON format:
     } catch (error) {
       // Fallback analysis if parsing fails
       analysis = {
-        concepts: [subject.name + ' concepts'],
+        concepts: identifiedConcepts.length > 0 ? identifiedConcepts : [subject.name + ' concepts'],
         complexityLevel: difficulty === 'Easy' ? 2 : difficulty === 'Medium' ? 3 : 4,
         complexityJustification: `${difficulty} level question appropriate for ${analytics.level} student`,
         examRelevance: 'This topic is important for JEE/NEET examinations',

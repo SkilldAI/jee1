@@ -24,6 +24,8 @@ export interface LearningPathNode {
   isUnlocked: boolean;
   isCompleted: boolean;
   nextRecommendations: string[]; // IDs of next nodes
+  addedBy: 'system' | 'ai-recommendation' | 'student-request' | 'gap-analysis';
+  addedAt: Date;
 }
 
 export interface PersonalizedLearningPath {
@@ -72,11 +74,24 @@ export interface ContentRecommendation {
   urgency: 'Low' | 'Medium' | 'High' | 'Critical';
 }
 
+export interface TopicSuggestion {
+  id: string;
+  title: string;
+  subject: string;
+  topic: string;
+  subtopic: string;
+  reason: string;
+  confidence: number; // 0-1
+  source: 'ai-analysis' | 'performance-gap' | 'curriculum-sequence' | 'student-question';
+  relatedConcepts: string[];
+}
+
 export class LearningPathService {
   private static instance: LearningPathService;
   private learningPaths: Map<string, PersonalizedLearningPath> = new Map();
   private performanceData: Map<string, PerformanceMetrics[]> = new Map();
   private syllabusData: Map<string, LearningPathNode[]> = new Map();
+  private topicSuggestions: Map<string, TopicSuggestion[]> = new Map();
 
   static getInstance(): LearningPathService {
     if (!LearningPathService.instance) {
@@ -87,9 +102,9 @@ export class LearningPathService {
   }
 
   private initializeSyllabusData(): void {
-    // Initialize comprehensive JEE syllabus data
+    // Initialize comprehensive JEE/NEET syllabus data
     const physicsNodes: LearningPathNode[] = [
-      // Mechanics
+      // Mechanics - Foundation Level
       {
         id: 'phy-mech-001',
         title: 'Kinematics in One Dimension',
@@ -101,8 +116,8 @@ export class LearningPathService {
         prerequisites: [],
         learningObjectives: [
           'Understand position, velocity, and acceleration',
-          'Apply kinematic equations',
-          'Solve motion problems with constant acceleration'
+          'Apply kinematic equations for constant acceleration',
+          'Solve motion problems with graphs and equations'
         ],
         contentType: 'concept',
         jeeSyllabus: {
@@ -116,7 +131,9 @@ export class LearningPathService {
         successRate: 0,
         isUnlocked: true,
         isCompleted: false,
-        nextRecommendations: ['phy-mech-002', 'phy-mech-003']
+        nextRecommendations: ['phy-mech-002', 'phy-mech-003'],
+        addedBy: 'system',
+        addedAt: new Date()
       },
       {
         id: 'phy-mech-002',
@@ -129,8 +146,8 @@ export class LearningPathService {
         prerequisites: ['phy-mech-001'],
         learningObjectives: [
           'Understand vector nature of motion',
-          'Analyze projectile motion',
-          'Solve circular motion problems'
+          'Analyze projectile motion problems',
+          'Solve circular motion and relative velocity'
         ],
         contentType: 'concept',
         jeeSyllabus: {
@@ -144,7 +161,9 @@ export class LearningPathService {
         successRate: 0,
         isUnlocked: false,
         isCompleted: false,
-        nextRecommendations: ['phy-mech-004', 'phy-mech-005']
+        nextRecommendations: ['phy-mech-004', 'phy-mech-005'],
+        addedBy: 'system',
+        addedAt: new Date()
       },
       {
         id: 'phy-mech-003',
@@ -156,9 +175,9 @@ export class LearningPathService {
         estimatedTime: 180,
         prerequisites: ['phy-mech-001'],
         learningObjectives: [
-          'Understand Newton\'s three laws',
-          'Apply force analysis',
-          'Solve problems with multiple forces'
+          'Understand Newton\'s three laws of motion',
+          'Apply force analysis and free body diagrams',
+          'Solve problems with multiple forces and constraints'
         ],
         contentType: 'concept',
         jeeSyllabus: {
@@ -172,9 +191,132 @@ export class LearningPathService {
         successRate: 0,
         isUnlocked: false,
         isCompleted: false,
-        nextRecommendations: ['phy-mech-006', 'phy-mech-007']
+        nextRecommendations: ['phy-mech-006', 'phy-mech-007'],
+        addedBy: 'system',
+        addedAt: new Date()
       },
-      // Add more physics nodes...
+      {
+        id: 'phy-mech-004',
+        title: 'Work, Energy and Power',
+        subject: 'Physics',
+        topic: 'Mechanics',
+        subtopic: 'Energy',
+        difficulty: 'Intermediate',
+        estimatedTime: 160,
+        prerequisites: ['phy-mech-002', 'phy-mech-003'],
+        learningObjectives: [
+          'Understand work-energy theorem',
+          'Apply conservation of energy principles',
+          'Solve problems involving power and efficiency'
+        ],
+        contentType: 'concept',
+        jeeSyllabus: {
+          chapter: 'Work, Energy and Power',
+          weightage: 9,
+          frequency: 'High'
+        },
+        masteryLevel: 0,
+        timeSpent: 0,
+        attempts: 0,
+        successRate: 0,
+        isUnlocked: false,
+        isCompleted: false,
+        nextRecommendations: ['phy-mech-008'],
+        addedBy: 'system',
+        addedAt: new Date()
+      },
+      {
+        id: 'phy-mech-005',
+        title: 'Rotational Motion',
+        subject: 'Physics',
+        topic: 'Mechanics',
+        subtopic: 'Rotation',
+        difficulty: 'Advanced',
+        estimatedTime: 200,
+        prerequisites: ['phy-mech-002', 'phy-mech-003'],
+        learningObjectives: [
+          'Understand rotational kinematics and dynamics',
+          'Apply moment of inertia concepts',
+          'Solve problems with rolling motion'
+        ],
+        contentType: 'concept',
+        jeeSyllabus: {
+          chapter: 'System of Particles and Rotational Motion',
+          weightage: 11,
+          frequency: 'Medium'
+        },
+        masteryLevel: 0,
+        timeSpent: 0,
+        attempts: 0,
+        successRate: 0,
+        isUnlocked: false,
+        isCompleted: false,
+        nextRecommendations: ['phy-mech-009'],
+        addedBy: 'system',
+        addedAt: new Date()
+      },
+      // Thermodynamics
+      {
+        id: 'phy-thermo-001',
+        title: 'Temperature and Heat',
+        subject: 'Physics',
+        topic: 'Thermodynamics',
+        subtopic: 'Basic Concepts',
+        difficulty: 'Foundation',
+        estimatedTime: 100,
+        prerequisites: [],
+        learningObjectives: [
+          'Understand temperature scales and thermal expansion',
+          'Learn heat transfer mechanisms',
+          'Apply calorimetry principles'
+        ],
+        contentType: 'concept',
+        jeeSyllabus: {
+          chapter: 'Thermal Properties of Matter',
+          weightage: 6,
+          frequency: 'Medium'
+        },
+        masteryLevel: 0,
+        timeSpent: 0,
+        attempts: 0,
+        successRate: 0,
+        isUnlocked: true,
+        isCompleted: false,
+        nextRecommendations: ['phy-thermo-002'],
+        addedBy: 'system',
+        addedAt: new Date()
+      },
+      // Optics
+      {
+        id: 'phy-optics-001',
+        title: 'Ray Optics and Optical Instruments',
+        subject: 'Physics',
+        topic: 'Optics',
+        subtopic: 'Geometrical Optics',
+        difficulty: 'Intermediate',
+        estimatedTime: 140,
+        prerequisites: [],
+        learningObjectives: [
+          'Understand reflection and refraction laws',
+          'Apply lens and mirror formulas',
+          'Analyze optical instruments'
+        ],
+        contentType: 'concept',
+        jeeSyllabus: {
+          chapter: 'Ray Optics and Optical Instruments',
+          weightage: 8,
+          frequency: 'High'
+        },
+        masteryLevel: 0,
+        timeSpent: 0,
+        attempts: 0,
+        successRate: 0,
+        isUnlocked: true,
+        isCompleted: false,
+        nextRecommendations: ['phy-optics-002'],
+        addedBy: 'system',
+        addedAt: new Date()
+      }
     ];
 
     const chemistryNodes: LearningPathNode[] = [
@@ -188,9 +330,9 @@ export class LearningPathService {
         estimatedTime: 90,
         prerequisites: [],
         learningObjectives: [
-          'Understand atomic models',
-          'Learn quantum numbers',
-          'Electronic configuration'
+          'Understand atomic models and their evolution',
+          'Learn quantum numbers and electronic configuration',
+          'Apply Aufbau principle and Hund\'s rule'
         ],
         contentType: 'concept',
         jeeSyllabus: {
@@ -204,9 +346,70 @@ export class LearningPathService {
         successRate: 0,
         isUnlocked: true,
         isCompleted: false,
-        nextRecommendations: ['chem-phys-002']
+        nextRecommendations: ['chem-phys-002'],
+        addedBy: 'system',
+        addedAt: new Date()
       },
-      // Add more chemistry nodes...
+      {
+        id: 'chem-phys-002',
+        title: 'Chemical Bonding and Molecular Structure',
+        subject: 'Chemistry',
+        topic: 'Physical Chemistry',
+        subtopic: 'Chemical Bonding',
+        difficulty: 'Intermediate',
+        estimatedTime: 120,
+        prerequisites: ['chem-phys-001'],
+        learningObjectives: [
+          'Understand ionic, covalent, and metallic bonding',
+          'Apply VSEPR theory for molecular geometry',
+          'Learn hybridization and molecular orbital theory'
+        ],
+        contentType: 'concept',
+        jeeSyllabus: {
+          chapter: 'Chemical Bonding and Molecular Structure',
+          weightage: 8,
+          frequency: 'High'
+        },
+        masteryLevel: 0,
+        timeSpent: 0,
+        attempts: 0,
+        successRate: 0,
+        isUnlocked: false,
+        isCompleted: false,
+        nextRecommendations: ['chem-phys-003'],
+        addedBy: 'system',
+        addedAt: new Date()
+      },
+      {
+        id: 'chem-org-001',
+        title: 'Basic Organic Chemistry',
+        subject: 'Chemistry',
+        topic: 'Organic Chemistry',
+        subtopic: 'Fundamentals',
+        difficulty: 'Foundation',
+        estimatedTime: 110,
+        prerequisites: ['chem-phys-002'],
+        learningObjectives: [
+          'Understand organic compound classification',
+          'Learn IUPAC nomenclature rules',
+          'Identify functional groups and isomerism'
+        ],
+        contentType: 'concept',
+        jeeSyllabus: {
+          chapter: 'Organic Chemistry - Some Basic Principles',
+          weightage: 7,
+          frequency: 'High'
+        },
+        masteryLevel: 0,
+        timeSpent: 0,
+        attempts: 0,
+        successRate: 0,
+        isUnlocked: false,
+        isCompleted: false,
+        nextRecommendations: ['chem-org-002'],
+        addedBy: 'system',
+        addedAt: new Date()
+      }
     ];
 
     const mathNodes: LearningPathNode[] = [
@@ -220,9 +423,9 @@ export class LearningPathService {
         estimatedTime: 120,
         prerequisites: [],
         learningObjectives: [
-          'Understand concept of limits',
-          'Evaluate limits using various methods',
-          'Understand continuity'
+          'Understand the concept of limits',
+          'Evaluate limits using various techniques',
+          'Apply continuity and discontinuity concepts'
         ],
         contentType: 'concept',
         jeeSyllabus: {
@@ -236,14 +439,333 @@ export class LearningPathService {
         successRate: 0,
         isUnlocked: true,
         isCompleted: false,
-        nextRecommendations: ['math-calc-002']
+        nextRecommendations: ['math-calc-002'],
+        addedBy: 'system',
+        addedAt: new Date()
       },
-      // Add more math nodes...
+      {
+        id: 'math-calc-002',
+        title: 'Derivatives and Applications',
+        subject: 'Mathematics',
+        topic: 'Calculus',
+        subtopic: 'Differentiation',
+        difficulty: 'Intermediate',
+        estimatedTime: 150,
+        prerequisites: ['math-calc-001'],
+        learningObjectives: [
+          'Understand derivative as rate of change',
+          'Apply differentiation rules and techniques',
+          'Solve optimization and related rate problems'
+        ],
+        contentType: 'concept',
+        jeeSyllabus: {
+          chapter: 'Limits and Derivatives',
+          weightage: 15,
+          frequency: 'High'
+        },
+        masteryLevel: 0,
+        timeSpent: 0,
+        attempts: 0,
+        successRate: 0,
+        isUnlocked: false,
+        isCompleted: false,
+        nextRecommendations: ['math-calc-003'],
+        addedBy: 'system',
+        addedAt: new Date()
+      },
+      {
+        id: 'math-alg-001',
+        title: 'Complex Numbers',
+        subject: 'Mathematics',
+        topic: 'Algebra',
+        subtopic: 'Complex Numbers',
+        difficulty: 'Intermediate',
+        estimatedTime: 100,
+        prerequisites: [],
+        learningObjectives: [
+          'Understand complex number operations',
+          'Apply De Moivre\'s theorem',
+          'Solve equations with complex roots'
+        ],
+        contentType: 'concept',
+        jeeSyllabus: {
+          chapter: 'Complex Numbers and Quadratic Equations',
+          weightage: 7,
+          frequency: 'Medium'
+        },
+        masteryLevel: 0,
+        timeSpent: 0,
+        attempts: 0,
+        successRate: 0,
+        isUnlocked: true,
+        isCompleted: false,
+        nextRecommendations: ['math-alg-002'],
+        addedBy: 'system',
+        addedAt: new Date()
+      }
+    ];
+
+    const biologyNodes: LearningPathNode[] = [
+      {
+        id: 'bio-cell-001',
+        title: 'Cell Structure and Function',
+        subject: 'Biology',
+        topic: 'Cell Biology',
+        subtopic: 'Cell Structure',
+        difficulty: 'Foundation',
+        estimatedTime: 90,
+        prerequisites: [],
+        learningObjectives: [
+          'Understand prokaryotic and eukaryotic cell structure',
+          'Learn organelle functions and interactions',
+          'Compare plant and animal cells'
+        ],
+        contentType: 'concept',
+        jeeSyllabus: {
+          chapter: 'Cell: The Unit of Life',
+          weightage: 8,
+          frequency: 'High'
+        },
+        masteryLevel: 0,
+        timeSpent: 0,
+        attempts: 0,
+        successRate: 0,
+        isUnlocked: true,
+        isCompleted: false,
+        nextRecommendations: ['bio-cell-002'],
+        addedBy: 'system',
+        addedAt: new Date()
+      },
+      {
+        id: 'bio-cell-002',
+        title: 'Cell Division',
+        subject: 'Biology',
+        topic: 'Cell Biology',
+        subtopic: 'Cell Division',
+        difficulty: 'Intermediate',
+        estimatedTime: 110,
+        prerequisites: ['bio-cell-001'],
+        learningObjectives: [
+          'Understand mitosis and meiosis processes',
+          'Compare different phases of cell division',
+          'Learn significance of cell division in growth and reproduction'
+        ],
+        contentType: 'concept',
+        jeeSyllabus: {
+          chapter: 'Cell Cycle and Cell Division',
+          weightage: 6,
+          frequency: 'Medium'
+        },
+        masteryLevel: 0,
+        timeSpent: 0,
+        attempts: 0,
+        successRate: 0,
+        isUnlocked: false,
+        isCompleted: false,
+        nextRecommendations: ['bio-genetics-001'],
+        addedBy: 'system',
+        addedAt: new Date()
+      }
     ];
 
     this.syllabusData.set('Physics', physicsNodes);
     this.syllabusData.set('Chemistry', chemistryNodes);
     this.syllabusData.set('Mathematics', mathNodes);
+    this.syllabusData.set('Biology', biologyNodes);
+  }
+
+  // AI-Powered Topic Addition from Student Questions
+  async addTopicFromQuestion(
+    pathId: string,
+    question: string,
+    identifiedConcepts: string[],
+    difficulty: 'Easy' | 'Medium' | 'Hard'
+  ): Promise<LearningPathNode[]> {
+    const path = this.learningPaths.get(pathId);
+    if (!path) return [];
+
+    const addedNodes: LearningPathNode[] = [];
+    const syllabusNodes = this.syllabusData.get(path.subject) || [];
+
+    // Find relevant nodes from syllabus that match the identified concepts
+    identifiedConcepts.forEach(concept => {
+      const relevantNodes = syllabusNodes.filter(node => 
+        node.title.toLowerCase().includes(concept.toLowerCase()) ||
+        node.topic.toLowerCase().includes(concept.toLowerCase()) ||
+        node.subtopic.toLowerCase().includes(concept.toLowerCase()) ||
+        node.learningObjectives.some(obj => obj.toLowerCase().includes(concept.toLowerCase()))
+      );
+
+      relevantNodes.forEach(syllabusNode => {
+        // Check if this node is already in the path
+        const existingNode = path.nodes.find(n => n.id === syllabusNode.id);
+        if (!existingNode) {
+          // Add new node to the path
+          const newNode: LearningPathNode = {
+            ...syllabusNode,
+            addedBy: 'ai-recommendation',
+            addedAt: new Date(),
+            isUnlocked: this.shouldUnlockBasedOnQuestion(syllabusNode, path, difficulty)
+          };
+          
+          path.nodes.push(newNode);
+          addedNodes.push(newNode);
+        } else if (!existingNode.isUnlocked && this.shouldUnlockBasedOnQuestion(existingNode, path, difficulty)) {
+          // Unlock existing node if student is asking about it
+          existingNode.isUnlocked = true;
+          existingNode.addedBy = 'student-request';
+          addedNodes.push(existingNode);
+        }
+      });
+    });
+
+    // If no exact matches found, create a custom node
+    if (addedNodes.length === 0 && identifiedConcepts.length > 0) {
+      const customNode = this.createCustomNode(path, identifiedConcepts[0], question, difficulty);
+      path.nodes.push(customNode);
+      addedNodes.push(customNode);
+    }
+
+    // Update the path
+    this.learningPaths.set(pathId, path);
+    
+    return addedNodes;
+  }
+
+  // Create custom node for concepts not in standard syllabus
+  private createCustomNode(
+    path: PersonalizedLearningPath,
+    concept: string,
+    question: string,
+    difficulty: 'Easy' | 'Medium' | 'Hard'
+  ): LearningPathNode {
+    const nodeId = `custom-${Date.now()}`;
+    const difficultyMap = {
+      'Easy': 'Foundation' as const,
+      'Medium': 'Intermediate' as const,
+      'Hard': 'Advanced' as const
+    };
+
+    return {
+      id: nodeId,
+      title: `Understanding ${concept}`,
+      subject: path.subject,
+      topic: 'Custom Topics',
+      subtopic: concept,
+      difficulty: difficultyMap[difficulty],
+      estimatedTime: 60,
+      prerequisites: [],
+      learningObjectives: [
+        `Understand the concept of ${concept}`,
+        `Apply ${concept} to solve problems`,
+        `Connect ${concept} to related topics`
+      ],
+      contentType: 'concept',
+      jeeSyllabus: {
+        chapter: 'Additional Topics',
+        weightage: 3,
+        frequency: 'Low'
+      },
+      masteryLevel: 0,
+      timeSpent: 0,
+      attempts: 0,
+      successRate: 0,
+      isUnlocked: true,
+      isCompleted: false,
+      nextRecommendations: [],
+      addedBy: 'student-request',
+      addedAt: new Date()
+    };
+  }
+
+  // Analyze performance gaps and suggest topics
+  analyzePerformanceGaps(pathId: string): TopicSuggestion[] {
+    const path = this.learningPaths.get(pathId);
+    if (!path) return [];
+
+    const suggestions: TopicSuggestion[] = [];
+    const performanceMetrics = this.performanceData.get(path.subject) || [];
+    const syllabusNodes = this.syllabusData.get(path.subject) || [];
+
+    // Find topics with low performance
+    performanceMetrics.forEach(metric => {
+      if (metric.accuracy < 60) {
+        // Find prerequisite topics that might help
+        const relatedNodes = syllabusNodes.filter(node => 
+          node.topic === metric.topic && 
+          !path.nodes.some(pathNode => pathNode.id === node.id)
+        );
+
+        relatedNodes.forEach(node => {
+          suggestions.push({
+            id: `gap-${node.id}`,
+            title: node.title,
+            subject: node.subject,
+            topic: node.topic,
+            subtopic: node.subtopic,
+            reason: `Low performance (${metric.accuracy.toFixed(1)}%) in ${metric.topic} suggests reviewing fundamentals`,
+            confidence: 0.8,
+            source: 'performance-gap',
+            relatedConcepts: node.learningObjectives
+          });
+        });
+      }
+    });
+
+    return suggestions.slice(0, 5); // Return top 5 suggestions
+  }
+
+  // Get topic suggestions for student
+  getTopicSuggestions(pathId: string): TopicSuggestion[] {
+    const path = this.learningPaths.get(pathId);
+    if (!path) return [];
+
+    const suggestions: TopicSuggestion[] = [];
+    
+    // Add performance gap suggestions
+    suggestions.push(...this.analyzePerformanceGaps(pathId));
+    
+    // Add curriculum sequence suggestions
+    const nextLogicalTopics = this.getNextLogicalTopics(path);
+    suggestions.push(...nextLogicalTopics);
+
+    // Store suggestions
+    this.topicSuggestions.set(pathId, suggestions);
+    
+    return suggestions.sort((a, b) => b.confidence - a.confidence);
+  }
+
+  // Add topic from suggestion
+  addTopicFromSuggestion(pathId: string, suggestionId: string): LearningPathNode | null {
+    const suggestions = this.topicSuggestions.get(pathId) || [];
+    const suggestion = suggestions.find(s => s.id === suggestionId);
+    
+    if (!suggestion) return null;
+
+    const path = this.learningPaths.get(pathId);
+    if (!path) return null;
+
+    const syllabusNodes = this.syllabusData.get(path.subject) || [];
+    const syllabusNode = syllabusNodes.find(node => 
+      node.title === suggestion.title || 
+      suggestion.id.includes(node.id)
+    );
+
+    if (syllabusNode) {
+      const newNode: LearningPathNode = {
+        ...syllabusNode,
+        addedBy: 'ai-recommendation',
+        addedAt: new Date(),
+        isUnlocked: true
+      };
+      
+      path.nodes.push(newNode);
+      this.learningPaths.set(pathId, path);
+      
+      return newNode;
+    }
+
+    return null;
   }
 
   // Create personalized learning path
@@ -425,6 +947,7 @@ export class LearningPathService {
     weeklyProgress: number[];
     predictedCompletion: Date;
     recommendations: ContentRecommendation[];
+    topicSuggestions: TopicSuggestion[];
   } {
     const path = this.learningPaths.get(pathId);
     if (!path) {
@@ -436,7 +959,8 @@ export class LearningPathService {
         difficultyDistribution: {},
         weeklyProgress: [],
         predictedCompletion: new Date(),
-        recommendations: []
+        recommendations: [],
+        topicSuggestions: []
       };
     }
 
@@ -478,11 +1002,52 @@ export class LearningPathService {
       difficultyDistribution,
       weeklyProgress: this.calculateWeeklyProgress(path),
       predictedCompletion: this.predictCompletionDate(path),
-      recommendations: this.generateRecommendations(pathId)
+      recommendations: this.generateRecommendations(pathId),
+      topicSuggestions: this.getTopicSuggestions(pathId)
     };
   }
 
   // Private helper methods
+  private shouldUnlockBasedOnQuestion(node: LearningPathNode, path: PersonalizedLearningPath, difficulty: string): boolean {
+    // If student is asking about a topic, they're ready to learn it
+    if (difficulty === 'Easy' && node.difficulty === 'Foundation') return true;
+    if (difficulty === 'Medium' && ['Foundation', 'Intermediate'].includes(node.difficulty)) return true;
+    if (difficulty === 'Hard') return true; // Unlock any difficulty for hard questions
+    
+    return this.shouldUnlockNode(node, path.currentLevel);
+  }
+
+  private getNextLogicalTopics(path: PersonalizedLearningPath): TopicSuggestion[] {
+    const suggestions: TopicSuggestion[] = [];
+    const syllabusNodes = this.syllabusData.get(path.subject) || [];
+    
+    // Find topics that are logical next steps
+    const completedTopics = new Set(path.completedNodes);
+    
+    syllabusNodes.forEach(node => {
+      if (!path.nodes.some(pathNode => pathNode.id === node.id)) {
+        // Check if prerequisites are met
+        const prereqsMet = node.prerequisites.every(prereq => completedTopics.has(prereq));
+        
+        if (prereqsMet || node.prerequisites.length === 0) {
+          suggestions.push({
+            id: `seq-${node.id}`,
+            title: node.title,
+            subject: node.subject,
+            topic: node.topic,
+            subtopic: node.subtopic,
+            reason: 'Natural progression in curriculum sequence',
+            confidence: 0.7,
+            source: 'curriculum-sequence',
+            relatedConcepts: node.learningObjectives
+          });
+        }
+      }
+    });
+    
+    return suggestions;
+  }
+
   private shouldUnlockNode(node: LearningPathNode, currentLevel: string): boolean {
     if (node.prerequisites.length === 0) return true;
     
