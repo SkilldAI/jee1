@@ -32,9 +32,10 @@ import {
 
 interface LearningPathProps {
   selectedSubject?: string | null;
+  onNavigateToChat?: (subject: string) => void;
 }
 
-const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject }) => {
+const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigateToChat }) => {
   const [learningPaths, setLearningPaths] = useState<PersonalizedLearningPath[]>([]);
   const [currentPath, setCurrentPath] = useState<PersonalizedLearningPath | null>(null);
   const [recommendations, setRecommendations] = useState<ContentRecommendation[]>([]);
@@ -43,6 +44,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'path' | 'recommendations' | 'analytics' | 'add-topics'>('overview');
   const [showCreatePath, setShowCreatePath] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [studyingNode, setStudyingNode] = useState<string | null>(null);
 
   useEffect(() => {
     loadLearningPaths();
@@ -87,22 +89,41 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject }) => {
     setShowCreatePath(false);
   };
 
-  const handleNodeComplete = (nodeId: string) => {
+  const handleStudyNode = (nodeId: string) => {
     if (!currentPath) return;
     
-    // Simulate completing a node with good performance
-    learningPathService.updatePerformance(
-      currentPath.id,
-      nodeId,
-      45, // 45 minutes spent
-      85, // 85% accuracy
-      3   // Medium difficulty
-    );
+    setStudyingNode(nodeId);
     
-    // Reload the path to see updates
-    const updatedPath = learningPathService.getLearningPath(currentPath.id);
-    if (updatedPath) {
-      setCurrentPath(updatedPath);
+    // Simulate studying session
+    setTimeout(() => {
+      // Simulate completing a node with good performance
+      learningPathService.updatePerformance(
+        currentPath.id,
+        nodeId,
+        45, // 45 minutes spent
+        85, // 85% accuracy
+        3   // Medium difficulty
+      );
+      
+      // Reload the path to see updates
+      const updatedPath = learningPathService.getLearningPath(currentPath.id);
+      if (updatedPath) {
+        setCurrentPath(updatedPath);
+      }
+      
+      setStudyingNode(null);
+      
+      // Show success message
+      alert('Great job! You\'ve completed this topic. Your learning path has been updated.');
+    }, 2000);
+  };
+
+  const handleNavigateToAITutor = () => {
+    if (currentPath && onNavigateToChat) {
+      onNavigateToChat(currentPath.subject);
+    } else {
+      // Fallback: show instructions
+      alert('To use the AI Tutor:\n1. Go to the AI Tutor tab\n2. Select your subject\n3. Ask questions about any topic\n4. The AI will automatically add relevant topics to your learning path!');
     }
   };
 
@@ -116,6 +137,18 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject }) => {
       if (updatedPath) {
         setCurrentPath(updatedPath);
       }
+      
+      // Show success message
+      alert(`Added "${addedNode.title}" to your learning path!`);
+    }
+  };
+
+  const handleStartRecommendation = (nodeId: string) => {
+    if (!currentPath) return;
+    
+    const node = currentPath.nodes.find(n => n.id === nodeId);
+    if (node) {
+      handleStudyNode(nodeId);
     }
   };
 
@@ -476,7 +509,11 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject }) => {
                       {node.isCompleted ? (
                         <CheckCircle className="h-6 w-6 text-green-500" />
                       ) : node.isUnlocked ? (
-                        <Play className="h-6 w-6 text-blue-500" />
+                        studyingNode === node.id ? (
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" />
+                        ) : (
+                          <Play className="h-6 w-6 text-blue-500" />
+                        )
                       ) : (
                         <Lock className="h-6 w-6 text-gray-400" />
                       )}
@@ -508,10 +545,15 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject }) => {
                     </div>
                     {node.isUnlocked && !node.isCompleted && (
                       <button
-                        onClick={() => handleNodeComplete(node.id)}
-                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                        onClick={() => handleStudyNode(node.id)}
+                        disabled={studyingNode === node.id}
+                        className={`px-3 py-1 rounded text-sm transition-colors ${
+                          studyingNode === node.id
+                            ? 'bg-gray-400 text-white cursor-not-allowed'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
                       >
-                        Study
+                        {studyingNode === node.id ? 'Studying...' : 'Study'}
                       </button>
                     )}
                   </div>
@@ -565,7 +607,10 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject }) => {
             <p className="text-sm text-blue-800 mb-3">
               Ask the AI tutor about any concept and it will automatically add relevant topics to your path.
             </p>
-            <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+            <button 
+              onClick={handleNavigateToAITutor}
+              className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+            >
               Go to AI Tutor
             </button>
           </div>
@@ -578,7 +623,10 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject }) => {
             <p className="text-sm text-green-800 mb-3">
               Upload images of problems and the AI will extract topics and add them to your path.
             </p>
-            <button className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+            <button 
+              onClick={handleNavigateToAITutor}
+              className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+            >
               Upload Image
             </button>
           </div>
@@ -591,8 +639,11 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject }) => {
             <p className="text-sm text-purple-800 mb-3">
               Browse AI-generated topic suggestions based on your performance and curriculum.
             </p>
-            <button className="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700">
-              View Below
+            <button 
+              onClick={() => setActiveTab('recommendations')}
+              className="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700"
+            >
+              View Suggestions
             </button>
           </div>
         </div>
@@ -683,7 +734,10 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject }) => {
                       <span>Priority: {rec.priority}/10</span>
                     </div>
                   </div>
-                  <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 ml-4">
+                  <button 
+                    onClick={() => handleStartRecommendation(rec.nodeId)}
+                    className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 ml-4"
+                  >
                     Start
                   </button>
                 </div>

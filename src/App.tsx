@@ -29,6 +29,50 @@ function App() {
     }
   };
 
+  const handleNavigateToChat = (subjectName: string) => {
+    // Find the subject by name and navigate to chat
+    const subjects = [
+      {
+        id: 'physics',
+        name: 'Physics',
+        icon: 'Atom',
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-50',
+        borderColor: 'border-blue-200'
+      },
+      {
+        id: 'chemistry',
+        name: 'Chemistry',
+        icon: 'FlaskConical',
+        color: 'text-green-600',
+        bgColor: 'bg-green-50',
+        borderColor: 'border-green-200'
+      },
+      {
+        id: 'biology',
+        name: 'Biology',
+        icon: 'Dna',
+        color: 'text-purple-600',
+        bgColor: 'bg-purple-50',
+        borderColor: 'border-purple-200'
+      },
+      {
+        id: 'mathematics',
+        name: 'Mathematics',
+        icon: 'Calculator',
+        color: 'text-orange-600',
+        bgColor: 'bg-orange-50',
+        borderColor: 'border-orange-200'
+      }
+    ];
+
+    const subject = subjects.find(s => s.name === subjectName);
+    if (subject) {
+      setSelectedSubject(subject);
+      setCurrentPage('chat');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Show header only on subject selection page */}
@@ -63,7 +107,10 @@ function App() {
       )}
       
       {currentPage === 'learning-path' && (
-        <LearningPath selectedSubject={selectedSubject?.name} />
+        <LearningPath 
+          selectedSubject={selectedSubject?.name} 
+          onNavigateToChat={handleNavigateToChat}
+        />
       )}
     </div>
   );
