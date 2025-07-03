@@ -20,7 +20,8 @@ import {
   Search,
   Filter,
   Eye,
-  MessageCircle
+  MessageCircle,
+  FileText
 } from 'lucide-react';
 import { 
   learningPathService, 
@@ -29,6 +30,8 @@ import {
   ContentRecommendation,
   TopicSuggestion 
 } from '../services/learningPathService';
+import { contentService } from '../services/contentService';
+import ContentViewer from './ContentViewer';
 
 interface LearningPathProps {
   selectedSubject?: string | null;
@@ -45,6 +48,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
   const [showCreatePath, setShowCreatePath] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [studyingNode, setStudyingNode] = useState<string | null>(null);
+  const [viewingContent, setViewingContent] = useState<string | null>(null);
 
   useEffect(() => {
     loadLearningPaths();
@@ -92,37 +96,60 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
   const handleStudyNode = (nodeId: string) => {
     if (!currentPath) return;
     
-    setStudyingNode(nodeId);
+    // Check if content exists for this node
+    const content = contentService.getContent(nodeId);
+    if (content) {
+      setViewingContent(nodeId);
+    } else {
+      // Fallback to simulation for nodes without content
+      setStudyingNode(nodeId);
+      
+      setTimeout(() => {
+        learningPathService.updatePerformance(
+          currentPath.id,
+          nodeId,
+          45,
+          85,
+          3
+        );
+        
+        const updatedPath = learningPathService.getLearningPath(currentPath.id);
+        if (updatedPath) {
+          setCurrentPath(updatedPath);
+        }
+        
+        setStudyingNode(null);
+        alert('Great job! You\'ve completed this topic. Your learning path has been updated.');
+      }, 2000);
+    }
+  };
+
+  const handleContentComplete = () => {
+    if (!currentPath || !viewingContent) return;
     
-    // Simulate studying session
-    setTimeout(() => {
-      // Simulate completing a node with good performance
-      learningPathService.updatePerformance(
-        currentPath.id,
-        nodeId,
-        45, // 45 minutes spent
-        85, // 85% accuracy
-        3   // Medium difficulty
-      );
-      
-      // Reload the path to see updates
-      const updatedPath = learningPathService.getLearningPath(currentPath.id);
-      if (updatedPath) {
-        setCurrentPath(updatedPath);
-      }
-      
-      setStudyingNode(null);
-      
-      // Show success message
-      alert('Great job! You\'ve completed this topic. Your learning path has been updated.');
-    }, 2000);
+    // Update performance for the completed content
+    learningPathService.updatePerformance(
+      currentPath.id,
+      viewingContent,
+      30, // 30 minutes
+      90, // 90% performance
+      3   // Medium difficulty
+    );
+    
+    // Reload the path to see updates
+    const updatedPath = learningPathService.getLearningPath(currentPath.id);
+    if (updatedPath) {
+      setCurrentPath(updatedPath);
+    }
+    
+    setViewingContent(null);
+    alert('Excellent! Topic completed successfully. Your progress has been updated.');
   };
 
   const handleNavigateToAITutor = () => {
     if (currentPath && onNavigateToChat) {
       onNavigateToChat(currentPath.subject);
     } else {
-      // Fallback: show instructions
       alert('To use the AI Tutor:\n1. Go to the AI Tutor tab\n2. Select your subject\n3. Ask questions about any topic\n4. The AI will automatically add relevant topics to your learning path!');
     }
   };
@@ -132,13 +159,11 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
     
     const addedNode = learningPathService.addTopicFromSuggestion(currentPath.id, suggestionId);
     if (addedNode) {
-      // Reload the path to see the new topic
       const updatedPath = learningPathService.getLearningPath(currentPath.id);
       if (updatedPath) {
         setCurrentPath(updatedPath);
       }
       
-      // Show success message
       alert(`Added "${addedNode.title}" to your learning path!`);
     }
   };
@@ -182,6 +207,17 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
     }
   };
 
+  // If viewing content, show the content viewer
+  if (viewingContent) {
+    return (
+      <ContentViewer
+        nodeId={viewingContent}
+        onComplete={handleContentComplete}
+        onBack={() => setViewingContent(null)}
+      />
+    );
+  }
+
   const PathCreator = () => {
     const [formData, setFormData] = useState({
       subject: 'Physics',
@@ -205,8 +241,8 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
           <h2 className="text-xl font-bold mb-4">Create AI Learning Path</h2>
           <div className="mb-4 p-3 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>How it works:</strong> The AI will create a personalized learning path based on the comprehensive JEE/NEET syllabus. 
-              Topics are automatically added based on your level and performance. You can also ask the AI tutor about specific concepts to add them to your path.
+              <strong>How it works:</strong> The AI will create a personalized learning path with comprehensive JEE/NEET content. 
+              Each topic includes theory, examples, and practice questions. You can also ask the AI tutor about specific concepts to add them to your path.
             </p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -305,11 +341,11 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-lg p-4 border border-blue-100">
             <div className="flex items-center space-x-2 mb-2">
-              <BookOpen className="h-5 w-5 text-blue-600" />
-              <h4 className="font-medium text-gray-900">Automatic Topic Addition</h4>
+              <FileText className="h-5 w-5 text-blue-600" />
+              <h4 className="font-medium text-gray-900">Rich Content</h4>
             </div>
             <p className="text-sm text-gray-600">
-              Topics are automatically added from the comprehensive JEE/NEET syllabus based on your level and prerequisites.
+              Each topic includes comprehensive theory, worked examples, and practice questions with detailed explanations.
             </p>
           </div>
           <div className="bg-white rounded-lg p-4 border border-blue-100">
@@ -324,7 +360,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
           <div className="bg-white rounded-lg p-4 border border-blue-100">
             <div className="flex items-center space-x-2 mb-2">
               <TrendingUp className="h-5 w-5 text-purple-600" />
-              <h4 className="font-medium text-gray-900">Performance Adaptation</h4>
+              <h4 className="font-medium text-gray-900">Performance Tracking</h4>
             </div>
             <p className="text-sm text-gray-600">
               The AI analyzes your performance and suggests additional topics to fill knowledge gaps.
@@ -501,89 +537,100 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
                 node.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 node.subtopic.toLowerCase().includes(searchTerm.toLowerCase())
               )
-              .map((node) => (
-              <div key={node.id} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex-shrink-0">
-                      {node.isCompleted ? (
-                        <CheckCircle className="h-6 w-6 text-green-500" />
-                      ) : node.isUnlocked ? (
-                        studyingNode === node.id ? (
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" />
-                        ) : (
-                          <Play className="h-6 w-6 text-blue-500" />
-                        )
-                      ) : (
-                        <Lock className="h-6 w-6 text-gray-400" />
-                      )}
-                    </div>
-                    <div className="flex-1">
+              .map((node) => {
+                const hasContent = contentService.getContent(node.id) !== null;
+                
+                return (
+                  <div key={node.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex-shrink-0">
+                          {node.isCompleted ? (
+                            <CheckCircle className="h-6 w-6 text-green-500" />
+                          ) : node.isUnlocked ? (
+                            studyingNode === node.id ? (
+                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500" />
+                            ) : (
+                              <Play className="h-6 w-6 text-blue-500" />
+                            )
+                          ) : (
+                            <Lock className="h-6 w-6 text-gray-400" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="font-medium text-gray-900">{node.title}</h4>
+                            {getAddedByIcon(node.addedBy)}
+                            {hasContent && (
+                              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                Content Available
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600">{node.topic} • {node.subtopic}</p>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(node.difficulty)}`}>
+                              {node.difficulty}
+                            </span>
+                            <span className="text-xs text-gray-500">{node.estimatedTime} min</span>
+                            {node.attempts > 0 && (
+                              <span className="text-xs text-blue-600">{Math.round(node.successRate)}% accuracy</span>
+                            )}
+                            <span className="text-xs text-gray-400">
+                              Added by: {node.addedBy.replace('-', ' ')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                       <div className="flex items-center space-x-2">
-                        <h4 className="font-medium text-gray-900">{node.title}</h4>
-                        {getAddedByIcon(node.addedBy)}
-                      </div>
-                      <p className="text-sm text-gray-600">{node.topic} • {node.subtopic}</p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(node.difficulty)}`}>
-                          {node.difficulty}
-                        </span>
-                        <span className="text-xs text-gray-500">{node.estimatedTime} min</span>
-                        {node.attempts > 0 && (
-                          <span className="text-xs text-blue-600">{Math.round(node.successRate)}% accuracy</span>
+                        <div className="text-right">
+                          <div className="text-sm font-medium text-gray-900">{Math.round(node.masteryLevel)}%</div>
+                          <div className="text-xs text-gray-500">Mastery</div>
+                        </div>
+                        {node.isUnlocked && !node.isCompleted && (
+                          <button
+                            onClick={() => handleStudyNode(node.id)}
+                            disabled={studyingNode === node.id}
+                            className={`px-3 py-1 rounded text-sm transition-colors ${
+                              studyingNode === node.id
+                                ? 'bg-gray-400 text-white cursor-not-allowed'
+                                : hasContent
+                                ? 'bg-green-600 text-white hover:bg-green-700'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            {studyingNode === node.id ? 'Studying...' : hasContent ? 'Learn' : 'Study'}
+                          </button>
                         )}
-                        <span className="text-xs text-gray-400">
-                          Added by: {node.addedBy.replace('-', ' ')}
-                        </span>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900">{Math.round(node.masteryLevel)}%</div>
-                      <div className="text-xs text-gray-500">Mastery</div>
+                    
+                    {/* Progress bar */}
+                    <div className="mt-3">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            node.isCompleted ? 'bg-green-500' : 'bg-blue-500'
+                          }`}
+                          style={{ width: `${node.masteryLevel}%` }}
+                        />
+                      </div>
                     </div>
-                    {node.isUnlocked && !node.isCompleted && (
-                      <button
-                        onClick={() => handleStudyNode(node.id)}
-                        disabled={studyingNode === node.id}
-                        className={`px-3 py-1 rounded text-sm transition-colors ${
-                          studyingNode === node.id
-                            ? 'bg-gray-400 text-white cursor-not-allowed'
-                            : 'bg-blue-600 text-white hover:bg-blue-700'
-                        }`}
-                      >
-                        {studyingNode === node.id ? 'Studying...' : 'Study'}
-                      </button>
+                    
+                    {/* Learning objectives */}
+                    {node.learningObjectives.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-xs font-medium text-gray-700 mb-1">Learning Objectives:</p>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          {node.learningObjectives.map((objective, index) => (
+                            <li key={index}>• {objective}</li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                   </div>
-                </div>
-                
-                {/* Progress bar */}
-                <div className="mt-3">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        node.isCompleted ? 'bg-green-500' : 'bg-blue-500'
-                      }`}
-                      style={{ width: `${node.masteryLevel}%` }}
-                    />
-                  </div>
-                </div>
-                
-                {/* Learning objectives */}
-                {node.learningObjectives.length > 0 && (
-                  <div className="mt-3">
-                    <p className="text-xs font-medium text-gray-700 mb-1">Learning Objectives:</p>
-                    <ul className="text-xs text-gray-600 space-y-1">
-                      {node.learningObjectives.map((objective, index) => (
-                        <li key={index}>• {objective}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            ))}
+                );
+              })}
           </div>
         </div>
       )}
@@ -827,7 +874,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">AI-Powered Learning Path</h1>
-                <p className="text-gray-600">Personalized content recommendations powered by Gemini AI</p>
+                <p className="text-gray-600">Comprehensive content with theory, examples, and practice questions</p>
               </div>
             </div>
             {!currentPath && (
