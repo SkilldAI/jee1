@@ -6,12 +6,13 @@ import Analytics from './components/Analytics';
 import MockExams from './components/MockExams';
 import StudyPlanner from './components/StudyPlanner';
 import LearningPath from './components/LearningPath';
+import ContentManagement from './components/ContentManagement';
 import Navigation from './components/Navigation';
 import { Subject } from './types';
 
 function App() {
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
-  const [currentPage, setCurrentPage] = useState<'chat' | 'analytics' | 'mock-exams' | 'study-planner' | 'learning-path'>('chat');
+  const [currentPage, setCurrentPage] = useState<'chat' | 'analytics' | 'mock-exams' | 'study-planner' | 'learning-path' | 'content-management'>('chat');
 
   const handleSelectSubject = (subject: Subject) => {
     setSelectedSubject(subject);
@@ -21,7 +22,7 @@ function App() {
     setSelectedSubject(null);
   };
 
-  const handlePageChange = (page: 'chat' | 'analytics' | 'mock-exams' | 'study-planner' | 'learning-path') => {
+  const handlePageChange = (page: 'chat' | 'analytics' | 'mock-exams' | 'study-planner' | 'learning-path' | 'content-management') => {
     setCurrentPage(page);
     // Reset subject selection when changing pages
     if (page !== 'chat') {
@@ -111,6 +112,10 @@ function App() {
           selectedSubject={selectedSubject?.name} 
           onNavigateToChat={handleNavigateToChat}
         />
+      )}
+      
+      {currentPage === 'content-management' && (
+        <ContentManagement />
       )}
     </div>
   );
