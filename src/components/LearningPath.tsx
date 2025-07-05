@@ -24,7 +24,10 @@ import {
   FileText,
   ChevronRight,
   Users,
-  Flame
+  Flame,
+  GraduationCap,
+  Layers,
+  BookMarked
 } from 'lucide-react';
 import { 
   learningPathService, 
@@ -47,11 +50,13 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
   const [recommendations, setRecommendations] = useState<ContentRecommendation[]>([]);
   const [topicSuggestions, setTopicSuggestions] = useState<TopicSuggestion[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'path' | 'recommendations' | 'analytics' | 'add-topics'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'path' | 'recommendations' | 'analytics' | 'add-topics' | 'content-library'>('overview');
   const [showCreatePath, setShowCreatePath] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [studyingNode, setStudyingNode] = useState<string | null>(null);
   const [viewingContent, setViewingContent] = useState<string | null>(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('All');
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string>('All');
 
   useEffect(() => {
     loadLearningPaths();
@@ -333,211 +338,396 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
     );
   };
 
-  const OverviewTab = () => (
-    <div className="space-y-6">
-      {/* How It Works */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 p-6">
-        <div className="flex items-center space-x-2 mb-4">
-          <Brain className="h-6 w-6 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-900">AI-Powered Learning with Real Content</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg p-4 border border-blue-100">
-            <div className="flex items-center space-x-2 mb-2">
-              <FileText className="h-5 w-5 text-blue-600" />
-              <h4 className="font-medium text-gray-900">Rich Educational Content</h4>
-            </div>
-            <p className="text-sm text-gray-600">
-              Each topic includes comprehensive theory, solved examples, practice questions, and detailed explanations - all based on JEE/NEET curriculum.
-            </p>
+  const OverviewTab = () => {
+    const contentStats = contentService.getContentStatistics();
+    
+    return (
+      <div className="space-y-6">
+        {/* Content Library Overview */}
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200 p-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <BookMarked className="h-6 w-6 text-green-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Comprehensive Content Library</h3>
           </div>
-          <div className="bg-white rounded-lg p-4 border border-blue-100">
-            <div className="flex items-center space-x-2 mb-2">
-              <MessageCircle className="h-5 w-5 text-green-600" />
-              <h4 className="font-medium text-gray-900">AI Tutor Integration</h4>
-            </div>
-            <p className="text-sm text-gray-600">
-              Ask the AI tutor about any concept and it will automatically add relevant topics to your learning path with complete study materials.
-            </p>
-          </div>
-          <div className="bg-white rounded-lg p-4 border border-blue-100">
-            <div className="flex items-center space-x-2 mb-2">
-              <TrendingUp className="h-5 w-5 text-purple-600" />
-              <h4 className="font-medium text-gray-900">Adaptive Learning</h4>
-            </div>
-            <p className="text-sm text-gray-600">
-              The AI analyzes your performance and suggests additional topics to fill knowledge gaps, ensuring comprehensive preparation.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Current Path Overview */}
-      {currentPath ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">{currentPath.subject} Learning Path</h3>
-              <p className="text-gray-600">{currentPath.targetExam} • {currentPath.currentLevel} Level</p>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-blue-600">{Math.round(currentPath.overallProgress)}%</div>
-              <div className="text-sm text-gray-500">Complete</div>
-            </div>
-          </div>
-          
-          <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
-            <div
-              className="bg-blue-500 h-3 rounded-full transition-all duration-300"
-              style={{ width: `${currentPath.overallProgress}%` }}
-            />
-          </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className="text-lg font-bold text-green-600">{currentPath.completedNodes.length}</div>
-              <div className="text-sm text-gray-600">Completed</div>
+            <div className="bg-white rounded-lg p-4 border border-green-100">
+              <div className="text-2xl font-bold text-green-600">{contentStats.total}</div>
+              <div className="text-sm text-gray-600">Total Topics</div>
+              <div className="text-xs text-green-700 mt-1">All with full content</div>
             </div>
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-lg font-bold text-blue-600">{currentPath.nodes.length - currentPath.completedNodes.length}</div>
-              <div className="text-sm text-gray-600">Remaining</div>
+            <div className="bg-white rounded-lg p-4 border border-blue-100">
+              <div className="text-2xl font-bold text-blue-600">{Object.keys(contentStats.bySubject).length}</div>
+              <div className="text-sm text-gray-600">Subjects</div>
+              <div className="text-xs text-blue-700 mt-1">Physics, Chemistry, Math, Biology</div>
             </div>
-            <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <div className="text-lg font-bold text-purple-600">
-                {Math.ceil((currentPath.estimatedCompletionDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
-              </div>
-              <div className="text-sm text-gray-600">Days Left</div>
+            <div className="bg-white rounded-lg p-4 border border-purple-100">
+              <div className="text-2xl font-bold text-purple-600">{Object.keys(contentStats.byDifficulty).length}</div>
+              <div className="text-sm text-gray-600">Difficulty Levels</div>
+              <div className="text-xs text-purple-700 mt-1">Foundation to Expert</div>
             </div>
-            <div className="text-center p-3 bg-orange-50 rounded-lg">
-              <div className="text-lg font-bold text-orange-600">
-                {currentPath.nodes.filter(n => contentService.getContent(n.id)).length}
-              </div>
-              <div className="text-sm text-gray-600">With Content</div>
+            <div className="bg-white rounded-lg p-4 border border-orange-100">
+              <div className="text-2xl font-bold text-orange-600">100%</div>
+              <div className="text-sm text-gray-600">Content Coverage</div>
+              <div className="text-xs text-orange-700 mt-1">Theory + Examples + Practice</div>
             </div>
           </div>
+        </div>
 
-          {/* Quick Actions */}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <button
-              onClick={() => setActiveTab('path')}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-            >
-              <BookOpen className="h-4 w-4" />
-              <span>Start Learning</span>
-            </button>
-            <button
-              onClick={handleNavigateToAITutor}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2"
-            >
-              <MessageCircle className="h-4 w-4" />
-              <span>Ask AI Tutor</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('recommendations')}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2"
-            >
-              <Lightbulb className="h-4 w-4" />
-              <span>View Recommendations</span>
-            </button>
+        {/* How It Works */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 p-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <Brain className="h-6 w-6 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">AI-Powered Learning with Real Content</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-lg p-4 border border-blue-100">
+              <div className="flex items-center space-x-2 mb-2">
+                <FileText className="h-5 w-5 text-blue-600" />
+                <h4 className="font-medium text-gray-900">Rich Educational Content</h4>
+              </div>
+              <p className="text-sm text-gray-600">
+                Each topic includes comprehensive theory (20-60 min read), solved examples with step-by-step solutions, practice questions with explanations, and detailed formulas - all based on JEE/NEET curriculum.
+              </p>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-blue-100">
+              <div className="flex items-center space-x-2 mb-2">
+                <MessageCircle className="h-5 w-5 text-green-600" />
+                <h4 className="font-medium text-gray-900">AI Tutor Integration</h4>
+              </div>
+              <p className="text-sm text-gray-600">
+                Ask the AI tutor about any concept and it will automatically add relevant topics to your learning path with complete study materials. Upload images for instant problem solving.
+              </p>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-blue-100">
+              <div className="flex items-center space-x-2 mb-2">
+                <TrendingUp className="h-5 w-5 text-purple-600" />
+                <h4 className="font-medium text-gray-900">Adaptive Learning</h4>
+              </div>
+              <p className="text-sm text-gray-600">
+                The AI analyzes your performance and suggests additional topics to fill knowledge gaps, adjusting difficulty levels and providing personalized recommendations.
+              </p>
+            </div>
           </div>
         </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-          <Brain className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-gray-900 mb-2">Create Your AI Learning Path</h3>
-          <p className="text-gray-600 mb-6">Get a personalized learning path with comprehensive content for JEE/NEET preparation</p>
-          <button
-            onClick={() => setShowCreatePath(true)}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center space-x-2 mx-auto"
-          >
-            <Plus className="h-5 w-5" />
-            <span>Create Learning Path</span>
-          </button>
-        </div>
-      )}
 
-      {/* Sample Content Preview */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center space-x-2 mb-4">
-          <Eye className="h-5 w-5 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Sample Learning Content</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <BookOpen className="h-4 w-4 text-blue-600" />
-              <h4 className="font-medium text-gray-900">Physics: Motion in a Straight Line</h4>
+        {/* Current Path Overview */}
+        {currentPath ? (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">{currentPath.subject} Learning Path</h3>
+                <p className="text-gray-600">{currentPath.targetExam} • {currentPath.currentLevel} Level</p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-blue-600">{Math.round(currentPath.overallProgress)}%</div>
+                <div className="text-sm text-gray-500">Complete</div>
+              </div>
             </div>
-            <p className="text-sm text-gray-600 mb-3">Complete theory with kinematic equations, solved examples, and practice questions</p>
-            <div className="flex items-center space-x-2 text-xs text-gray-500">
-              <Clock className="h-3 w-3" />
-              <span>25 min read</span>
-              <span>•</span>
-              <span>Foundation Level</span>
+            
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+              <div
+                className="bg-blue-500 h-3 rounded-full transition-all duration-300"
+                style={{ width: `${currentPath.overallProgress}%` }}
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="text-center p-3 bg-green-50 rounded-lg">
+                <div className="text-lg font-bold text-green-600">{currentPath.completedNodes.length}</div>
+                <div className="text-sm text-gray-600">Completed</div>
+              </div>
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <div className="text-lg font-bold text-blue-600">{currentPath.nodes.length - currentPath.completedNodes.length}</div>
+                <div className="text-sm text-gray-600">Remaining</div>
+              </div>
+              <div className="text-center p-3 bg-purple-50 rounded-lg">
+                <div className="text-lg font-bold text-purple-600">
+                  {Math.ceil((currentPath.estimatedCompletionDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
+                </div>
+                <div className="text-sm text-gray-600">Days Left</div>
+              </div>
+              <div className="text-center p-3 bg-orange-50 rounded-lg">
+                <div className="text-lg font-bold text-orange-600">
+                  {currentPath.nodes.filter(n => contentService.getContent(n.id)).length}
+                </div>
+                <div className="text-sm text-gray-600">With Full Content</div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                onClick={() => setActiveTab('path')}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span>Start Learning</span>
+              </button>
+              <button
+                onClick={handleNavigateToAITutor}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>Ask AI Tutor</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('content-library')}
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2"
+              >
+                <BookMarked className="h-4 w-4" />
+                <span>Browse Content</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('recommendations')}
+                className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 flex items-center space-x-2"
+              >
+                <Lightbulb className="h-4 w-4" />
+                <span>View Recommendations</span>
+              </button>
             </div>
           </div>
-          <div className="border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <BookOpen className="h-4 w-4 text-green-600" />
-              <h4 className="font-medium text-gray-900">Chemistry: Atomic Structure</h4>
+        ) : (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+            <Brain className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-medium text-gray-900 mb-2">Create Your AI Learning Path</h3>
+            <p className="text-gray-600 mb-6">Get a personalized learning path with comprehensive content for JEE/NEET preparation</p>
+            <button
+              onClick={() => setShowCreatePath(true)}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center space-x-2 mx-auto"
+            >
+              <Plus className="h-5 w-5" />
+              <span>Create Learning Path</span>
+            </button>
+          </div>
+        )}
+
+        {/* Sample Content Preview */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <Eye className="h-5 w-5 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Sample Learning Content</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <BookOpen className="h-4 w-4 text-blue-600" />
+                <h4 className="font-medium text-gray-900">Physics: Motion in a Straight Line</h4>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">Complete theory with kinematic equations, solved examples, and practice questions</p>
+              <div className="flex items-center space-x-2 text-xs text-gray-500">
+                <Clock className="h-3 w-3" />
+                <span>25 min read</span>
+                <span>•</span>
+                <span>Foundation Level</span>
+                <span>•</span>
+                <span className="text-green-600 font-medium">✓ Full Content</span>
+              </div>
             </div>
-            <p className="text-sm text-gray-600 mb-3">Quantum numbers, electronic configuration, and periodic trends with examples</p>
-            <div className="flex items-center space-x-2 text-xs text-gray-500">
-              <Clock className="h-3 w-3" />
-              <span>40 min read</span>
-              <span>•</span>
-              <span>Foundation Level</span>
+            <div className="border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <BookOpen className="h-4 w-4 text-green-600" />
+                <h4 className="font-medium text-gray-900">Chemistry: Atomic Structure</h4>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">Quantum numbers, electronic configuration, and periodic trends with examples</p>
+              <div className="flex items-center space-x-2 text-xs text-gray-500">
+                <Clock className="h-3 w-3" />
+                <span>30 min read</span>
+                <span>•</span>
+                <span>Foundation Level</span>
+                <span>•</span>
+                <span className="text-green-600 font-medium">✓ Full Content</span>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Quick Stats */}
+        {analytics && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Average Accuracy</p>
+                  <p className="text-2xl font-bold text-gray-900">{Math.round(analytics.averageAccuracy)}%</p>
+                </div>
+                <Target className="h-8 w-8 text-green-500" />
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Time Spent</p>
+                  <p className="text-2xl font-bold text-gray-900">{Math.round(analytics.timeSpent / 60)}h</p>
+                </div>
+                <Clock className="h-8 w-8 text-blue-500" />
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">AI Recommendations</p>
+                  <p className="text-2xl font-bold text-gray-900">{recommendations.length}</p>
+                </div>
+                <Lightbulb className="h-8 w-8 text-yellow-500" />
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Topic Suggestions</p>
+                  <p className="text-2xl font-bold text-gray-900">{topicSuggestions.length}</p>
+                </div>
+                <Plus className="h-8 w-8 text-purple-500" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+    );
+  };
 
-      {/* Quick Stats */}
-      {analytics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Average Accuracy</p>
-                <p className="text-2xl font-bold text-gray-900">{Math.round(analytics.averageAccuracy)}%</p>
-              </div>
-              <Target className="h-8 w-8 text-green-500" />
-            </div>
+  const ContentLibraryTab = () => {
+    const allContent = contentService.getAllContent();
+    
+    const filteredContent = allContent.filter(content => {
+      const matchesSearch = searchTerm === '' || 
+        content.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        content.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        content.subtopic.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesDifficulty = selectedDifficulty === 'All' || content.difficulty === selectedDifficulty;
+      const matchesSubject = selectedSubjectFilter === 'All' || content.subject === selectedSubjectFilter;
+      
+      return matchesSearch && matchesDifficulty && matchesSubject;
+    });
+
+    const subjects = ['All', ...new Set(allContent.map(c => c.subject))];
+    const difficulties = ['All', 'Foundation', 'Intermediate', 'Advanced', 'Expert'];
+
+    return (
+      <div className="space-y-6">
+        {/* Content Library Header */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <BookMarked className="h-6 w-6 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Complete Content Library</h3>
           </div>
+          <p className="text-gray-600 mb-4">
+            Browse our comprehensive collection of {allContent.length} educational topics covering all JEE/NEET subjects and difficulty levels.
+          </p>
           
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Time Spent</p>
-                <p className="text-2xl font-bold text-gray-900">{Math.round(analytics.timeSpent / 60)}h</p>
-              </div>
-              <Clock className="h-8 w-8 text-blue-500" />
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center space-x-2">
+              <Search className="h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search topics..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
             </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">AI Recommendations</p>
-                <p className="text-2xl font-bold text-gray-900">{recommendations.length}</p>
-              </div>
-              <Lightbulb className="h-8 w-8 text-yellow-500" />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Topic Suggestions</p>
-                <p className="text-2xl font-bold text-gray-900">{topicSuggestions.length}</p>
-              </div>
-              <Plus className="h-8 w-8 text-purple-500" />
-            </div>
+            
+            <select
+              value={selectedSubjectFilter}
+              onChange={(e) => setSelectedSubjectFilter(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+            >
+              {subjects.map(subject => (
+                <option key={subject} value={subject}>{subject}</option>
+              ))}
+            </select>
+
+            <select
+              value={selectedDifficulty}
+              onChange={(e) => setSelectedDifficulty(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+            >
+              {difficulties.map(difficulty => (
+                <option key={difficulty} value={difficulty}>{difficulty}</option>
+              ))}
+            </select>
           </div>
         </div>
-      )}
-    </div>
-  );
+
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredContent.map((content) => (
+            <div key={content.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900 mb-2">{content.title}</h4>
+                  <p className="text-sm text-gray-600 mb-3">{content.topic} • {content.subtopic}</p>
+                </div>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(content.difficulty)}`}>
+                  {content.difficulty}
+                </span>
+              </div>
+              
+              <div className="space-y-2 mb-4 text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <Clock className="h-4 w-4" />
+                  <span>{content.estimatedReadTime} min read</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <BookOpen className="h-4 w-4" />
+                  <span>{content.subject}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Target className="h-4 w-4" />
+                  <span>JEE: {content.examRelevance.jeeMain}% | NEET: {content.examRelevance.neet}%</span>
+                </div>
+              </div>
+
+              {/* Content Features */}
+              <div className="mb-4">
+                <div className="flex flex-wrap gap-1">
+                  {content.content.theory && (
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Theory</span>
+                  )}
+                  {content.content.examples && content.content.examples.length > 0 && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                      {content.content.examples.length} Examples
+                    </span>
+                  )}
+                  {content.content.practiceQuestions && content.content.practiceQuestions.length > 0 && (
+                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                      {content.content.practiceQuestions.length} Questions
+                    </span>
+                  )}
+                  {content.content.formulas && content.content.formulas.length > 0 && (
+                    <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">
+                      {content.content.formulas.length} Formulas
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              <button
+                onClick={() => setViewingContent(content.id)}
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span>Study Now</span>
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {filteredContent.length === 0 && (
+          <div className="text-center py-12">
+            <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h4 className="text-lg font-medium text-gray-900 mb-2">No content found</h4>
+            <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const PathTab = () => (
     <div className="space-y-6">
@@ -985,6 +1175,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
             {[
               { id: 'overview', name: 'Overview', icon: BarChart3 },
               { id: 'path', name: 'Learning Path', icon: BookOpen },
+              { id: 'content-library', name: 'Content Library', icon: BookMarked },
               { id: 'add-topics', name: 'Add Topics', icon: Plus },
               { id: 'recommendations', name: 'AI Recommendations', icon: Lightbulb },
               { id: 'analytics', name: 'Analytics', icon: TrendingUp }
@@ -1011,6 +1202,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
         {/* Tab Content */}
         {activeTab === 'overview' && <OverviewTab />}
         {activeTab === 'path' && <PathTab />}
+        {activeTab === 'content-library' && <ContentLibraryTab />}
         {activeTab === 'add-topics' && <AddTopicsTab />}
         {activeTab === 'recommendations' && <RecommendationsTab />}
         {activeTab === 'analytics' && <AnalyticsTab />}

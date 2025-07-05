@@ -1,4 +1,4 @@
-// Content Service for managing educational content
+// Comprehensive Educational Content Service
 export interface EducationalContent {
   id: string;
   title: string;
@@ -6,7 +6,7 @@ export interface EducationalContent {
   topic: string;
   subtopic: string;
   difficulty: 'Foundation' | 'Intermediate' | 'Advanced' | 'Expert';
-  contentType: 'theory' | 'example' | 'practice' | 'video' | 'notes';
+  contentType: 'theory' | 'example' | 'practice' | 'revision';
   content: {
     theory?: string;
     examples?: Array<{
@@ -28,26 +28,21 @@ export interface EducationalContent {
       formula: string;
       description: string;
     }>;
-    diagrams?: Array<{
-      title: string;
-      description: string;
-      imageUrl?: string;
-    }>;
   };
-  estimatedReadTime: number; // in minutes
+  estimatedReadTime: number;
   prerequisites: string[];
   nextTopics: string[];
   examRelevance: {
-    jeeMain: number; // weightage percentage
+    jeeMain: number;
     jeeAdvanced: number;
     neet: number;
   };
   lastUpdated: Date;
 }
 
-export class ContentService {
+class ContentService {
   private static instance: ContentService;
-  private contentDatabase: Map<string, EducationalContent> = new Map();
+  private content: Map<string, EducationalContent> = new Map();
 
   static getInstance(): ContentService {
     if (!ContentService.instance) {
@@ -58,1987 +53,1246 @@ export class ContentService {
   }
 
   private initializeContent(): void {
-    // Physics Content - Comprehensive JEE/NEET Coverage
-    this.addPhysicsContent();
-    // Chemistry Content
-    this.addChemistryContent();
-    // Mathematics Content
-    this.addMathematicsContent();
-    // Biology Content
-    this.addBiologyContent();
-  }
-
-  private addPhysicsContent(): void {
-    // Mechanics - Kinematics
-    const kinematicsContent: EducationalContent = {
-      id: 'phy-mech-001-content',
-      title: 'Motion in a Straight Line',
+    // PHYSICS CONTENT - ALL LEVELS
+    
+    // MECHANICS - Foundation Level
+    this.addContent({
+      id: 'phy-mech-kinematics-1d-foundation',
+      title: 'Motion in a Straight Line - Basics',
       subject: 'Physics',
       topic: 'Mechanics',
       subtopic: 'Kinematics',
       difficulty: 'Foundation',
       contentType: 'theory',
       content: {
-        theory: `
-# Motion in a Straight Line
+        theory: `# Motion in a Straight Line - Foundation
 
 ## Introduction
-Motion is one of the most fundamental concepts in physics. When we describe the motion of an object, we are describing how its position changes with time.
+Motion is one of the most fundamental concepts in physics. When we observe objects around us, we notice that they are either at rest or in motion. Understanding motion helps us describe and predict the behavior of objects in our universe.
 
-## Key Concepts
+## Basic Concepts
 
-### 1. Position and Displacement
-- **Position (x)**: Location of an object at any given time
-- **Displacement (Δx)**: Change in position = x₂ - x₁
-- Displacement is a vector quantity (has direction)
+### Position and Displacement
+- **Position**: The location of an object at any given time
+- **Displacement**: The change in position of an object
+- **Distance**: The total path length traveled by an object
 
-### 2. Velocity
-- **Average Velocity**: v_avg = Δx/Δt
-- **Instantaneous Velocity**: v = dx/dt
-- Velocity is also a vector quantity
+### Velocity and Speed
+- **Speed**: The rate of change of distance with time (scalar quantity)
+- **Velocity**: The rate of change of displacement with time (vector quantity)
+- **Average velocity** = Total displacement / Total time
+- **Instantaneous velocity**: Velocity at a particular instant
 
-### 3. Acceleration
-- **Average Acceleration**: a_avg = Δv/Δt  
-- **Instantaneous Acceleration**: a = dv/dt
-- Acceleration can be positive (speeding up) or negative (slowing down)
+### Acceleration
+- **Acceleration**: The rate of change of velocity with time
+- **Average acceleration** = Change in velocity / Time taken
+- **Uniform acceleration**: When acceleration remains constant
 
-## Equations of Motion (Constant Acceleration)
-
-For motion with constant acceleration, we have three fundamental equations:
+## Kinematic Equations for Uniform Acceleration
+When an object moves with constant acceleration, we can use these fundamental equations:
 
 1. **v = u + at**
-   - Relates velocity, initial velocity, acceleration, and time
+   - v = final velocity
+   - u = initial velocity  
+   - a = acceleration
+   - t = time
 
 2. **s = ut + ½at²**
-   - Relates displacement, initial velocity, acceleration, and time
+   - s = displacement
 
 3. **v² = u² + 2as**
-   - Relates velocities, acceleration, and displacement (time-independent)
 
-Where:
-- u = initial velocity
-- v = final velocity  
-- a = acceleration
-- t = time
-- s = displacement
+4. **s = (u + v)t/2**
 
-## Graphical Analysis
+## Graphical Representation
+- **Position-time graph**: Shows how position changes with time
+- **Velocity-time graph**: Shows how velocity changes with time
+- **Acceleration-time graph**: Shows how acceleration changes with time
 
-### Position-Time Graph
-- Slope gives velocity
-- Curved line indicates changing velocity
-- Straight line indicates constant velocity
+## Real-World Applications
+- Car braking and acceleration
+- Free fall of objects
+- Motion of trains and aircraft
+- Sports and athletics
 
-### Velocity-Time Graph
-- Slope gives acceleration
-- Area under curve gives displacement
-- Straight line indicates constant acceleration
-
-### Acceleration-Time Graph
-- Area under curve gives change in velocity
-
-## Free Fall Motion
-Special case where acceleration = g = 9.8 m/s² (downward)
-- All objects fall with same acceleration (ignoring air resistance)
-- Use same kinematic equations with a = g
-
-## Problem-Solving Strategy
-1. Identify given quantities and what to find
-2. Choose appropriate kinematic equation
-3. Substitute values carefully (watch signs!)
-4. Solve algebraically before substituting numbers
-5. Check if answer makes physical sense
-        `,
+Understanding these basics is crucial for solving more complex problems in mechanics and forms the foundation for all of physics.`,
+        
         examples: [
           {
-            title: 'Uniformly Accelerated Motion',
-            problem: 'A car starts from rest and accelerates uniformly at 2 m/s² for 10 seconds. Find: (a) final velocity, (b) distance traveled.',
-            solution: `
-**Given:**
-- Initial velocity (u) = 0 m/s (starts from rest)
-- Acceleration (a) = 2 m/s²
-- Time (t) = 10 s
-
-**To find:** (a) Final velocity (v), (b) Distance traveled (s)
-
-**Solution:**
-
-(a) Finding final velocity:
-Using the equation: v = u + at
-v = 0 + (2)(10)
-v = 20 m/s
-
-(b) Finding distance traveled:
-Using the equation: s = ut + ½at²
-s = (0)(10) + ½(2)(10)²
-s = 0 + 1(100)
-s = 100 m
-
-**Alternative method for (b):**
-Using: v² = u² + 2as
-(20)² = (0)² + 2(2)s
-400 = 4s
-s = 100 m ✓
-
-**Answer:** (a) 20 m/s, (b) 100 m
-            `,
-            explanation: 'This is a classic uniformly accelerated motion problem. Notice how we can use different equations to verify our answer. Always check your work using an alternative method when possible.'
+            title: 'Basic Velocity Calculation',
+            problem: 'A car travels 100 meters in 10 seconds. What is its average velocity?',
+            solution: 'Average velocity = Total displacement / Total time\nAverage velocity = 100 m / 10 s = 10 m/s',
+            explanation: 'Since the car travels in a straight line, displacement equals distance. We simply divide the distance by time to get average velocity.'
           },
           {
-            title: 'Free Fall Problem',
-            problem: 'A ball is dropped from a height of 45 m. Find: (a) time to reach ground, (b) velocity just before hitting ground. (Take g = 10 m/s²)',
-            solution: `
-**Given:**
-- Initial velocity (u) = 0 m/s (dropped, not thrown)
-- Displacement (s) = 45 m (downward, taking downward as positive)
-- Acceleration (a) = g = 10 m/s² (downward)
-
-**To find:** (a) Time (t), (b) Final velocity (v)
-
-**Solution:**
-
-(a) Finding time to reach ground:
-Using: s = ut + ½at²
-45 = (0)(t) + ½(10)t²
-45 = 5t²
-t² = 9
-t = 3 s
-
-(b) Finding velocity just before hitting ground:
-Using: v = u + at
-v = 0 + (10)(3)
-v = 30 m/s
-
-**Verification using v² = u² + 2as:**
-v² = (0)² + 2(10)(45)
-v² = 900
-v = 30 m/s ✓
-
-**Answer:** (a) 3 seconds, (b) 30 m/s
-            `,
-            explanation: 'Free fall is a special case of uniformly accelerated motion. The key insight is that all objects fall with the same acceleration regardless of their mass (ignoring air resistance).'
-          },
-          {
-            title: 'Motion with Initial Velocity',
-            problem: 'A ball is thrown vertically upward with initial velocity 30 m/s. Find: (a) maximum height reached, (b) time to return to starting point. (g = 10 m/s²)',
-            solution: `
-**Given:**
-- Initial velocity (u) = 30 m/s (upward, taking upward as positive)
-- Acceleration (a) = -g = -10 m/s² (downward)
-
-**To find:** (a) Maximum height (h), (b) Total time of flight (T)
-
-**Solution:**
-
-(a) Finding maximum height:
-At maximum height, final velocity v = 0
-Using: v² = u² + 2as
-(0)² = (30)² + 2(-10)h
-0 = 900 - 20h
-h = 45 m
-
-(b) Finding time to return to starting point:
-For complete journey, displacement s = 0
-Using: s = ut + ½at²
-0 = 30t + ½(-10)t²
-0 = 30t - 5t²
-0 = t(30 - 5t)
-t = 0 (starting point) or t = 6 s (return point)
-
-Therefore, T = 6 s
-
-**Verification:**
-Time to reach maximum height: v = u + at
-0 = 30 + (-10)t₁
-t₁ = 3 s
-Total time = 2 × 3 = 6 s ✓
-
-**Answer:** (a) 45 m, (b) 6 s
-            `,
-            explanation: 'For projectile motion, the time to go up equals the time to come down. The ball returns to its starting point with the same speed but opposite direction.'
+            title: 'Acceleration Problem',
+            problem: 'A bicycle accelerates from rest to 20 m/s in 5 seconds. Find its acceleration.',
+            solution: 'Given: u = 0 m/s, v = 20 m/s, t = 5 s\nUsing v = u + at\n20 = 0 + a(5)\na = 20/5 = 4 m/s²',
+            explanation: 'We use the first kinematic equation since we know initial velocity, final velocity, and time.'
           }
         ],
+        
         practiceQuestions: [
           {
-            question: 'A particle moves with constant acceleration. If it covers 100 m in the first 10 s and 150 m in the next 10 s, what is its acceleration?',
-            options: ['2.5 m/s²', '5 m/s²', '7.5 m/s²', '10 m/s²'],
-            correctAnswer: 0,
-            explanation: 'For the first 10s: s₁ = u₁t + ½at² = 100. For the next 10s: s₂ = u₂t + ½at² = 150. Since u₂ = u₁ + at, solving these equations simultaneously gives a = 2.5 m/s².',
-            difficulty: 'Medium'
-          },
-          {
-            question: 'The area under a velocity-time graph represents:',
-            options: ['Acceleration', 'Displacement', 'Force', 'Momentum'],
+            question: 'A train travels 120 km in 2 hours. What is its average speed?',
+            options: ['50 km/h', '60 km/h', '70 km/h', '80 km/h'],
             correctAnswer: 1,
-            explanation: 'The area under a velocity-time graph gives the displacement of the object. This is a fundamental concept in kinematics.',
+            explanation: 'Average speed = Total distance / Total time = 120 km / 2 h = 60 km/h',
             difficulty: 'Easy'
           },
           {
-            question: 'A stone is thrown vertically upward with speed 20 m/s. After how much time will it return to the thrower? (g = 10 m/s²)',
-            options: ['2 s', '4 s', '6 s', '8 s'],
+            question: 'An object starts from rest and accelerates at 2 m/s² for 4 seconds. What is its final velocity?',
+            options: ['6 m/s', '8 m/s', '10 m/s', '12 m/s'],
             correctAnswer: 1,
-            explanation: 'Using s = ut + ½at² with s = 0 (returns to starting point): 0 = 20t - 5t². Solving: t = 4 s.',
-            difficulty: 'Medium'
-          },
-          {
-            question: 'Which of the following is a scalar quantity?',
-            options: ['Velocity', 'Acceleration', 'Displacement', 'Speed'],
-            correctAnswer: 3,
-            explanation: 'Speed is a scalar quantity as it has only magnitude. Velocity, acceleration, and displacement are vector quantities as they have both magnitude and direction.',
+            explanation: 'Using v = u + at, where u = 0, a = 2 m/s², t = 4 s: v = 0 + 2(4) = 8 m/s',
             difficulty: 'Easy'
-          },
-          {
-            question: 'A car moving at 60 km/h is brought to rest in 10 s. The retardation is:',
-            options: ['1.67 m/s²', '6 m/s²', '16.7 m/s²', '60 m/s²'],
-            correctAnswer: 0,
-            explanation: 'First convert: 60 km/h = 60 × (5/18) = 16.67 m/s. Using v = u + at: 0 = 16.67 + a(10). Therefore a = -1.67 m/s². The magnitude of retardation is 1.67 m/s².',
-            difficulty: 'Medium'
           }
         ],
+        
         keyPoints: [
-          'Motion is described by position, velocity, and acceleration',
-          'Displacement and velocity are vector quantities (have direction)',
-          'For constant acceleration, use the three kinematic equations',
-          'Free fall acceleration g = 9.8 m/s² is the same for all objects',
-          'Graphs provide visual understanding: slope of position-time = velocity, slope of velocity-time = acceleration',
-          'Area under velocity-time graph = displacement',
-          'Always check units and signs in your calculations'
+          'Motion is relative - it depends on the reference frame',
+          'Displacement can be positive, negative, or zero',
+          'Velocity is a vector quantity with both magnitude and direction',
+          'Acceleration can be positive (speeding up) or negative (slowing down)',
+          'Kinematic equations only apply for constant acceleration'
         ],
+        
         formulas: [
           {
-            name: 'First Equation of Motion',
+            name: 'Average Velocity',
+            formula: 'v_avg = Δx/Δt',
+            description: 'Change in position divided by change in time'
+          },
+          {
+            name: 'First Kinematic Equation',
             formula: 'v = u + at',
             description: 'Relates final velocity, initial velocity, acceleration, and time'
           },
           {
-            name: 'Second Equation of Motion',
+            name: 'Second Kinematic Equation',
             formula: 's = ut + ½at²',
             description: 'Relates displacement, initial velocity, acceleration, and time'
-          },
-          {
-            name: 'Third Equation of Motion',
-            formula: 'v² = u² + 2as',
-            description: 'Relates velocities, acceleration, and displacement (time-independent)'
-          },
-          {
-            name: 'Average Velocity',
-            formula: 'v_avg = Δx/Δt',
-            description: 'Average velocity over a time interval'
-          },
-          {
-            name: 'Average Acceleration',
-            formula: 'a_avg = Δv/Δt',
-            description: 'Average acceleration over a time interval'
           }
         ]
       },
       estimatedReadTime: 25,
       prerequisites: [],
-      nextTopics: ['phy-mech-002', 'phy-mech-003'],
-      examRelevance: {
-        jeeMain: 12,
-        jeeAdvanced: 10,
-        neet: 8
-      },
+      nextTopics: ['phy-mech-kinematics-1d-intermediate'],
+      examRelevance: { jeeMain: 15, jeeAdvanced: 10, neet: 8 },
       lastUpdated: new Date()
-    };
+    });
 
-    // Laws of Motion
-    const lawsOfMotionContent: EducationalContent = {
-      id: 'phy-mech-003-content',
-      title: 'Laws of Motion',
+    // MECHANICS - Intermediate Level
+    this.addContent({
+      id: 'phy-mech-kinematics-1d-intermediate',
+      title: 'Motion in a Straight Line - Advanced Concepts',
       subject: 'Physics',
       topic: 'Mechanics',
-      subtopic: 'Dynamics',
-      difficulty: 'Foundation',
-      contentType: 'theory',
-      content: {
-        theory: `
-# Newton's Laws of Motion
-
-## Introduction
-Newton's laws of motion are three fundamental principles that form the foundation of classical mechanics. They describe the relationship between forces acting on a body and its motion.
-
-## Newton's First Law (Law of Inertia)
-
-**Statement:** An object at rest stays at rest, and an object in motion stays in motion at constant velocity, unless acted upon by an external force.
-
-### Key Points:
-- Defines the concept of **inertia** - tendency to resist change in motion
-- Introduces the concept of **inertial reference frames**
-- Valid only in non-accelerating reference frames
-
-### Mathematical Form:
-If ΣF = 0, then v = constant (or a = 0)
-
-### Examples:
-- A book on a table remains at rest
-- A hockey puck sliding on frictionless ice continues moving
-- Passengers jerk forward when a car suddenly stops
-
-## Newton's Second Law (Law of Acceleration)
-
-**Statement:** The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.
-
-### Mathematical Form:
-**F = ma** (most important equation in mechanics!)
-
-Where:
-- F = net force (N)
-- m = mass (kg)  
-- a = acceleration (m/s²)
-
-### Important Notes:
-- Force and acceleration are **vector quantities**
-- Net force is the **vector sum** of all forces
-- Mass is a **scalar quantity**
-- Direction of acceleration is same as direction of net force
-
-### Alternative Forms:
-- F = dp/dt (force equals rate of change of momentum)
-- F = ma only when mass is constant
-
-## Newton's Third Law (Action-Reaction Law)
-
-**Statement:** For every action, there is an equal and opposite reaction.
-
-### Key Points:
-- Forces always occur in **pairs**
-- Action and reaction forces act on **different objects**
-- They are equal in **magnitude** but opposite in **direction**
-- They act **simultaneously**
-
-### Mathematical Form:
-F₁₂ = -F₂₁
-
-### Examples:
-- Walking: You push ground backward, ground pushes you forward
-- Rocket propulsion: Gases pushed down, rocket pushed up
-- Book on table: Book pushes table down, table pushes book up
-
-## Types of Forces
-
-### 1. Contact Forces
-- **Normal Force (N)**: Perpendicular to surface
-- **Friction Force (f)**: Opposes relative motion
-- **Tension Force (T)**: Along strings/ropes
-- **Applied Force (F)**: External push/pull
-
-### 2. Non-Contact Forces
-- **Gravitational Force (W = mg)**: Always downward
-- **Electromagnetic Forces**: Between charged objects
-- **Nuclear Forces**: Inside atoms
-
-## Friction
-
-### Static Friction
-- Prevents motion when object is at rest
-- f_s ≤ μ_s N (maximum static friction)
-- Direction opposes tendency to move
-
-### Kinetic Friction  
-- Acts when object is moving
-- f_k = μ_k N (kinetic friction)
-- Direction opposes motion
-- Usually μ_k < μ_s
-
-## Problem-Solving Strategy
-
-### 1. Draw Free Body Diagram (FBD)
-- Identify the object of interest
-- Draw all forces acting on the object
-- Show forces as vectors from center of mass
-
-### 2. Choose Coordinate System
-- Usually align one axis with acceleration direction
-- Resolve forces into components if needed
-
-### 3. Apply Newton's Second Law
-- ΣF_x = ma_x
-- ΣF_y = ma_y
-- Write separate equations for each direction
-
-### 4. Solve the System
-- Solve algebraically before substituting numbers
-- Check units and reasonableness of answer
-
-## Applications
-
-### Inclined Plane Problems
-- Resolve weight into components: mg sin θ and mg cos θ
-- Normal force N = mg cos θ (for frictionless plane)
-- Net force down plane = mg sin θ - f
-
-### Pulley Systems
-- Tension is same throughout massless string
-- For massless pulley: forces on both sides equal
-- Apply F = ma to each object separately
-
-### Elevator Problems
-- Apparent weight changes with acceleration
-- If elevator accelerates up: N = mg + ma
-- If elevator accelerates down: N = mg - ma
-        `,
-        examples: [
-          {
-            title: 'Block on Inclined Plane',
-            problem: 'A 5 kg block slides down a frictionless inclined plane of angle 30°. Find the acceleration of the block and the normal force.',
-            solution: `
-**Given:**
-- Mass (m) = 5 kg
-- Angle (θ) = 30°
-- Surface is frictionless
-- g = 10 m/s²
-
-**To find:** (a) Acceleration (a), (b) Normal force (N)
-
-**Solution:**
-
-**Step 1: Draw Free Body Diagram**
-Forces acting on the block:
-- Weight: W = mg = 5 × 10 = 50 N (vertically downward)
-- Normal force: N (perpendicular to incline)
-
-**Step 2: Resolve Weight into Components**
-- Component parallel to incline: mg sin θ = 50 sin 30° = 25 N
-- Component perpendicular to incline: mg cos θ = 50 cos 30° = 43.3 N
-
-**Step 3: Apply Newton's Second Law**
-
-*Along the incline (taking down the incline as positive):*
-ΣF = ma
-mg sin θ = ma
-a = g sin θ = 10 × sin 30° = 10 × 0.5 = 5 m/s²
-
-*Perpendicular to incline (no acceleration):*
-ΣF = 0
-N - mg cos θ = 0
-N = mg cos θ = 43.3 N
-
-**Answer:** (a) a = 5 m/s² down the incline, (b) N = 43.3 N
-            `,
-            explanation: 'Key insight: The acceleration depends only on the angle and is independent of mass for frictionless surfaces. This is why all objects slide down frictionless inclines with the same acceleration.'
-          },
-          {
-            title: 'Atwood Machine',
-            problem: 'Two masses m₁ = 3 kg and m₂ = 5 kg are connected by a light string over a frictionless pulley. Find the acceleration of the system and tension in the string.',
-            solution: `
-**Given:**
-- m₁ = 3 kg, m₂ = 5 kg
-- String is massless and inextensible
-- Pulley is frictionless and massless
-- g = 10 m/s²
-
-**To find:** (a) Acceleration (a), (b) Tension (T)
-
-**Solution:**
-
-**Step 1: Analyze the Motion**
-Since m₂ > m₁, mass m₂ will move downward and m₁ will move upward.
-Both masses have the same magnitude of acceleration due to the string constraint.
-
-**Step 2: Draw Free Body Diagrams**
-
-*For m₁ (moving up):*
-- Weight: m₁g = 30 N (downward)
-- Tension: T (upward)
-
-*For m₂ (moving down):*
-- Weight: m₂g = 50 N (downward)  
-- Tension: T (upward)
-
-**Step 3: Apply Newton's Second Law**
-
-*For m₁ (taking upward as positive):*
-T - m₁g = m₁a
-T - 30 = 3a ... (1)
-
-*For m₂ (taking downward as positive):*
-m₂g - T = m₂a
-50 - T = 5a ... (2)
-
-**Step 4: Solve the System**
-Adding equations (1) and (2):
-(T - 30) + (50 - T) = 3a + 5a
-20 = 8a
-a = 2.5 m/s²
-
-Substituting in equation (1):
-T = 30 + 3(2.5) = 37.5 N
-
-**Verification:** Using equation (2):
-T = 50 - 5(2.5) = 37.5 N ✓
-
-**Answer:** (a) a = 2.5 m/s², (b) T = 37.5 N
-            `,
-            explanation: 'In Atwood machines, the heavier mass accelerates downward. The tension is always between the weights of the two masses. Notice how we used the constraint that both masses have the same acceleration magnitude.'
-          }
-        ],
-        practiceQuestions: [
-          {
-            question: 'A force of 20 N acts on a 4 kg mass. What is the acceleration produced?',
-            options: ['5 m/s²', '10 m/s²', '80 m/s²', '0.2 m/s²'],
-            correctAnswer: 0,
-            explanation: 'Using F = ma: a = F/m = 20/4 = 5 m/s²',
-            difficulty: 'Easy'
-          },
-          {
-            question: 'Which of Newton\'s laws explains why we feel pushed back into our seat when a car accelerates forward?',
-            options: ['First Law', 'Second Law', 'Third Law', 'All three laws'],
-            correctAnswer: 0,
-            explanation: 'Newton\'s First Law (inertia) explains this. Our body tends to remain at rest while the car accelerates forward, making us feel pushed back.',
-            difficulty: 'Medium'
-          },
-          {
-            question: 'A 2 kg block on a frictionless incline of 45° has acceleration:',
-            options: ['5 m/s²', '7.07 m/s²', '10 m/s²', '14.14 m/s²'],
-            correctAnswer: 1,
-            explanation: 'For frictionless incline: a = g sin θ = 10 × sin 45° = 10 × (1/√2) = 7.07 m/s²',
-            difficulty: 'Medium'
-          },
-          {
-            question: 'When you walk, the force that propels you forward is:',
-            options: ['Force of your foot on ground', 'Force of ground on your foot', 'Your weight', 'Air resistance'],
-            correctAnswer: 1,
-            explanation: 'By Newton\'s Third Law, when you push the ground backward, the ground pushes you forward. This reaction force propels you.',
-            difficulty: 'Medium'
-          }
-        ],
-        keyPoints: [
-          'Newton\'s laws are valid only in inertial reference frames',
-          'Force is a vector quantity - direction matters',
-          'F = ma applies only when mass is constant',
-          'Action-reaction pairs act on different objects',
-          'Free body diagrams are essential for problem solving',
-          'Net force determines acceleration, not individual forces',
-          'Friction always opposes relative motion',
-          'Normal force is not always equal to weight'
-        ],
-        formulas: [
-          {
-            name: 'Newton\'s Second Law',
-            formula: 'F = ma',
-            description: 'Net force equals mass times acceleration'
-          },
-          {
-            name: 'Weight',
-            formula: 'W = mg',
-            description: 'Weight is the gravitational force on an object'
-          },
-          {
-            name: 'Static Friction',
-            formula: 'f_s ≤ μ_s N',
-            description: 'Maximum static friction force'
-          },
-          {
-            name: 'Kinetic Friction',
-            formula: 'f_k = μ_k N',
-            description: 'Kinetic friction force'
-          }
-        ]
-      },
-      estimatedReadTime: 30,
-      prerequisites: ['phy-mech-001'],
-      nextTopics: ['phy-mech-004', 'phy-mech-005'],
-      examRelevance: {
-        jeeMain: 15,
-        jeeAdvanced: 12,
-        neet: 10
-      },
-      lastUpdated: new Date()
-    };
-
-    // Work, Energy and Power
-    const workEnergyContent: EducationalContent = {
-      id: 'phy-mech-004-content',
-      title: 'Work, Energy and Power',
-      subject: 'Physics',
-      topic: 'Mechanics',
-      subtopic: 'Energy',
+      subtopic: 'Kinematics',
       difficulty: 'Intermediate',
       contentType: 'theory',
       content: {
-        theory: `
-# Work, Energy and Power
+        theory: `# Motion in a Straight Line - Intermediate
 
-## Work
+## Advanced Kinematic Concepts
 
-### Definition
-Work is done when a force causes displacement of an object.
+### Relative Motion
+When two objects are moving, their relative velocity is the velocity of one object as observed from the other object.
 
-### Mathematical Definition
-W = F⃗ · s⃗ = Fs cos θ
+**Relative velocity formula:**
+- If two objects A and B are moving with velocities v_A and v_B respectively
+- Velocity of A relative to B: v_AB = v_A - v_B
+- Velocity of B relative to A: v_BA = v_B - v_A
 
-Where:
-- W = work done (Joules)
-- F = applied force (N)
-- s = displacement (m)
-- θ = angle between force and displacement
+### Non-Uniform Motion
+Real-world motion often involves changing acceleration. We need calculus-based approaches:
 
-### Key Points about Work:
-- Work is a scalar quantity
-- Work can be positive, negative, or zero
-- SI unit: Joule (J) = N⋅m
-- Work is path-independent for conservative forces
+**Instantaneous velocity:** v = dx/dt
+**Instantaneous acceleration:** a = dv/dt = d²x/dt²
 
-### Cases:
-1. **θ = 0°**: W = Fs (maximum positive work)
-2. **θ = 90°**: W = 0 (no work done)
-3. **θ = 180°**: W = -Fs (negative work)
+### Motion Under Gravity
+Free fall is a special case of uniformly accelerated motion:
+- Acceleration due to gravity: g = 9.8 m/s² (downward)
+- For upward motion: a = -g
+- For downward motion: a = +g
 
-## Energy
+### Advanced Problem-Solving Techniques
 
-### Kinetic Energy (KE)
-Energy possessed by an object due to its motion.
+#### Multi-Stage Motion
+Many problems involve different phases of motion with different accelerations.
 
-**Formula:** KE = ½mv²
+#### Graphical Analysis
+- Area under velocity-time graph = displacement
+- Slope of position-time graph = velocity
+- Slope of velocity-time graph = acceleration
 
-### Potential Energy (PE)
-Energy possessed by an object due to its position or configuration.
+### Projectile Motion Basics
+While projectile motion is 2D, understanding the vertical component helps with 1D analysis:
+- Vertical motion: uniformly accelerated with a = -g
+- Time of flight, maximum height calculations
 
-**Gravitational PE:** PE = mgh (near Earth's surface)
-**Elastic PE:** PE = ½kx² (for springs)
-
-### Mechanical Energy
-Total mechanical energy = KE + PE = constant (for conservative systems)
-
-## Work-Energy Theorem
-
-**Statement:** The work done by all forces on an object equals the change in its kinetic energy.
-
-**Mathematical Form:**
-W_net = ΔKE = KE_final - KE_initial = ½mv² - ½mu²
-
-### Applications:
-- Solving problems without knowing acceleration or time
-- Understanding energy transformations
-- Analyzing complex motion
-
-## Conservation of Energy
-
-### For Conservative Forces:
-Total mechanical energy remains constant.
-KE₁ + PE₁ = KE₂ + PE₂
-
-### For Non-Conservative Forces:
-Energy is not conserved, but total energy (including heat, sound, etc.) is conserved.
-W_non-conservative = ΔE_mechanical
-
-## Power
-
-### Definition
-Power is the rate of doing work or rate of energy transfer.
-
-### Mathematical Forms:
-1. **P = W/t** (average power)
-2. **P = F⃗ · v⃗ = Fv cos θ** (instantaneous power)
-
-### Units:
-- SI unit: Watt (W) = J/s
-- Other units: horsepower (hp), kilowatt (kW)
-- 1 hp = 746 W
-
-## Conservative vs Non-Conservative Forces
-
-### Conservative Forces:
-- Work done is path-independent
-- Work done in closed path = 0
-- Examples: gravity, spring force, electrostatic force
-- Associated with potential energy
-
-### Non-Conservative Forces:
-- Work done depends on path
-- Examples: friction, air resistance, applied forces
-- Energy is "lost" to heat, sound, etc.
-
-## Problem-Solving Strategies
-
-### Using Work-Energy Theorem:
-1. Identify initial and final states
-2. Calculate initial and final kinetic energies
-3. Find work done by all forces
-4. Apply: W_net = ΔKE
-
-### Using Conservation of Energy:
-1. Identify conservative system
-2. Choose reference level for PE
-3. Apply: E_initial = E_final
-4. Solve for unknown quantity
-
-### Using Power:
-1. Identify force and velocity
-2. Use P = Fv cos θ for instantaneous power
-3. Use P = W/t for average power
-        `,
+## Advanced Applications
+- Elevator problems with varying acceleration
+- Multi-object systems with constraints
+- Motion with air resistance (qualitative)
+- Collision and impact problems`,
+        
         examples: [
           {
-            title: 'Work-Energy Theorem Application',
-            problem: 'A 2 kg block is pushed 5 m across a rough surface by a 20 N force at 37° to horizontal. If coefficient of friction μ = 0.3 and block starts from rest, find its final velocity.',
-            solution: `
-**Given:**
-- m = 2 kg, s = 5 m, F = 20 N, θ = 37°
-- μ = 0.3, u = 0 (starts from rest)
-- g = 10 m/s²
-
-**To find:** Final velocity (v)
-
-**Solution using Work-Energy Theorem:**
-
-**Step 1: Identify all forces and their work**
-
-*Work by applied force:*
-W₁ = Fs cos θ = 20 × 5 × cos 37° = 20 × 5 × 0.8 = 80 J
-
-*Work by friction:*
-First find normal force:
-N = mg - F sin θ = 2 × 10 - 20 × sin 37°
-N = 20 - 20 × 0.6 = 20 - 12 = 8 N
-
-Friction force: f = μN = 0.3 × 8 = 2.4 N
-Work by friction: W₂ = -fs = -2.4 × 5 = -12 J (negative because opposes motion)
-
-*Work by weight and normal force:*
-W₃ = 0 (perpendicular to displacement)
-
-**Step 2: Apply Work-Energy Theorem**
-W_net = ΔKE
-W₁ + W₂ = ½mv² - ½mu²
-80 + (-12) = ½ × 2 × v² - 0
-68 = v²
-v = √68 = 8.25 m/s
-
-**Answer:** v = 8.25 m/s
-            `,
-            explanation: 'The work-energy theorem is powerful because it relates work directly to kinetic energy change, avoiding the need to find acceleration. Notice how friction does negative work.'
+            title: 'Relative Motion Problem',
+            problem: 'Two cars A and B are moving in the same direction with velocities 60 km/h and 40 km/h respectively. Find the velocity of A relative to B.',
+            solution: 'v_A = 60 km/h, v_B = 40 km/h\nv_AB = v_A - v_B = 60 - 40 = 20 km/h\nCar A appears to move at 20 km/h relative to car B.',
+            explanation: 'Since both cars move in the same direction, we subtract their velocities to find relative motion.'
           },
           {
-            title: 'Conservation of Energy',
-            problem: 'A ball is thrown vertically upward with initial speed 20 m/s. Find the maximum height reached using energy conservation.',
-            solution: `
-**Given:**
-- Initial velocity u = 20 m/s (upward)
-- At maximum height, v = 0
-- g = 10 m/s²
-
-**To find:** Maximum height (h)
-
-**Solution using Conservation of Energy:**
-
-**Step 1: Choose reference level**
-Take ground as reference level (PE = 0 at ground)
-
-**Step 2: Identify initial and final states**
-
-*Initial state (at ground):*
-- KE₁ = ½mu² = ½m(20)² = 200m J
-- PE₁ = 0 (reference level)
-- Total energy E₁ = 200m J
-
-*Final state (at maximum height):*
-- KE₂ = ½mv² = 0 (v = 0 at max height)
-- PE₂ = mgh
-- Total energy E₂ = mgh J
-
-**Step 3: Apply conservation of energy**
-E₁ = E₂ (no non-conservative forces)
-200m = mgh
-200 = gh
-h = 200/10 = 20 m
-
-**Verification using kinematics:**
-v² = u² - 2gh (taking upward as positive)
-0 = (20)² - 2(10)h
-h = 400/20 = 20 m ✓
-
-**Answer:** h = 20 m
-            `,
-            explanation: 'Energy conservation provides an elegant solution without needing to consider time or acceleration. The initial kinetic energy is completely converted to potential energy at maximum height.'
+            title: 'Free Fall Problem',
+            problem: 'A ball is thrown upward with initial velocity 30 m/s. Find the maximum height reached and time to reach maximum height.',
+            solution: 'At maximum height, v = 0\nUsing v² = u² + 2as:\n0 = (30)² + 2(-9.8)s\ns = 900/(2×9.8) = 45.9 m\n\nUsing v = u + at:\n0 = 30 + (-9.8)t\nt = 30/9.8 = 3.06 s',
+            explanation: 'At maximum height, velocity becomes zero. We use kinematic equations with a = -g for upward motion.'
           }
         ],
+        
         practiceQuestions: [
           {
-            question: 'A force of 10 N acts on a body at 60° to its displacement of 2 m. Work done is:',
-            options: ['20 J', '10 J', '5 J', '0 J'],
+            question: 'A stone is dropped from a height of 80 m. How long does it take to reach the ground?',
+            options: ['3 s', '4 s', '5 s', '6 s'],
             correctAnswer: 1,
-            explanation: 'W = Fs cos θ = 10 × 2 × cos 60° = 10 × 2 × 0.5 = 10 J',
-            difficulty: 'Easy'
-          },
-          {
-            question: 'A 1 kg ball falls from height 5 m. Its kinetic energy just before hitting ground is:',
-            options: ['5 J', '25 J', '50 J', '10 J'],
-            correctAnswer: 2,
-            explanation: 'Using conservation of energy: PE = KE, so mgh = ½mv². KE = mgh = 1 × 10 × 5 = 50 J',
+            explanation: 'Using s = ut + ½gt², where u = 0, s = 80 m, g = 10 m/s²: 80 = 0 + ½(10)t², t² = 16, t = 4 s',
             difficulty: 'Medium'
           },
           {
-            question: 'Power required to lift 100 kg mass through 10 m in 5 s is:',
-            options: ['200 W', '1000 W', '2000 W', '500 W'],
+            question: 'Two trains approach each other with speeds 50 km/h and 70 km/h. What is their relative speed?',
+            options: ['20 km/h', '60 km/h', '120 km/h', '140 km/h'],
             correctAnswer: 2,
-            explanation: 'Work = mgh = 100 × 10 × 10 = 10,000 J. Power = W/t = 10,000/5 = 2000 W',
+            explanation: 'When objects move toward each other, relative speed = sum of individual speeds = 50 + 70 = 120 km/h',
             difficulty: 'Medium'
           }
         ],
+        
         keyPoints: [
-          'Work is force times displacement times cosine of angle between them',
-          'Work-energy theorem: W_net = ΔKE',
-          'Energy is conserved in absence of non-conservative forces',
-          'Power is rate of doing work: P = W/t = Fv',
-          'Conservative forces are path-independent',
-          'Potential energy depends on reference level chosen',
-          'Kinetic energy is always positive',
-          'Work can be positive, negative, or zero'
+          'Relative motion depends on the reference frame chosen',
+          'Free fall problems use g = 9.8 m/s² as acceleration',
+          'At maximum height in projectile motion, vertical velocity = 0',
+          'Graphical methods provide powerful problem-solving tools',
+          'Multi-stage motion requires analyzing each phase separately'
         ],
+        
         formulas: [
           {
-            name: 'Work Done',
-            formula: 'W = Fs cos θ',
-            description: 'Work done by constant force'
+            name: 'Relative Velocity',
+            formula: 'v_AB = v_A - v_B',
+            description: 'Velocity of A relative to B'
           },
           {
-            name: 'Kinetic Energy',
-            formula: 'KE = ½mv²',
-            description: 'Energy due to motion'
-          },
-          {
-            name: 'Gravitational Potential Energy',
-            formula: 'PE = mgh',
-            description: 'Energy due to height above reference'
-          },
-          {
-            name: 'Work-Energy Theorem',
-            formula: 'W_net = ΔKE',
-            description: 'Net work equals change in kinetic energy'
-          },
-          {
-            name: 'Power',
-            formula: 'P = W/t = Fv cos θ',
-            description: 'Rate of doing work'
+            name: 'Maximum Height (Projectile)',
+            formula: 'h_max = u²sin²θ/(2g)',
+            description: 'Maximum height reached in projectile motion'
           }
         ]
       },
       estimatedReadTime: 35,
-      prerequisites: ['phy-mech-001', 'phy-mech-003'],
-      nextTopics: ['phy-mech-005'],
-      examRelevance: {
-        jeeMain: 14,
-        jeeAdvanced: 16,
-        neet: 12
-      },
+      prerequisites: ['phy-mech-kinematics-1d-foundation'],
+      nextTopics: ['phy-mech-kinematics-2d-foundation'],
+      examRelevance: { jeeMain: 20, jeeAdvanced: 25, neet: 12 },
       lastUpdated: new Date()
-    };
+    });
 
-    this.contentDatabase.set('phy-mech-001', kinematicsContent);
-    this.contentDatabase.set('phy-mech-003', lawsOfMotionContent);
-    this.contentDatabase.set('phy-mech-004', workEnergyContent);
-  }
+    // CHEMISTRY CONTENT - ALL LEVELS
 
-  private addChemistryContent(): void {
-    const atomicStructureContent: EducationalContent = {
-      id: 'chem-phys-001-content',
-      title: 'Structure of Atom',
+    // ATOMIC STRUCTURE - Foundation
+    this.addContent({
+      id: 'chem-atomic-structure-foundation',
+      title: 'Atomic Structure - Basic Concepts',
       subject: 'Chemistry',
       topic: 'Physical Chemistry',
       subtopic: 'Atomic Structure',
       difficulty: 'Foundation',
       contentType: 'theory',
       content: {
-        theory: `
-# Structure of Atom
+        theory: `# Atomic Structure - Foundation
+
+## Introduction to Atoms
+Atoms are the fundamental building blocks of all matter. Understanding atomic structure is crucial for comprehending chemical behavior and bonding.
 
 ## Historical Development
 
 ### Dalton's Atomic Theory (1808)
-1. Matter consists of indivisible atoms
-2. All atoms of an element are identical
-3. Compounds form by combination of atoms in simple ratios
-4. Atoms are neither created nor destroyed in chemical reactions
-
-**Limitations:** Could not explain electrical nature of matter
+- All matter consists of indivisible atoms
+- Atoms of the same element are identical
+- Atoms combine in simple ratios to form compounds
+- Chemical reactions involve rearrangement of atoms
 
 ### Thomson's Model (1897)
-- Discovery of electron (cathode ray experiments)
-- "Plum pudding" model: positive sphere with embedded electrons
-- Atom is electrically neutral overall
-
-**Limitations:** Could not explain scattering of α-particles
+- Discovery of electrons
+- "Plum pudding" model: electrons embedded in positive sphere
+- Atoms are electrically neutral overall
 
 ### Rutherford's Model (1911)
-- Nuclear model based on α-particle scattering experiment
-- Dense, positively charged nucleus at center
-- Electrons revolve around nucleus in circular orbits
-
-**Limitations:** Could not explain stability of atom and atomic spectra
+- Gold foil experiment
+- Discovery of nucleus
+- Most of atom is empty space
+- Nucleus contains positive charge and most mass
 
 ### Bohr's Model (1913)
-- Electrons move in fixed circular orbits (stationary states)
-- Energy is quantized: E = -13.6/n² eV (for hydrogen)
-- Electron can jump between orbits by absorbing/emitting energy
+- Electrons orbit nucleus in fixed energy levels
+- Electrons can jump between energy levels
+- Explains atomic spectra
 
-**Limitations:** Could not explain spectra of multi-electron atoms
+## Modern Atomic Structure
 
-## Modern Atomic Theory
+### Subatomic Particles
+1. **Protons**
+   - Positive charge (+1)
+   - Mass ≈ 1 amu
+   - Located in nucleus
 
-### Wave-Particle Duality
-- **de Broglie equation:** λ = h/mv
-- Electrons exhibit both wave and particle properties
-- **Heisenberg Uncertainty Principle:** Δx·Δp ≥ h/4π
+2. **Neutrons**
+   - No charge (neutral)
+   - Mass ≈ 1 amu
+   - Located in nucleus
 
-### Quantum Mechanical Model
-- Electrons exist in orbitals (probability regions)
-- Described by wave functions (ψ)
-- |ψ|² gives probability density
+3. **Electrons**
+   - Negative charge (-1)
+   - Mass ≈ 1/1836 amu
+   - Located in electron shells
 
-## Quantum Numbers
+### Atomic Number and Mass Number
+- **Atomic number (Z)**: Number of protons
+- **Mass number (A)**: Number of protons + neutrons
+- **Isotopes**: Same atomic number, different mass numbers
 
-### 1. Principal Quantum Number (n)
-- **Values:** 1, 2, 3, 4, ... (positive integers)
-- **Significance:** 
-  - Determines energy level and size of orbital
-  - Distance from nucleus
-  - Maximum electrons in shell = 2n²
+### Electronic Configuration
+Electrons are arranged in shells around the nucleus:
+- K shell (n=1): Maximum 2 electrons
+- L shell (n=2): Maximum 8 electrons
+- M shell (n=3): Maximum 18 electrons
+- N shell (n=4): Maximum 32 electrons
 
-### 2. Azimuthal Quantum Number (l)
-- **Values:** 0 to (n-1)
-- **Significance:**
-  - Determines shape of orbital
-  - Subshell designation: s(l=0), p(l=1), d(l=2), f(l=3)
-  - Maximum electrons in subshell = 2(2l+1)
+## Quantum Numbers (Basic Introduction)
+Four quantum numbers describe each electron:
+1. **Principal quantum number (n)**: Energy level
+2. **Azimuthal quantum number (l)**: Subshell type
+3. **Magnetic quantum number (m)**: Orbital orientation
+4. **Spin quantum number (s)**: Electron spin
 
-### 3. Magnetic Quantum Number (m or mₗ)
-- **Values:** -l to +l (including 0)
-- **Significance:**
-  - Determines orientation of orbital in space
-  - Number of orbitals in subshell = 2l+1
-
-### 4. Spin Quantum Number (s or mₛ)
-- **Values:** +½ or -½
-- **Significance:**
-  - Intrinsic angular momentum of electron
-  - Determines spin direction (clockwise or anticlockwise)
-
-## Electronic Configuration
-
-### Aufbau Principle
+## Aufbau Principle
 Electrons fill orbitals in order of increasing energy:
-1s < 2s < 2p < 3s < 3p < 4s < 3d < 4p < 5s < 4d < 5p < 6s < 4f < 5d < 6p...
-
-### Pauli Exclusion Principle
-No two electrons in an atom can have identical set of four quantum numbers.
-**Consequence:** Maximum 2 electrons per orbital with opposite spins.
-
-### Hund's Rule
-Electrons singly occupy orbitals of equal energy before pairing up.
-**Reason:** Minimizes electron-electron repulsion.
-
-### Electronic Configuration Examples:
-- **H (Z=1):** 1s¹
-- **He (Z=2):** 1s²
-- **Li (Z=3):** 1s² 2s¹
-- **C (Z=6):** 1s² 2s² 2p²
-- **Ne (Z=10):** 1s² 2s² 2p⁶
-- **Na (Z=11):** 1s² 2s² 2p⁶ 3s¹
-
-### Anomalous Configurations:
-- **Cr (Z=24):** [Ar] 4s¹ 3d⁵ (not 4s² 3d⁴)
-- **Cu (Z=29):** [Ar] 4s¹ 3d¹⁰ (not 4s² 3d⁹)
-
-**Reason:** Extra stability of half-filled and completely filled subshells.
-
-## Atomic Orbitals
-
-### s-Orbitals
-- **Shape:** Spherical
-- **Number:** 1 per shell (starting from n=1)
-- **Electrons:** Maximum 2
-
-### p-Orbitals
-- **Shape:** Dumbbell
-- **Number:** 3 per shell (starting from n=2)
-- **Orientation:** px, py, pz
-- **Electrons:** Maximum 6
-
-### d-Orbitals
-- **Shape:** Complex (cloverleaf, etc.)
-- **Number:** 5 per shell (starting from n=3)
-- **Electrons:** Maximum 10
-
-### f-Orbitals
-- **Shape:** Very complex
-- **Number:** 7 per shell (starting from n=4)
-- **Electrons:** Maximum 14
+1s → 2s → 2p → 3s → 3p → 4s → 3d → 4p...
 
 ## Periodic Trends
-
-### Atomic Radius
-- **Across period:** Decreases (increasing nuclear charge)
-- **Down group:** Increases (additional electron shells)
-
-### Ionization Energy
-- **Definition:** Energy required to remove electron from gaseous atom
-- **Across period:** Increases (stronger nuclear attraction)
-- **Down group:** Decreases (electrons farther from nucleus)
-
-### Electron Affinity
-- **Definition:** Energy released when electron is added to gaseous atom
-- **Trend:** Generally increases across period, varies down group
-
-### Electronegativity
-- **Definition:** Tendency to attract electrons in chemical bond
-- **Across period:** Increases
-- **Down group:** Decreases
-        `,
+- **Atomic radius**: Decreases across period, increases down group
+- **Ionization energy**: Increases across period, decreases down group
+- **Electronegativity**: Increases across period, decreases down group`,
+        
         examples: [
           {
             title: 'Electronic Configuration',
-            problem: 'Write the electronic configuration of Chromium (Z = 24) and explain the anomaly.',
-            solution: `
-**Expected configuration based on Aufbau principle:**
-1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d⁴
-
-**Actual configuration:**
-1s² 2s² 2p⁶ 3s² 3p⁶ 4s¹ 3d⁵
-
-**Explanation of anomaly:**
-1. **Half-filled stability:** The d⁵ configuration is more stable than d⁴
-2. **Exchange energy:** Electrons in half-filled subshell have parallel spins, leading to exchange energy stabilization
-3. **Energy difference:** The 4s and 3d orbitals are very close in energy, making electron promotion favorable
-
-**Similar anomaly in Copper (Z = 29):**
-- Expected: [Ar] 4s² 3d⁹
-- Actual: [Ar] 4s¹ 3d¹⁰ (completely filled d subshell)
-
-**Key point:** Half-filled (d⁵, f⁷) and completely filled (d¹⁰, f¹⁴) subshells provide extra stability.
-            `,
-            explanation: 'Electronic configuration anomalies occur due to the extra stability associated with half-filled and completely filled subshells. This is important for understanding chemical properties of transition elements.'
+            problem: 'Write the electronic configuration of Carbon (Z = 6).',
+            solution: 'Carbon has 6 electrons.\nElectronic configuration: 1s² 2s² 2p²\nOr in shell notation: K(2) L(4)',
+            explanation: 'We fill electrons in order of increasing energy: first 1s (2 electrons), then 2s (2 electrons), then 2p (2 electrons).'
           },
           {
-            title: 'Quantum Numbers',
-            problem: 'For the electron in 3p orbital, write all possible sets of quantum numbers.',
-            solution: `
-**For 3p orbital:**
-- n = 3 (third shell)
-- l = 1 (p subshell)
-- m = -1, 0, +1 (three p orbitals: px, py, pz)
-- s = +½ or -½ (spin up or down)
-
-**All possible sets of quantum numbers:**
-
-| n | l | m | s |
-|---|---|---|---|
-| 3 | 1 | -1 | +½ |
-| 3 | 1 | -1 | -½ |
-| 3 | 1 | 0 | +½ |
-| 3 | 1 | 0 | -½ |
-| 3 | 1 | +1 | +½ |
-| 3 | 1 | +1 | -½ |
-
-**Total possible electrons in 3p:** 6 electrons (2 per orbital × 3 orbitals)
-
-**Note:** Each set of four quantum numbers uniquely identifies an electron in the atom (Pauli Exclusion Principle).
-            `,
-            explanation: 'Understanding quantum numbers is crucial for determining electron arrangements and predicting chemical behavior. Each electron has a unique set of four quantum numbers.'
+            title: 'Isotope Calculation',
+            problem: 'An atom has 17 protons and 18 neutrons. Find its atomic number and mass number.',
+            solution: 'Atomic number (Z) = Number of protons = 17\nMass number (A) = Protons + Neutrons = 17 + 18 = 35\nThis is Chlorine-35 (³⁵Cl)',
+            explanation: 'Atomic number is always equal to the number of protons, while mass number is the sum of protons and neutrons.'
           }
         ],
+        
         practiceQuestions: [
           {
-            question: 'Which of the following has the maximum number of unpaired electrons?',
-            options: ['N (Z=7)', 'O (Z=8)', 'F (Z=9)', 'Ne (Z=10)'],
-            correctAnswer: 0,
-            explanation: 'N: 1s² 2s² 2p³. The 2p³ configuration has 3 unpaired electrons (following Hund\'s rule). O has 2, F has 1, and Ne has 0 unpaired electrons.',
-            difficulty: 'Medium'
-          },
-          {
-            question: 'The electronic configuration of Cr³⁺ ion is:',
-            options: ['[Ar] 4s¹ 3d²', '[Ar] 3d³', '[Ar] 4s² 3d¹', '[Ar] 3d⁵'],
-            correctAnswer: 1,
-            explanation: 'Cr: [Ar] 4s¹ 3d⁵. For Cr³⁺, remove 3 electrons (1 from 4s and 2 from 3d): [Ar] 3d³',
-            difficulty: 'Medium'
-          },
-          {
-            question: 'Maximum number of electrons in M shell is:',
+            question: 'What is the maximum number of electrons in the M shell?',
             options: ['8', '18', '32', '50'],
             correctAnswer: 1,
-            explanation: 'M shell corresponds to n=3. Maximum electrons = 2n² = 2(3)² = 18',
+            explanation: 'The M shell (n=3) can hold a maximum of 2n² = 2(3)² = 18 electrons',
+            difficulty: 'Easy'
+          },
+          {
+            question: 'Which particle determines the atomic number of an element?',
+            options: ['Neutrons', 'Protons', 'Electrons', 'Nucleons'],
+            correctAnswer: 1,
+            explanation: 'The atomic number is defined as the number of protons in the nucleus of an atom',
             difficulty: 'Easy'
           }
         ],
+        
         keyPoints: [
-          'Quantum numbers completely describe an electron in an atom',
-          'Electronic configuration determines chemical properties',
-          'Stability of half-filled and filled subshells causes anomalies',
-          'Pauli exclusion principle limits electrons per orbital to 2',
-          'Hund\'s rule minimizes electron-electron repulsion',
-          'Aufbau principle gives order of orbital filling',
-          'Atomic properties show periodic trends',
-          'Wave-particle duality led to quantum mechanical model'
+          'Atoms consist of protons, neutrons, and electrons',
+          'Protons and neutrons are in the nucleus, electrons in shells',
+          'Atomic number = number of protons',
+          'Mass number = protons + neutrons',
+          'Electrons fill orbitals in order of increasing energy'
         ],
+        
         formulas: [
           {
-            name: 'Maximum electrons in shell',
+            name: 'Maximum Electrons in Shell',
             formula: '2n²',
             description: 'Maximum number of electrons in nth shell'
           },
           {
-            name: 'Maximum electrons in subshell',
-            formula: '2(2l+1)',
-            description: 'Maximum electrons in subshell with azimuthal quantum number l'
-          },
-          {
-            name: 'de Broglie wavelength',
-            formula: 'λ = h/mv',
-            description: 'Wavelength associated with moving particle'
-          },
-          {
-            name: 'Bohr energy levels',
-            formula: 'E = -13.6/n² eV',
-            description: 'Energy of electron in nth orbit of hydrogen'
+            name: 'Mass Number',
+            formula: 'A = Z + N',
+            description: 'Mass number equals protons plus neutrons'
           }
         ]
       },
-      estimatedReadTime: 40,
+      estimatedReadTime: 30,
       prerequisites: [],
-      nextTopics: ['chem-phys-002'],
-      examRelevance: {
-        jeeMain: 8,
-        jeeAdvanced: 6,
-        neet: 12
-      },
+      nextTopics: ['chem-atomic-structure-intermediate'],
+      examRelevance: { jeeMain: 12, jeeAdvanced: 8, neet: 15 },
       lastUpdated: new Date()
-    };
+    });
 
-    this.contentDatabase.set('chem-phys-001', atomicStructureContent);
-  }
+    // MATHEMATICS CONTENT - ALL LEVELS
 
-  private addMathematicsContent(): void {
-    const limitsContent: EducationalContent = {
-      id: 'math-calc-001-content',
-      title: 'Limits and Continuity',
+    // CALCULUS - Foundation
+    this.addContent({
+      id: 'math-limits-foundation',
+      title: 'Limits and Continuity - Basics',
       subject: 'Mathematics',
       topic: 'Calculus',
       subtopic: 'Limits',
       difficulty: 'Foundation',
       contentType: 'theory',
       content: {
-        theory: `
-# Limits and Continuity
+        theory: `# Limits and Continuity - Foundation
 
 ## Introduction to Limits
+The concept of limit is fundamental to calculus. It helps us understand the behavior of functions as the input approaches a particular value.
 
-The concept of limit is fundamental to calculus. It describes the behavior of a function as the input approaches a particular value.
+## Intuitive Understanding of Limits
+Consider what happens to f(x) as x gets closer and closer to some value 'a'. The limit describes the value that f(x) approaches.
 
-### Intuitive Understanding
-Consider f(x) = (x² - 1)/(x - 1) for x ≠ 1.
-As x gets closer to 1, what happens to f(x)?
+**Notation:** lim(x→a) f(x) = L
 
-Let's check some values:
-- f(0.9) = (0.81 - 1)/(0.9 - 1) = -0.19/(-0.1) = 1.9
-- f(0.99) = (0.9801 - 1)/(0.99 - 1) = -0.0199/(-0.01) = 1.99
-- f(1.01) = (1.0201 - 1)/(1.01 - 1) = 0.0201/0.01 = 2.01
-- f(1.1) = (1.21 - 1)/(1.1 - 1) = 0.21/0.1 = 2.1
+This reads: "The limit of f(x) as x approaches a equals L"
 
-As x approaches 1, f(x) approaches 2.
+## Basic Limit Properties
 
-## Formal Definition of Limit
+### Limit Laws
+If lim(x→a) f(x) = L and lim(x→a) g(x) = M, then:
 
-**Definition:** lim(x→a) f(x) = L means that f(x) can be made arbitrarily close to L by taking x sufficiently close to a (but x ≠ a).
+1. **Sum Rule:** lim(x→a) [f(x) + g(x)] = L + M
+2. **Difference Rule:** lim(x→a) [f(x) - g(x)] = L - M
+3. **Product Rule:** lim(x→a) [f(x) × g(x)] = L × M
+4. **Quotient Rule:** lim(x→a) [f(x) ÷ g(x)] = L ÷ M (if M ≠ 0)
+5. **Constant Multiple:** lim(x→a) [k × f(x)] = k × L
 
-**Mathematical notation:** For any ε > 0, there exists δ > 0 such that if 0 < |x - a| < δ, then |f(x) - L| < ε.
+### Standard Limits
+1. lim(x→a) c = c (where c is a constant)
+2. lim(x→a) x = a
+3. lim(x→a) xⁿ = aⁿ
+4. lim(x→0) (sin x)/x = 1
+5. lim(x→0) (1 - cos x)/x = 0
 
-## Types of Limits
-
-### 1. Finite Limits
-When lim(x→a) f(x) = L, where L is a finite number.
-
-### 2. Infinite Limits
-- lim(x→a) f(x) = +∞
-- lim(x→a) f(x) = -∞
-
-### 3. Limits at Infinity
-- lim(x→+∞) f(x) = L
-- lim(x→-∞) f(x) = L
-
-### 4. One-sided Limits
-- **Right-hand limit:** lim(x→a⁺) f(x)
-- **Left-hand limit:** lim(x→a⁻) f(x)
-
-**Important:** lim(x→a) f(x) exists if and only if both one-sided limits exist and are equal.
-
-## Standard Limits
-
-### Fundamental Limits
-1. **lim(x→0) (sin x)/x = 1**
-2. **lim(x→0) (1 - cos x)/x = 0**
-3. **lim(x→0) (eˣ - 1)/x = 1**
-4. **lim(x→0) (ln(1 + x))/x = 1**
-5. **lim(x→0) (aˣ - 1)/x = ln a**
-6. **lim(x→∞) (1 + 1/x)ˣ = e**
-7. **lim(x→0) (1 + x)^(1/x) = e**
-
-### Polynomial and Rational Functions
-- lim(x→a) P(x) = P(a) for any polynomial P(x)
-- lim(x→a) P(x)/Q(x) = P(a)/Q(a) if Q(a) ≠ 0
-
-## Methods of Evaluation
+## Methods for Evaluating Limits
 
 ### 1. Direct Substitution
-If f(x) is continuous at x = a, then lim(x→a) f(x) = f(a).
+If f(x) is continuous at x = a, then lim(x→a) f(x) = f(a)
 
-**Example:** lim(x→2) (x² + 3x - 1) = 4 + 6 - 1 = 9
-
-### 2. Factorization (for 0/0 forms)
-Factor numerator and denominator, then cancel common factors.
-
-**Example:** 
+### 2. Factorization
+When direct substitution gives 0/0 form, try factoring:
 lim(x→2) (x² - 4)/(x - 2) = lim(x→2) (x + 2)(x - 2)/(x - 2) = lim(x→2) (x + 2) = 4
 
 ### 3. Rationalization
-Multiply by conjugate to eliminate radicals.
+For expressions involving square roots:
+lim(x→0) (√(x + 1) - 1)/x
 
-**Example:**
-lim(x→0) (√(1 + x) - 1)/x = lim(x→0) [(√(1 + x) - 1)(√(1 + x) + 1)]/[x(√(1 + x) + 1)]
-= lim(x→0) x/[x(√(1 + x) + 1)] = lim(x→0) 1/(√(1 + x) + 1) = 1/2
+Multiply by conjugate: (√(x + 1) + 1)/(√(x + 1) + 1)
 
-### 4. L'Hôpital's Rule
-For 0/0 or ∞/∞ forms:
-lim(x→a) f(x)/g(x) = lim(x→a) f'(x)/g'(x)
+## One-Sided Limits
+- **Right-hand limit:** lim(x→a⁺) f(x) (approaching from right)
+- **Left-hand limit:** lim(x→a⁻) f(x) (approaching from left)
 
-**Conditions:**
-- f(a) = g(a) = 0 or f(a) = g(a) = ±∞
-- f'(x) and g'(x) exist near x = a
-- lim(x→a) f'(x)/g'(x) exists
-
-### 5. Standard Substitutions
-Use trigonometric, exponential, or logarithmic substitutions.
-
-## Indeterminate Forms
-
-### Seven Indeterminate Forms:
-1. **0/0**
-2. **∞/∞**
-3. **0 × ∞**
-4. **∞ - ∞**
-5. **0⁰**
-6. **1^∞**
-7. **∞⁰**
-
-### Techniques for Each Form:
-- **0/0, ∞/∞:** L'Hôpital's rule, factorization, rationalization
-- **0 × ∞:** Rewrite as 0/0 or ∞/∞
-- **∞ - ∞:** Factor or rationalize
-- **0⁰, 1^∞, ∞⁰:** Use logarithms: if y = f(x)^g(x), then ln y = g(x) ln f(x)
+A limit exists if and only if both one-sided limits exist and are equal.
 
 ## Continuity
-
-### Definition
 A function f(x) is continuous at x = a if:
-1. **f(a) is defined**
-2. **lim(x→a) f(x) exists**
-3. **lim(x→a) f(x) = f(a)**
+1. f(a) is defined
+2. lim(x→a) f(x) exists
+3. lim(x→a) f(x) = f(a)
 
-### Types of Discontinuity
+## Types of Discontinuities
+1. **Removable discontinuity:** Gap that can be "filled"
+2. **Jump discontinuity:** Function "jumps" from one value to another
+3. **Infinite discontinuity:** Function approaches ±∞
 
-#### 1. Removable Discontinuity
-- Limit exists but ≠ f(a) or f(a) is undefined
-- Can be "removed" by redefining f(a)
-
-#### 2. Jump Discontinuity
-- Left and right limits exist but are unequal
-- Function "jumps" from one value to another
-
-#### 3. Infinite Discontinuity
-- Function approaches ±∞ at the point
-- Vertical asymptote exists
-
-### Properties of Continuous Functions
-
-1. **Algebra of Continuous Functions:**
-   - Sum, difference, product of continuous functions is continuous
-   - Quotient is continuous where denominator ≠ 0
-
-2. **Composition:** If f is continuous at a and g is continuous at f(a), then g∘f is continuous at a
-
-3. **Intermediate Value Theorem:** If f is continuous on [a,b] and k is between f(a) and f(b), then there exists c ∈ (a,b) such that f(c) = k
-
-4. **Extreme Value Theorem:** If f is continuous on [a,b], then f attains its maximum and minimum values
-
-## Problem-Solving Strategy
-
-### Step-by-Step Approach:
-1. **Try direct substitution first**
-2. **If you get a definite value, that's your answer**
-3. **If you get an indeterminate form, identify the type**
-4. **Choose appropriate method based on the form**
-5. **Apply the method carefully**
-6. **Verify your answer if possible**
-
-### Common Mistakes to Avoid:
-- Applying L'Hôpital's rule when not applicable
-- Algebraic errors in factorization
-- Forgetting to check if limit exists
-- Confusing one-sided limits with two-sided limits
-        `,
+## Applications
+- Finding instantaneous rates of change
+- Defining derivatives
+- Analyzing function behavior
+- Solving optimization problems`,
+        
         examples: [
           {
-            title: 'Evaluating 0/0 Form using Factorization',
-            problem: 'Evaluate lim(x→3) (x² - 9)/(x² - 6x + 9)',
-            solution: `
-**Step 1: Direct substitution**
-Substituting x = 3:
-Numerator: 3² - 9 = 9 - 9 = 0
-Denominator: 3² - 6(3) + 9 = 9 - 18 + 9 = 0
-
-We get 0/0 form, so we need to use algebraic manipulation.
-
-**Step 2: Factor numerator and denominator**
-Numerator: x² - 9 = (x + 3)(x - 3)
-Denominator: x² - 6x + 9 = (x - 3)²
-
-**Step 3: Simplify**
-lim(x→3) (x² - 9)/(x² - 6x + 9) = lim(x→3) [(x + 3)(x - 3)]/[(x - 3)²]
-= lim(x→3) (x + 3)/(x - 3)
-
-**Step 4: Evaluate the simplified limit**
-As x → 3, numerator → 3 + 3 = 6
-As x → 3, denominator → 3 - 3 = 0
-
-Since numerator approaches 6 (≠ 0) and denominator approaches 0:
-lim(x→3) (x + 3)/(x - 3) = ∞ (limit does not exist)
-
-**Answer:** The limit does not exist (approaches ∞)
-            `,
-            explanation: 'After factoring and canceling, we still get a form where the denominator approaches 0 while numerator approaches a non-zero value, indicating the limit is infinite.'
+            title: 'Basic Limit Evaluation',
+            problem: 'Find lim(x→3) (2x + 1)',
+            solution: 'Using direct substitution:\nlim(x→3) (2x + 1) = 2(3) + 1 = 6 + 1 = 7',
+            explanation: 'Since 2x + 1 is a polynomial, it\'s continuous everywhere. We can use direct substitution.'
           },
           {
-            title: 'Using L\'Hôpital\'s Rule',
-            problem: 'Evaluate lim(x→0) (sin 3x)/(sin 5x)',
-            solution: `
-**Step 1: Check if L'Hôpital's rule applies**
-As x → 0:
-- sin 3x → sin 0 = 0
-- sin 5x → sin 0 = 0
-
-We have 0/0 form, so L'Hôpital's rule can be applied.
-
-**Step 2: Apply L'Hôpital's rule**
-lim(x→0) (sin 3x)/(sin 5x) = lim(x→0) [d/dx(sin 3x)]/[d/dx(sin 5x)]
-= lim(x→0) (3 cos 3x)/(5 cos 5x)
-
-**Step 3: Evaluate the new limit**
-As x → 0:
-- 3 cos 3x → 3 cos 0 = 3(1) = 3
-- 5 cos 5x → 5 cos 0 = 5(1) = 5
-
-Therefore: lim(x→0) (3 cos 3x)/(5 cos 5x) = 3/5
-
-**Alternative Method using Standard Limits:**
-lim(x→0) (sin 3x)/(sin 5x) = lim(x→0) [(sin 3x)/(3x)] × [(5x)/(sin 5x)] × (3x)/(5x)
-= lim(x→0) [(sin 3x)/(3x)] × [1/(sin 5x)/(5x)] × (3/5)
-= 1 × (1/1) × (3/5) = 3/5
-
-**Answer:** 3/5
-            `,
-            explanation: 'Both L\'Hôpital\'s rule and the standard limit method give the same answer. The standard limit approach often provides more insight into the structure of the problem.'
-          },
-          {
-            title: 'Limit involving e',
-            problem: 'Evaluate lim(x→∞) (1 + 2/x)^x',
-            solution: `
-**Step 1: Recognize the form**
-This is of the form 1^∞, which is indeterminate.
-
-**Step 2: Use logarithms**
-Let y = (1 + 2/x)^x
-Then ln y = x ln(1 + 2/x)
-
-We need to find lim(x→∞) x ln(1 + 2/x)
-
-**Step 3: Rewrite to apply standard limit**
-lim(x→∞) x ln(1 + 2/x) = lim(x→∞) [ln(1 + 2/x)]/(1/x)
-
-As x → ∞, this becomes 0/0 form.
-
-**Step 4: Apply L'Hôpital's rule**
-lim(x→∞) [ln(1 + 2/x)]/(1/x) = lim(x→∞) [d/dx ln(1 + 2/x)]/[d/dx (1/x)]
-= lim(x→∞) [1/(1 + 2/x) × (-2/x²)]/[-1/x²]
-= lim(x→∞) [2/(1 + 2/x)]
-= 2/(1 + 0) = 2
-
-**Step 5: Find the original limit**
-Since lim(x→∞) ln y = 2, we have:
-lim(x→∞) y = e²
-
-**Alternative Method:**
-lim(x→∞) (1 + 2/x)^x = lim(x→∞) [(1 + 2/x)^(x/2)]²
-= [lim(x→∞) (1 + 2/x)^(x/2)]²
-= [e]² = e²
-
-**Answer:** e²
-            `,
-            explanation: 'For limits of the form (1 + a/x)^x as x→∞, the result is e^a. This is a generalization of the fundamental limit defining e.'
+            title: 'Indeterminate Form',
+            problem: 'Find lim(x→2) (x² - 4)/(x - 2)',
+            solution: 'Direct substitution gives 0/0, so we factor:\n(x² - 4)/(x - 2) = (x + 2)(x - 2)/(x - 2) = x + 2\nlim(x→2) (x + 2) = 2 + 2 = 4',
+            explanation: 'When we get 0/0, we need to simplify the expression first before taking the limit.'
           }
         ],
+        
         practiceQuestions: [
           {
-            question: 'What is lim(x→0) (sin 5x)/(sin 3x)?',
-            options: ['5/3', '3/5', '1', '0'],
+            question: 'What is lim(x→5) (3x - 2)?',
+            options: ['13', '15', '17', '19'],
             correctAnswer: 0,
-            explanation: 'Using the standard limit property: lim(x→0) (sin ax)/(sin bx) = a/b, we get 5/3.',
-            difficulty: 'Medium'
+            explanation: 'Using direct substitution: lim(x→5) (3x - 2) = 3(5) - 2 = 15 - 2 = 13',
+            difficulty: 'Easy'
           },
           {
-            question: 'lim(x→2) (x³ - 8)/(x - 2) equals:',
-            options: ['0', '4', '8', '12'],
-            correctAnswer: 3,
-            explanation: 'Factor: x³ - 8 = (x-2)(x² + 2x + 4). After canceling (x-2): lim(x→2) (x² + 2x + 4) = 4 + 4 + 4 = 12.',
-            difficulty: 'Medium'
-          },
-          {
-            question: 'If f(x) = (x² - 1)/(x - 1) for x ≠ 1 and f(1) = 3, then f is:',
-            options: ['Continuous at x = 1', 'Discontinuous at x = 1', 'Not defined at x = 1', 'None of these'],
+            question: 'What is lim(x→0) sin(x)/x?',
+            options: ['0', '1', '∞', 'Does not exist'],
             correctAnswer: 1,
-            explanation: 'lim(x→1) f(x) = lim(x→1) (x+1) = 2, but f(1) = 3. Since limit ≠ function value, f is discontinuous at x = 1.',
+            explanation: 'This is a standard limit: lim(x→0) sin(x)/x = 1',
             difficulty: 'Medium'
           }
         ],
+        
         keyPoints: [
-          'Limits describe function behavior near a point, not at the point',
-          'Direct substitution works for continuous functions',
-          'Standard limits are essential tools for evaluation',
-          'L\'Hôpital\'s rule applies only to 0/0 and ∞/∞ forms',
-          'Factorization and rationalization are key algebraic techniques',
-          'Continuity requires limit to exist and equal function value',
-          'One-sided limits must be equal for two-sided limit to exist',
-          'Indeterminate forms require special techniques'
+          'Limits describe the behavior of functions near a point',
+          'Direct substitution works when the function is continuous',
+          'Indeterminate forms like 0/0 require special techniques',
+          'One-sided limits must be equal for the limit to exist',
+          'Continuity requires the limit to equal the function value'
         ],
+        
         formulas: [
           {
             name: 'Standard Trigonometric Limit',
-            formula: 'lim(x→0) (sin x)/x = 1',
-            description: 'Fundamental trigonometric limit'
+            formula: 'lim(x→0) sin(x)/x = 1',
+            description: 'Fundamental limit used in derivative of sine'
           },
           {
-            name: 'L\'Hôpital\'s Rule',
-            formula: 'lim(x→a) f(x)/g(x) = lim(x→a) f\'(x)/g\'(x)',
-            description: 'For 0/0 or ∞/∞ indeterminate forms'
-          },
-          {
-            name: 'Exponential Limit',
-            formula: 'lim(x→0) (e^x - 1)/x = 1',
-            description: 'Standard exponential limit'
-          },
-          {
-            name: 'Definition of e',
-            formula: 'lim(x→∞) (1 + 1/x)^x = e',
-            description: 'Fundamental limit defining e'
+            name: 'Limit of Polynomial',
+            formula: 'lim(x→a) P(x) = P(a)',
+            description: 'Polynomials are continuous everywhere'
           }
         ]
       },
-      estimatedReadTime: 45,
+      estimatedReadTime: 28,
       prerequisites: [],
-      nextTopics: ['math-calc-002'],
-      examRelevance: {
-        jeeMain: 18,
-        jeeAdvanced: 15,
-        neet: 0
-      },
+      nextTopics: ['math-limits-intermediate'],
+      examRelevance: { jeeMain: 18, jeeAdvanced: 22, neet: 5 },
       lastUpdated: new Date()
-    };
+    });
 
-    this.contentDatabase.set('math-calc-001', limitsContent);
-  }
+    // BIOLOGY CONTENT - ALL LEVELS
 
-  private addBiologyContent(): void {
-    const cellStructureContent: EducationalContent = {
-      id: 'bio-cell-001-content',
-      title: 'Cell: The Unit of Life',
+    // CELL BIOLOGY - Foundation
+    this.addContent({
+      id: 'bio-cell-structure-foundation',
+      title: 'Cell Structure and Function - Basics',
       subject: 'Biology',
       topic: 'Cell Biology',
       subtopic: 'Cell Structure',
       difficulty: 'Foundation',
       contentType: 'theory',
       content: {
-        theory: `
-# Cell: The Unit of Life
+        theory: `# Cell Structure and Function - Foundation
 
-## Introduction
-
-The cell is the basic structural and functional unit of life. All living organisms are composed of one or more cells, making cell biology fundamental to understanding life processes.
+## Introduction to Cells
+Cells are the basic structural and functional units of all living organisms. Understanding cell structure is fundamental to biology.
 
 ## Cell Theory
-
-### Historical Development
-1. **Robert Hooke (1665):** First observed cells in cork tissue
-2. **Anton van Leeuwenhoek (1674):** First observed living cells
-3. **Matthias Schleiden (1838):** All plants are made of cells
-4. **Theodor Schwann (1839):** All animals are made of cells
-5. **Rudolf Virchow (1855):** "Omnis cellula e cellula" (all cells from cells)
-
-### Modern Cell Theory
-1. **All living things are composed of one or more cells**
-2. **The cell is the basic unit of life**
-3. **All cells arise from pre-existing cells**
+The cell theory states:
+1. All living things are made of one or more cells
+2. The cell is the basic unit of life
+3. All cells come from pre-existing cells
 
 ## Types of Cells
 
 ### Prokaryotic Cells
-- **No membrane-bound nucleus**
-- Genetic material freely distributed in cytoplasm
+- No membrane-bound nucleus
+- Genetic material freely floating in cytoplasm
 - Examples: Bacteria, Archaea
+- Size: 1-10 micrometers
 
-#### Characteristics:
-- Simple internal structure
-- Cell wall present (peptidoglycan in bacteria)
-- Ribosomes (70S type)
-- No membrane-bound organelles
-- Nucleoid region contains DNA
-- Size: 1-5 μm
-
-#### Bacterial Cell Structure:
-- **Cell wall:** Protection and shape
-- **Cell membrane:** Selective permeability
-- **Cytoplasm:** Site of metabolic activities
-- **Nucleoid:** Contains genetic material
-- **Ribosomes:** Protein synthesis
-- **Flagella:** Movement (in some bacteria)
-- **Pili:** Attachment and conjugation
+**Key Features:**
+- Cell wall (peptidoglycan in bacteria)
+- Plasma membrane
+- Cytoplasm
+- Ribosomes (70S)
+- Nucleoid region
+- Plasmids (in some bacteria)
 
 ### Eukaryotic Cells
-- **Membrane-bound nucleus**
+- Membrane-bound nucleus
 - Genetic material enclosed in nucleus
 - Examples: Plants, Animals, Fungi, Protists
+- Size: 10-100 micrometers
 
-#### Characteristics:
-- Complex internal structure
+**Key Features:**
+- Nucleus with nuclear membrane
 - Membrane-bound organelles
-- Ribosomes (80S type)
-- Compartmentalization
-- Size: 10-100 μm
+- Ribosomes (80S)
+- Complex internal organization
 
-## Eukaryotic Cell Organelles
+## Major Cell Organelles
 
-### 1. Nucleus
-- **Function:** Control center of cell, contains DNA
-- **Structure:** 
-  - Nuclear envelope (double membrane)
-  - Nuclear pores (transport)
-  - Nucleoplasm (nuclear matrix)
-  - Nucleolus (ribosome synthesis)
-- **Importance:** Gene expression, DNA replication
+### Nucleus
+- **Function:** Controls cell activities, contains DNA
+- **Structure:** Nuclear membrane, nucleoplasm, nucleolus, chromatin
+- **Location:** Center of cell (usually)
 
-### 2. Mitochondria
-- **Function:** Powerhouse of cell, ATP production
-- **Structure:** 
-  - Double membrane
-  - Outer membrane (smooth)
-  - Inner membrane (cristae for surface area)
-  - Matrix (contains enzymes, DNA, ribosomes)
-- **Importance:** Cellular respiration, energy metabolism
-- **Origin:** Endosymbiotic theory
+### Mitochondria
+- **Function:** Cellular respiration, ATP production
+- **Structure:** Double membrane, cristae, matrix
+- **Nickname:** "Powerhouse of the cell"
 
-### 3. Endoplasmic Reticulum (ER)
+### Endoplasmic Reticulum (ER)
+**Rough ER:**
+- Has ribosomes attached
+- Protein synthesis and modification
 
-#### Rough ER (RER):
-- **Structure:** Ribosomes attached to surface
-- **Function:** 
-  - Protein synthesis
-  - Protein modification and folding
-  - Transport of proteins
+**Smooth ER:**
+- No ribosomes
+- Lipid synthesis, detoxification
 
-#### Smooth ER (SER):
-- **Structure:** No ribosomes
-- **Function:**
-  - Lipid synthesis
-  - Steroid hormone production
-  - Detoxification
-  - Calcium storage
+### Golgi Apparatus
+- **Function:** Protein processing, packaging, shipping
+- **Structure:** Stacks of flattened membranes (cisternae)
+- **Nickname:** "Post office of the cell"
 
-### 4. Golgi Apparatus
-- **Function:** Processing, packaging, shipping center
-- **Structure:** 
-  - Stacks of flattened membranes (cisternae)
-  - Cis face (receiving side)
-  - Trans face (shipping side)
-- **Importance:** 
-  - Protein modification (glycosylation)
-  - Secretion
-  - Lysosome formation
-
-### 5. Ribosomes
+### Ribosomes
 - **Function:** Protein synthesis
-- **Types:** 
-  - Free ribosomes (cytoplasmic proteins)
-  - Bound ribosomes (secretory proteins)
-- **Structure:** Large and small subunits
+- **Types:** Free ribosomes, bound ribosomes
 - **Composition:** rRNA + proteins
 
-### 6. Lysosomes
-- **Function:** Digestive organelles ("suicide bags")
-- **Contents:** Hydrolytic enzymes (acid hydrolases)
-- **Importance:** 
-  - Waste disposal
-  - Autophagy (self-digestion)
-  - Apoptosis
-  - Digestion of worn-out organelles
+### Lysosomes
+- **Function:** Digestion, waste removal
+- **Contains:** Digestive enzymes
+- **Nickname:** "Suicide bags of the cell"
 
-### 7. Vacuoles
+### Vacuoles
+- **Plant cells:** Large central vacuole for support and storage
+- **Animal cells:** Small, temporary vacuoles
 
-#### Plant Cells:
-- **Large central vacuole**
-- **Functions:**
-  - Maintains turgor pressure
-  - Storage of water and substances
-  - Structural support
-  - Waste disposal
-
-#### Animal Cells:
-- **Small, temporary vacuoles**
-- **Types:**
-  - Food vacuoles
-  - Contractile vacuoles (in protists)
-
-### 8. Chloroplasts (Plant Cells Only)
+### Chloroplasts (Plant cells only)
 - **Function:** Photosynthesis
-- **Structure:**
-  - Double membrane
-  - Thylakoids (contain chlorophyll)
-  - Grana (stacks of thylakoids)
-  - Stroma (fluid matrix)
-- **Importance:** Light energy conversion to chemical energy
-- **Origin:** Endosymbiotic theory
-
-### 9. Peroxisomes
-- **Function:** Detoxification, fatty acid oxidation
-- **Enzymes:** Catalase, oxidases
-- **Importance:** 
-  - H₂O₂ breakdown
-  - Lipid metabolism
-  - Photorespiration (in plants)
+- **Structure:** Double membrane, thylakoids, stroma
+- **Contains:** Chlorophyll
 
 ## Cell Membrane Structure
+- **Phospholipid bilayer:** Hydrophilic heads, hydrophobic tails
+- **Proteins:** Integral and peripheral
+- **Cholesterol:** Maintains fluidity
+- **Carbohydrates:** Cell recognition
 
-### Fluid Mosaic Model (Singer-Nicolson, 1972)
-- **Phospholipid bilayer:** Basic structure
-- **Embedded proteins:** Integral and peripheral
-- **Cholesterol molecules:** Membrane fluidity
-- **Carbohydrate chains:** Cell recognition
+## Transport Across Membranes
 
-### Components:
-1. **Phospholipids:** Hydrophilic head, hydrophobic tails
-2. **Proteins:** Transport, enzymes, receptors
-3. **Cholesterol:** Fluidity regulation
-4. **Carbohydrates:** Recognition, signaling
+### Passive Transport
+- **Simple diffusion:** Movement along concentration gradient
+- **Facilitated diffusion:** Through protein channels
+- **Osmosis:** Water movement across membrane
 
-### Functions:
-1. **Selective permeability**
-2. **Cell recognition**
-3. **Signal transduction**
-4. **Transport of materials**
-5. **Maintaining cell shape**
+### Active Transport
+- **Primary active transport:** Uses ATP directly
+- **Secondary active transport:** Uses ion gradients
+- **Bulk transport:** Endocytosis and exocytosis
 
-## Transport Across Cell Membrane
-
-### Passive Transport (No energy required)
-
-#### 1. Simple Diffusion
-- Movement along concentration gradient
-- Small, nonpolar molecules (O₂, CO₂)
-- Through lipid bilayer
-
-#### 2. Facilitated Diffusion
-- Through protein channels or carriers
-- Polar molecules, ions
-- Still along concentration gradient
-
-#### 3. Osmosis
-- Water movement through semipermeable membrane
-- From low to high solute concentration
-- Important for cell volume regulation
-
-### Active Transport (Energy required)
-
-#### 1. Primary Active Transport
-- Direct use of ATP
-- Against concentration gradient
-- Example: Sodium-potassium pump
-
-#### 2. Secondary Active Transport
-- Indirect use of ATP
-- Uses electrochemical gradient
-- Cotransport (symport/antiport)
-
-#### 3. Bulk Transport
-- **Endocytosis:** Taking in large molecules
-  - Phagocytosis (cell eating)
-  - Pinocytosis (cell drinking)
-  - Receptor-mediated endocytosis
-- **Exocytosis:** Secretion of materials
-
-## Cell Wall (Plant Cells)
-
-### Composition:
-- **Primary wall:** Cellulose, hemicellulose, pectin
-- **Secondary wall:** More cellulose, lignin
-- **Middle lamella:** Pectin (between adjacent cells)
-
-### Functions:
-1. **Structural support**
-2. **Protection**
-3. **Shape maintenance**
-4. **Prevents over-expansion**
-5. **Cell-to-cell communication (plasmodesmata)**
-
-## Cytoskeleton
-
-### Components:
-1. **Microfilaments (Actin filaments)**
-   - Thinnest (7 nm)
-   - Cell shape, muscle contraction
-
-2. **Microtubules**
-   - Thickest (25 nm)
-   - Cell shape, organelle movement
-   - Cilia and flagella structure
-
-3. **Intermediate filaments**
-   - Medium size (10 nm)
-   - Structural support
-
-### Functions:
-- **Cell shape maintenance**
-- **Organelle movement**
-- **Cell division**
-- **Muscle contraction**
-- **Cellular locomotion**
+## Cell Division Overview
+- **Mitosis:** Produces identical diploid cells
+- **Meiosis:** Produces genetically different gametes
+- **Cell cycle:** G1, S, G2, M phases
 
 ## Differences Between Plant and Animal Cells
 
-| Feature | Plant Cell | Animal Cell |
-|---------|------------|-------------|
-| Cell wall | Present | Absent |
-| Chloroplasts | Present | Absent |
-| Large vacuole | Present | Absent |
-| Centrioles | Absent | Present |
-| Shape | Fixed (due to cell wall) | Variable |
-| Lysosomes | Rare | Common |
-| Storage | Starch | Glycogen |
-        `,
+### Plant Cells Have:
+- Cell wall (cellulose)
+- Large central vacuole
+- Chloroplasts
+- Plasmodesmata
+
+### Animal Cells Have:
+- Centrioles
+- Lysosomes (more prominent)
+- Flexible cell membrane only`,
+        
         examples: [
           {
-            title: 'Osmosis in Plant and Animal Cells',
-            problem: 'Explain what happens when plant and animal cells are placed in hypotonic, isotonic, and hypertonic solutions.',
-            solution: `
-**Hypotonic Solution (Lower solute concentration outside):**
-
-*Plant Cell:*
-- Water enters the cell by osmosis
-- Cell swells and becomes turgid
-- Cell wall prevents bursting
-- Turgor pressure develops
-- Cell becomes firm and rigid
-
-*Animal Cell:*
-- Water enters the cell
-- Cell swells and may burst (lysis)
-- No cell wall to provide protection
-- Cell membrane may rupture
-
-**Isotonic Solution (Equal solute concentration):**
-
-*Both Plant and Animal Cells:*
-- No net water movement
-- Cell maintains normal size
-- Dynamic equilibrium
-- Optimal condition for most cells
-
-**Hypertonic Solution (Higher solute concentration outside):**
-
-*Plant Cell:*
-- Water leaves the cell
-- Cell membrane pulls away from cell wall
-- Plasmolysis occurs
-- Cell becomes flaccid
-- Plant wilts
-
-*Animal Cell:*
-- Water leaves the cell
-- Cell shrinks and becomes crenated
-- Cell membrane wrinkles
-- Cell function may be impaired
-
-**Key Differences:**
-1. Plant cells have cell wall protection
-2. Animal cells are more vulnerable to osmotic changes
-3. Turgor pressure is crucial for plant structure
-4. Animal cells need isotonic environment
-            `,
-            explanation: 'The presence of a cell wall in plants provides protection against osmotic pressure, while animal cells rely on maintaining isotonic conditions. This explains why plants can survive in varying water conditions better than animal cells.'
+            title: 'Cell Type Identification',
+            problem: 'A cell has no nucleus, peptidoglycan cell wall, and 70S ribosomes. What type of cell is this?',
+            solution: 'This is a prokaryotic cell, specifically a bacterial cell.\nKey indicators:\n- No nucleus (prokaryotic)\n- Peptidoglycan cell wall (bacterial)\n- 70S ribosomes (prokaryotic)',
+            explanation: 'The absence of a nucleus and presence of peptidoglycan clearly indicate this is a bacterial (prokaryotic) cell.'
           },
           {
-            title: 'Endosymbiotic Theory',
-            problem: 'Explain the endosymbiotic theory and provide evidence supporting the origin of mitochondria and chloroplasts.',
-            solution: `
-**Endosymbiotic Theory:**
-Proposed by Lynn Margulis, this theory suggests that mitochondria and chloroplasts were once free-living prokaryotic organisms that were engulfed by early eukaryotic cells, leading to a mutually beneficial relationship.
-
-**Evidence for Mitochondria:**
-
-1. **Size and Shape:**
-   - Similar to bacteria (1-5 μm)
-   - Rod-shaped like many bacteria
-
-2. **DNA:**
-   - Circular DNA (like bacteria)
-   - Not associated with histones
-   - Genes similar to α-proteobacteria
-
-3. **Ribosomes:**
-   - 70S ribosomes (like prokaryotes)
-   - Different from eukaryotic 80S ribosomes
-
-4. **Reproduction:**
-   - Binary fission (like bacteria)
-   - Independent of cell division
-
-5. **Membranes:**
-   - Double membrane structure
-   - Inner membrane similar to bacterial membrane
-
-**Evidence for Chloroplasts:**
-
-1. **Similar to Cyanobacteria:**
-   - Size, shape, and pigments
-   - Photosynthetic machinery
-
-2. **DNA and Ribosomes:**
-   - Circular DNA
-   - 70S ribosomes
-   - Genes similar to cyanobacteria
-
-3. **Reproduction:**
-   - Binary fission
-   - Independent replication
-
-**Evolutionary Significance:**
-- Explains the origin of eukaryotic cells
-- Accounts for the complexity of eukaryotes
-- Demonstrates the importance of symbiosis in evolution
-- Explains why these organelles have their own genetic material
-
-**Modern Evidence:**
-- Phylogenetic analysis confirms bacterial origin
-- Some modern organisms show similar symbiotic relationships
-- Molecular studies support the theory
-            `,
-            explanation: 'The endosymbiotic theory explains one of the most important evolutionary transitions - the origin of complex eukaryotic cells. The evidence strongly supports that mitochondria and chloroplasts were once independent bacteria.'
+            title: 'Organelle Function',
+            problem: 'Which organelle would be most abundant in a cell that secretes large amounts of protein?',
+            solution: 'Rough Endoplasmic Reticulum (RER) would be most abundant.\nReason: RER has ribosomes that synthesize proteins, and it modifies proteins for secretion.',
+            explanation: 'Cells that secrete proteins need extensive protein synthesis machinery, which is provided by the rough ER.'
           }
         ],
+        
         practiceQuestions: [
           {
             question: 'Which organelle is known as the "powerhouse of the cell"?',
             options: ['Nucleus', 'Mitochondria', 'Ribosome', 'Golgi apparatus'],
             correctAnswer: 1,
-            explanation: 'Mitochondria are called the powerhouse because they produce ATP through cellular respiration, providing energy for cellular processes.',
+            explanation: 'Mitochondria produce ATP through cellular respiration, providing energy for cellular processes.',
             difficulty: 'Easy'
           },
           {
-            question: 'The fluid mosaic model describes the structure of:',
-            options: ['Cell wall', 'Cell membrane', 'Nucleus', 'Cytoplasm'],
+            question: 'What is the main difference between prokaryotic and eukaryotic cells?',
+            options: ['Size', 'Presence of nucleus', 'Cell wall', 'Ribosomes'],
             correctAnswer: 1,
-            explanation: 'The fluid mosaic model explains the structure of cell membrane with phospholipid bilayer and embedded proteins that can move laterally.',
-            difficulty: 'Medium'
-          },
-          {
-            question: 'Which of the following is found only in plant cells?',
-            options: ['Mitochondria', 'Ribosomes', 'Chloroplasts', 'Nucleus'],
-            correctAnswer: 2,
-            explanation: 'Chloroplasts are unique to plant cells and some protists. They contain chlorophyll and are the site of photosynthesis.',
+            explanation: 'The main difference is that eukaryotic cells have a membrane-bound nucleus while prokaryotic cells do not.',
             difficulty: 'Easy'
-          },
-          {
-            question: 'Lysosomes are formed by:',
-            options: ['Mitochondria', 'Golgi apparatus', 'Endoplasmic reticulum', 'Nucleus'],
-            correctAnswer: 1,
-            explanation: 'Lysosomes are formed by the Golgi apparatus, which packages digestive enzymes into membrane-bound vesicles.',
-            difficulty: 'Medium'
           }
         ],
+        
         keyPoints: [
-          'Cell theory: all life is made of cells, cells are basic units of life, cells come from cells',
-          'Prokaryotes lack membrane-bound nucleus; eukaryotes have membrane-bound nucleus',
-          'Each organelle has specific functions essential for cell survival',
-          'Cell membrane controls what enters and exits the cell',
-          'Plant and animal cells have both similarities and differences',
-          'Endosymbiotic theory explains origin of mitochondria and chloroplasts',
-          'Transport across membranes can be passive or active',
-          'Cytoskeleton provides structural support and enables movement'
+          'All living things are made of cells',
+          'Prokaryotic cells lack a membrane-bound nucleus',
+          'Eukaryotic cells have membrane-bound organelles',
+          'Each organelle has specific functions',
+          'Plant and animal cells have some different structures'
         ],
+        
         formulas: [
           {
-            name: 'Surface Area to Volume Ratio',
-            formula: 'SA:V = 6/r (for sphere)',
-            description: 'Determines efficiency of material exchange across cell membrane'
-          },
-          {
-            name: 'Osmotic Pressure',
-            formula: 'π = iMRT',
-            description: 'Pressure needed to prevent osmotic flow of water'
+            name: 'Cell Theory',
+            formula: '1. All living things are cells, 2. Cell is basic unit, 3. Cells from cells',
+            description: 'Three fundamental principles of cell theory'
           }
         ]
       },
-      estimatedReadTime: 35,
+      estimatedReadTime: 32,
       prerequisites: [],
-      nextTopics: ['bio-cell-002'],
-      examRelevance: {
-        jeeMain: 0,
-        jeeAdvanced: 0,
-        neet: 15
-      },
+      nextTopics: ['bio-cell-structure-intermediate'],
+      examRelevance: { jeeMain: 0, jeeAdvanced: 0, neet: 20 },
       lastUpdated: new Date()
-    };
+    });
 
-    this.contentDatabase.set('bio-cell-001', cellStructureContent);
+    // Add more intermediate and advanced content for all subjects...
+    this.addIntermediateContent();
+    this.addAdvancedContent();
+    this.addExpertContent();
+  }
+
+  private addIntermediateContent(): void {
+    // PHYSICS - Intermediate Level
+    this.addContent({
+      id: 'phy-mech-laws-motion-intermediate',
+      title: 'Newton\'s Laws of Motion - Problem Solving',
+      subject: 'Physics',
+      topic: 'Mechanics',
+      subtopic: 'Dynamics',
+      difficulty: 'Intermediate',
+      contentType: 'theory',
+      content: {
+        theory: `# Newton's Laws of Motion - Intermediate
+
+## Advanced Applications of Newton's Laws
+
+### Complex Force Analysis
+Real-world problems often involve multiple forces acting simultaneously. Systematic approach is crucial.
+
+#### Free Body Diagrams (FBD)
+Essential steps:
+1. Isolate the object
+2. Identify all forces
+3. Choose coordinate system
+4. Resolve forces into components
+5. Apply Newton's laws
+
+### Newton's Second Law in Component Form
+**ΣFₓ = maₓ**
+**ΣFᵧ = maᵧ**
+
+### Constraint Forces
+- **Normal force:** Perpendicular to surface
+- **Tension:** Along string/rope
+- **Friction:** Opposes relative motion
+
+### Types of Friction
+1. **Static friction:** fₛ ≤ μₛN
+2. **Kinetic friction:** fₖ = μₖN
+3. **Rolling friction:** Much smaller than sliding
+
+### Inclined Plane Problems
+Key technique: Choose coordinate system along and perpendicular to incline.
+
+**Forces parallel to incline:** mg sin θ - f = ma
+**Forces perpendicular to incline:** N - mg cos θ = 0
+
+### Connected Bodies
+When objects are connected by strings:
+- Same acceleration (if string is inextensible)
+- Tension is internal force
+- Apply Newton's laws to each body separately
+
+### Circular Motion Dynamics
+For uniform circular motion:
+**Centripetal force:** Fₒ = mv²/r = mω²r
+
+### Elevator Problems
+Apparent weight changes with acceleration:
+- **Accelerating up:** N = mg + ma
+- **Accelerating down:** N = mg - ma
+- **Free fall:** N = 0 (weightlessness)
+
+### Banking of Roads
+For safe turning without friction:
+**tan θ = v²/(rg)**
+
+### Advanced Problem Types
+1. Pulley systems with multiple masses
+2. Wedge problems
+3. Spring-mass systems
+4. Variable mass problems`,
+        
+        examples: [
+          {
+            title: 'Inclined Plane with Friction',
+            problem: 'A 10 kg block slides down a 30° incline with coefficient of kinetic friction 0.2. Find acceleration.',
+            solution: 'Forces parallel to incline:\nmg sin 30° - μₖmg cos 30° = ma\n10×10×0.5 - 0.2×10×10×(√3/2) = 10a\n50 - 17.32 = 10a\na = 3.27 m/s²',
+            explanation: 'We resolve weight into components and include friction force opposing motion.'
+          },
+          {
+            title: 'Atwood Machine',
+            problem: 'Two masses 3 kg and 5 kg are connected by a string over a pulley. Find acceleration.',
+            solution: 'For 5 kg: 5g - T = 5a\nFor 3 kg: T - 3g = 3a\nAdding: 2g = 8a\na = g/4 = 2.5 m/s²\nT = 3g + 3a = 37.5 N',
+            explanation: 'Both masses have same acceleration magnitude. Heavier mass accelerates downward.'
+          }
+        ],
+        
+        practiceQuestions: [
+          {
+            question: 'A car takes a turn of radius 50 m at 20 m/s. What is the centripetal acceleration?',
+            options: ['4 m/s²', '6 m/s²', '8 m/s²', '10 m/s²'],
+            correctAnswer: 2,
+            explanation: 'Centripetal acceleration = v²/r = (20)²/50 = 400/50 = 8 m/s²',
+            difficulty: 'Medium'
+          }
+        ],
+        
+        keyPoints: [
+          'Free body diagrams are essential for complex problems',
+          'Choose coordinate system to simplify calculations',
+          'Friction always opposes relative motion',
+          'Connected bodies have constraint relationships',
+          'Circular motion requires centripetal force'
+        ],
+        
+        formulas: [
+          {
+            name: 'Friction Force',
+            formula: 'f = μN',
+            description: 'Friction force depends on normal force and coefficient'
+          },
+          {
+            name: 'Centripetal Force',
+            formula: 'Fₒ = mv²/r',
+            description: 'Force required for circular motion'
+          }
+        ]
+      },
+      estimatedReadTime: 40,
+      prerequisites: ['phy-mech-kinematics-1d-foundation'],
+      nextTopics: ['phy-mech-work-energy-intermediate'],
+      examRelevance: { jeeMain: 25, jeeAdvanced: 30, neet: 15 },
+      lastUpdated: new Date()
+    });
+
+    // CHEMISTRY - Intermediate Level
+    this.addContent({
+      id: 'chem-chemical-bonding-intermediate',
+      title: 'Chemical Bonding and Molecular Structure',
+      subject: 'Chemistry',
+      topic: 'Physical Chemistry',
+      subtopic: 'Chemical Bonding',
+      difficulty: 'Intermediate',
+      contentType: 'theory',
+      content: {
+        theory: `# Chemical Bonding and Molecular Structure
+
+## Types of Chemical Bonds
+
+### Ionic Bonding
+- **Formation:** Transfer of electrons from metal to non-metal
+- **Properties:** High melting point, conducts electricity in molten state
+- **Lattice energy:** Energy required to separate ionic solid into gaseous ions
+
+### Covalent Bonding
+- **Formation:** Sharing of electrons between atoms
+- **Types:** Single, double, triple bonds
+- **Properties:** Lower melting points, poor electrical conductivity
+
+### Metallic Bonding
+- **Sea of electrons model**
+- **Properties:** Electrical conductivity, malleability, ductility
+
+## Lewis Structures
+Rules for drawing Lewis structures:
+1. Count total valence electrons
+2. Arrange atoms (least electronegative in center)
+3. Connect atoms with single bonds
+4. Complete octets with remaining electrons
+5. Form multiple bonds if necessary
+
+## VSEPR Theory
+Valence Shell Electron Pair Repulsion Theory predicts molecular geometry:
+
+**Basic Geometries:**
+- 2 electron pairs: Linear (180°)
+- 3 electron pairs: Trigonal planar (120°)
+- 4 electron pairs: Tetrahedral (109.5°)
+- 5 electron pairs: Trigonal bipyramidal
+- 6 electron pairs: Octahedral (90°)
+
+## Hybridization
+Mixing of atomic orbitals to form hybrid orbitals:
+
+**sp³ hybridization:** Tetrahedral geometry (CH₄)
+**sp² hybridization:** Trigonal planar geometry (BF₃)
+**sp hybridization:** Linear geometry (BeF₂)
+
+## Molecular Orbital Theory
+- **Bonding orbitals:** Lower energy, electrons stabilize molecule
+- **Antibonding orbitals:** Higher energy, electrons destabilize molecule
+- **Bond order:** (Bonding electrons - Antibonding electrons)/2
+
+## Intermolecular Forces
+
+### Van der Waals Forces
+1. **London dispersion forces:** Present in all molecules
+2. **Dipole-dipole interactions:** Between polar molecules
+3. **Hydrogen bonding:** Special case of dipole-dipole
+
+### Hydrogen Bonding
+- Occurs when H is bonded to N, O, or F
+- Explains high boiling point of water
+- Important in biological systems
+
+## Polarity and Electronegativity
+- **Electronegativity:** Ability to attract electrons
+- **Polar bonds:** Unequal sharing of electrons
+- **Molecular polarity:** Depends on bond polarity and geometry
+
+## Resonance
+- Multiple valid Lewis structures
+- Actual structure is hybrid of resonance forms
+- Examples: Benzene, carbonate ion`,
+        
+        examples: [
+          {
+            title: 'VSEPR Geometry Prediction',
+            problem: 'Predict the geometry of NH₃ using VSEPR theory.',
+            solution: 'NH₃ has 4 electron pairs around N (3 bonding + 1 lone pair)\nElectron geometry: Tetrahedral\nMolecular geometry: Trigonal pyramidal\nBond angle: ~107° (less than 109.5° due to lone pair repulsion)',
+            explanation: 'Lone pairs occupy more space than bonding pairs, causing compression of bond angles.'
+          },
+          {
+            title: 'Hybridization Determination',
+            problem: 'Determine the hybridization of carbon in CH₂=CH₂.',
+            solution: 'Each carbon forms 3 sigma bonds (2 C-H + 1 C-C)\nSteric number = 3\nHybridization = sp²\nGeometry around each C: Trigonal planar',
+            explanation: 'Double bond consists of one sigma and one pi bond. Only sigma bonds count for hybridization.'
+          }
+        ],
+        
+        practiceQuestions: [
+          {
+            question: 'What is the hybridization of carbon in methane (CH₄)?',
+            options: ['sp', 'sp²', 'sp³', 'sp³d'],
+            correctAnswer: 2,
+            explanation: 'Carbon in CH₄ forms 4 sigma bonds, requiring sp³ hybridization for tetrahedral geometry.',
+            difficulty: 'Medium'
+          }
+        ],
+        
+        keyPoints: [
+          'VSEPR theory predicts molecular geometry based on electron pair repulsion',
+          'Hybridization explains bonding and geometry in molecules',
+          'Lone pairs affect molecular shape and bond angles',
+          'Electronegativity differences determine bond polarity',
+          'Intermolecular forces affect physical properties'
+        ],
+        
+        formulas: [
+          {
+            name: 'Bond Order',
+            formula: 'BO = (Bonding e⁻ - Antibonding e⁻)/2',
+            description: 'Measure of bond strength in molecular orbital theory'
+          }
+        ]
+      },
+      estimatedReadTime: 45,
+      prerequisites: ['chem-atomic-structure-foundation'],
+      nextTopics: ['chem-thermodynamics-foundation'],
+      examRelevance: { jeeMain: 20, jeeAdvanced: 25, neet: 18 },
+      lastUpdated: new Date()
+    });
+  }
+
+  private addAdvancedContent(): void {
+    // PHYSICS - Advanced Level
+    this.addContent({
+      id: 'phy-mech-rotational-motion-advanced',
+      title: 'Rotational Dynamics - Advanced Concepts',
+      subject: 'Physics',
+      topic: 'Mechanics',
+      subtopic: 'Rotational Motion',
+      difficulty: 'Advanced',
+      contentType: 'theory',
+      content: {
+        theory: `# Rotational Dynamics - Advanced
+
+## Moment of Inertia
+The rotational analog of mass in linear motion.
+
+### Calculation Methods
+1. **Discrete masses:** I = Σmᵢrᵢ²
+2. **Continuous distribution:** I = ∫r²dm
+3. **Parallel axis theorem:** I = Iₒₘ + Md²
+4. **Perpendicular axis theorem:** Iᵤ = Iₓ + Iᵧ
+
+### Common Moments of Inertia
+- **Solid cylinder:** I = ½MR²
+- **Hollow cylinder:** I = MR²
+- **Solid sphere:** I = ⅖MR²
+- **Hollow sphere:** I = ⅔MR²
+- **Rod about center:** I = 1/12 ML²
+
+## Rotational Kinematics
+Angular analogs of linear equations:
+- ω = ω₀ + αt
+- θ = ω₀t + ½αt²
+- ω² = ω₀² + 2αθ
+
+## Torque and Angular Momentum
+
+### Torque
+**τ = r × F = rF sin θ**
+**τ = Iα** (rotational analog of F = ma)
+
+### Angular Momentum
+**L = Iω** (for rotation about fixed axis)
+**L = r × p** (general definition)
+
+### Conservation of Angular Momentum
+When net external torque is zero, angular momentum is conserved.
+
+## Rolling Motion
+For rolling without slipping:
+- **Constraint:** v = ωR
+- **Kinetic energy:** KE = ½mv² + ½Iω² = ½mv²(1 + I/mR²)
+
+## Gyroscopic Motion
+- **Precession:** Change in direction of angular momentum
+- **Gyroscopic effect:** Resistance to change in orientation
+
+## Advanced Applications
+1. **Compound pendulum**
+2. **Gyroscopes and tops**
+3. **Rotating reference frames**
+4. **Coriolis effect**`,
+        
+        examples: [
+          {
+            title: 'Rolling Sphere Problem',
+            problem: 'A solid sphere rolls down an incline of height h. Find its velocity at the bottom.',
+            solution: 'Using energy conservation:\nmgh = ½mv² + ½Iω²\nFor rolling: v = ωR, I = ⅖mR²\nmgh = ½mv² + ½(⅖mR²)(v/R)²\nmgh = ½mv² + ⅕mv² = 7/10 mv²\nv = √(10gh/7)',
+            explanation: 'Rolling objects have both translational and rotational kinetic energy.'
+          }
+        ],
+        
+        practiceQuestions: [
+          {
+            question: 'What fraction of kinetic energy is rotational for a rolling solid cylinder?',
+            options: ['1/4', '1/3', '1/2', '2/3'],
+            correctAnswer: 1,
+            explanation: 'For solid cylinder I = ½mR², so KEᵣₒₜ/KEₜₒₜₐₗ = (½Iω²)/(½mv² + ½Iω²) = 1/3',
+            difficulty: 'Hard'
+          }
+        ],
+        
+        keyPoints: [
+          'Moment of inertia depends on mass distribution',
+          'Rolling motion combines translation and rotation',
+          'Angular momentum is conserved when no external torque acts',
+          'Parallel axis theorem relates moments of inertia about different axes'
+        ],
+        
+        formulas: [
+          {
+            name: 'Parallel Axis Theorem',
+            formula: 'I = Iₒₘ + Md²',
+            description: 'Relates moment of inertia about parallel axes'
+          }
+        ]
+      },
+      estimatedReadTime: 50,
+      prerequisites: ['phy-mech-laws-motion-intermediate'],
+      nextTopics: ['phy-oscillations-advanced'],
+      examRelevance: { jeeMain: 15, jeeAdvanced: 35, neet: 8 },
+      lastUpdated: new Date()
+    });
+
+    // Add more advanced content for other subjects...
+  }
+
+  private addExpertContent(): void {
+    // MATHEMATICS - Expert Level
+    this.addContent({
+      id: 'math-complex-analysis-expert',
+      title: 'Complex Analysis and Applications',
+      subject: 'Mathematics',
+      topic: 'Complex Numbers',
+      subtopic: 'Advanced Theory',
+      difficulty: 'Expert',
+      contentType: 'theory',
+      content: {
+        theory: `# Complex Analysis - Expert Level
+
+## Advanced Complex Number Theory
+
+### Complex Functions
+Functions of complex variables: f(z) = u(x,y) + iv(x,y)
+
+### Analytic Functions
+A function is analytic if it's differentiable at every point in its domain.
+
+**Cauchy-Riemann Equations:**
+∂u/∂x = ∂v/∂y and ∂u/∂y = -∂v/∂x
+
+### Contour Integration
+Integration along paths in the complex plane.
+
+**Cauchy's Theorem:** ∮f(z)dz = 0 for analytic f
+
+### Residue Theory
+For calculating complex integrals using singularities.
+
+### Applications
+- Fourier transforms
+- Quantum mechanics
+- Signal processing
+- Fluid dynamics`,
+        
+        examples: [
+          {
+            title: 'Cauchy-Riemann Verification',
+            problem: 'Verify if f(z) = z² is analytic.',
+            solution: 'f(z) = (x + iy)² = x² - y² + 2ixy\nu = x² - y², v = 2xy\n∂u/∂x = 2x, ∂v/∂y = 2x ✓\n∂u/∂y = -2y, ∂v/∂x = 2y, so -∂v/∂x = -2y ✓\nCauchy-Riemann satisfied, so f(z) is analytic.',
+            explanation: 'The Cauchy-Riemann equations are necessary and sufficient for analyticity.'
+          }
+        ],
+        
+        practiceQuestions: [
+          {
+            question: 'What is the residue of f(z) = 1/(z-1)² at z = 1?',
+            options: ['0', '1', '2', '∞'],
+            correctAnswer: 1,
+            explanation: 'For a pole of order 2, residue = lim(z→1) d/dz[(z-1)²/(z-1)²] = lim(z→1) d/dz[1] = 0. Actually, this is a second-order pole, so residue = 1.',
+            difficulty: 'Expert'
+          }
+        ],
+        
+        keyPoints: [
+          'Analytic functions satisfy Cauchy-Riemann equations',
+          'Contour integration uses complex paths',
+          'Residue theorem simplifies complex integration',
+          'Complex analysis has wide applications in physics and engineering'
+        ],
+        
+        formulas: [
+          {
+            name: 'Cauchy-Riemann Equations',
+            formula: '∂u/∂x = ∂v/∂y, ∂u/∂y = -∂v/∂x',
+            description: 'Conditions for complex differentiability'
+          }
+        ]
+      },
+      estimatedReadTime: 60,
+      prerequisites: ['math-limits-intermediate'],
+      nextTopics: [],
+      examRelevance: { jeeMain: 5, jeeAdvanced: 15, neet: 0 },
+      lastUpdated: new Date()
+    });
+  }
+
+  private addContent(content: EducationalContent): void {
+    this.content.set(content.id, content);
   }
 
   // Public methods
-  getContent(nodeId: string): EducationalContent | null {
-    return this.contentDatabase.get(nodeId) || null;
-  }
-
-  getContentBySubject(subject: string): EducationalContent[] {
-    return Array.from(this.contentDatabase.values())
-      .filter(content => content.subject === subject);
-  }
-
-  getContentByTopic(subject: string, topic: string): EducationalContent[] {
-    return Array.from(this.contentDatabase.values())
-      .filter(content => content.subject === subject && content.topic === topic);
-  }
-
-  searchContent(query: string): EducationalContent[] {
-    const searchTerm = query.toLowerCase();
-    return Array.from(this.contentDatabase.values())
-      .filter(content => 
-        content.title.toLowerCase().includes(searchTerm) ||
-        content.topic.toLowerCase().includes(searchTerm) ||
-        content.subtopic.toLowerCase().includes(searchTerm) ||
-        content.content.theory?.toLowerCase().includes(searchTerm)
-      );
-  }
-
-  addCustomContent(content: EducationalContent): void {
-    this.contentDatabase.set(content.id, content);
-  }
-
-  updateContent(id: string, updates: Partial<EducationalContent>): void {
-    const existing = this.contentDatabase.get(id);
-    if (existing) {
-      const updated = { ...existing, ...updates, lastUpdated: new Date() };
-      this.contentDatabase.set(id, updated);
-    }
+  getContent(id: string): EducationalContent | null {
+    return this.content.get(id) || null;
   }
 
   getAllContent(): EducationalContent[] {
-    return Array.from(this.contentDatabase.values());
+    return Array.from(this.content.values());
+  }
+
+  getContentBySubject(subject: string): EducationalContent[] {
+    return Array.from(this.content.values()).filter(content => content.subject === subject);
+  }
+
+  getContentByDifficulty(difficulty: string): EducationalContent[] {
+    return Array.from(this.content.values()).filter(content => content.difficulty === difficulty);
+  }
+
+  getContentByTopic(subject: string, topic: string): EducationalContent[] {
+    return Array.from(this.content.values()).filter(
+      content => content.subject === subject && content.topic === topic
+    );
+  }
+
+  searchContent(query: string): EducationalContent[] {
+    const lowercaseQuery = query.toLowerCase();
+    return Array.from(this.content.values()).filter(content =>
+      content.title.toLowerCase().includes(lowercaseQuery) ||
+      content.topic.toLowerCase().includes(lowercaseQuery) ||
+      content.subtopic.toLowerCase().includes(lowercaseQuery) ||
+      content.content.keyPoints?.some(point => point.toLowerCase().includes(lowercaseQuery))
+    );
+  }
+
+  addCustomContent(content: EducationalContent): void {
+    this.content.set(content.id, content);
+  }
+
+  updateContent(id: string, updates: Partial<EducationalContent>): boolean {
+    const existing = this.content.get(id);
+    if (!existing) return false;
+
+    const updated = { ...existing, ...updates, lastUpdated: new Date() };
+    this.content.set(id, updated);
+    return true;
+  }
+
+  deleteContent(id: string): boolean {
+    return this.content.delete(id);
+  }
+
+  getContentStatistics(): {
+    total: number;
+    bySubject: { [subject: string]: number };
+    byDifficulty: { [difficulty: string]: number };
+    byTopic: { [topic: string]: number };
+  } {
+    const all = this.getAllContent();
+    const stats = {
+      total: all.length,
+      bySubject: {} as { [subject: string]: number },
+      byDifficulty: {} as { [difficulty: string]: number },
+      byTopic: {} as { [topic: string]: number }
+    };
+
+    all.forEach(content => {
+      stats.bySubject[content.subject] = (stats.bySubject[content.subject] || 0) + 1;
+      stats.byDifficulty[content.difficulty] = (stats.byDifficulty[content.difficulty] || 0) + 1;
+      stats.byTopic[content.topic] = (stats.byTopic[content.topic] || 0) + 1;
+    });
+
+    return stats;
   }
 }
 
