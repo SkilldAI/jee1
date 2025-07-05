@@ -21,7 +21,10 @@ import {
   Filter,
   Eye,
   MessageCircle,
-  FileText
+  FileText,
+  ChevronRight,
+  Users,
+  Flame
 } from 'lucide-react';
 import { 
   learningPathService, 
@@ -336,16 +339,16 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 p-6">
         <div className="flex items-center space-x-2 mb-4">
           <Brain className="h-6 w-6 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-900">How AI Learning Paths Work</h3>
+          <h3 className="text-lg font-semibold text-gray-900">AI-Powered Learning with Real Content</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-lg p-4 border border-blue-100">
             <div className="flex items-center space-x-2 mb-2">
               <FileText className="h-5 w-5 text-blue-600" />
-              <h4 className="font-medium text-gray-900">Rich Content</h4>
+              <h4 className="font-medium text-gray-900">Rich Educational Content</h4>
             </div>
             <p className="text-sm text-gray-600">
-              Each topic includes comprehensive theory, worked examples, and practice questions with detailed explanations.
+              Each topic includes comprehensive theory, solved examples, practice questions, and detailed explanations - all based on JEE/NEET curriculum.
             </p>
           </div>
           <div className="bg-white rounded-lg p-4 border border-blue-100">
@@ -354,16 +357,16 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
               <h4 className="font-medium text-gray-900">AI Tutor Integration</h4>
             </div>
             <p className="text-sm text-gray-600">
-              Ask the AI tutor about any concept and it will automatically add relevant topics to your learning path.
+              Ask the AI tutor about any concept and it will automatically add relevant topics to your learning path with complete study materials.
             </p>
           </div>
           <div className="bg-white rounded-lg p-4 border border-blue-100">
             <div className="flex items-center space-x-2 mb-2">
               <TrendingUp className="h-5 w-5 text-purple-600" />
-              <h4 className="font-medium text-gray-900">Performance Tracking</h4>
+              <h4 className="font-medium text-gray-900">Adaptive Learning</h4>
             </div>
             <p className="text-sm text-gray-600">
-              The AI analyzes your performance and suggests additional topics to fill knowledge gaps.
+              The AI analyzes your performance and suggests additional topics to fill knowledge gaps, ensuring comprehensive preparation.
             </p>
           </div>
         </div>
@@ -390,36 +393,104 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
             />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="text-center p-3 bg-green-50 rounded-lg">
               <div className="text-lg font-bold text-green-600">{currentPath.completedNodes.length}</div>
-              <div className="text-sm text-gray-600">Completed Topics</div>
+              <div className="text-sm text-gray-600">Completed</div>
             </div>
             <div className="text-center p-3 bg-blue-50 rounded-lg">
               <div className="text-lg font-bold text-blue-600">{currentPath.nodes.length - currentPath.completedNodes.length}</div>
-              <div className="text-sm text-gray-600">Remaining Topics</div>
+              <div className="text-sm text-gray-600">Remaining</div>
             </div>
             <div className="text-center p-3 bg-purple-50 rounded-lg">
               <div className="text-lg font-bold text-purple-600">
                 {Math.ceil((currentPath.estimatedCompletionDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
               </div>
-              <div className="text-sm text-gray-600">Days to Complete</div>
+              <div className="text-sm text-gray-600">Days Left</div>
             </div>
+            <div className="text-center p-3 bg-orange-50 rounded-lg">
+              <div className="text-lg font-bold text-orange-600">
+                {currentPath.nodes.filter(n => contentService.getContent(n.id)).length}
+              </div>
+              <div className="text-sm text-gray-600">With Content</div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button
+              onClick={() => setActiveTab('path')}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+            >
+              <BookOpen className="h-4 w-4" />
+              <span>Start Learning</span>
+            </button>
+            <button
+              onClick={handleNavigateToAITutor}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2"
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>Ask AI Tutor</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('recommendations')}
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center space-x-2"
+            >
+              <Lightbulb className="h-4 w-4" />
+              <span>View Recommendations</span>
+            </button>
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-          <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Learning Path Yet</h3>
-          <p className="text-gray-600 mb-4">Create a personalized AI learning path to get started</p>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+          <Brain className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-medium text-gray-900 mb-2">Create Your AI Learning Path</h3>
+          <p className="text-gray-600 mb-6">Get a personalized learning path with comprehensive content for JEE/NEET preparation</p>
           <button
             onClick={() => setShowCreatePath(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center space-x-2 mx-auto"
           >
-            Create Learning Path
+            <Plus className="h-5 w-5" />
+            <span>Create Learning Path</span>
           </button>
         </div>
       )}
+
+      {/* Sample Content Preview */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <Eye className="h-5 w-5 text-blue-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Sample Learning Content</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <BookOpen className="h-4 w-4 text-blue-600" />
+              <h4 className="font-medium text-gray-900">Physics: Motion in a Straight Line</h4>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">Complete theory with kinematic equations, solved examples, and practice questions</p>
+            <div className="flex items-center space-x-2 text-xs text-gray-500">
+              <Clock className="h-3 w-3" />
+              <span>25 min read</span>
+              <span>•</span>
+              <span>Foundation Level</span>
+            </div>
+          </div>
+          <div className="border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <BookOpen className="h-4 w-4 text-green-600" />
+              <h4 className="font-medium text-gray-900">Chemistry: Atomic Structure</h4>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">Quantum numbers, electronic configuration, and periodic trends with examples</p>
+            <div className="flex items-center space-x-2 text-xs text-gray-500">
+              <Clock className="h-3 w-3" />
+              <span>40 min read</span>
+              <span>•</span>
+              <span>Foundation Level</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Quick Stats */}
       {analytics && (
@@ -465,49 +536,6 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
           </div>
         </div>
       )}
-
-      {/* Weak & Strong Areas */}
-      {currentPath && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
-              <h3 className="text-lg font-semibold text-gray-900">Areas to Focus</h3>
-            </div>
-            <div className="space-y-2">
-              {currentPath.weakAreas.length > 0 ? (
-                currentPath.weakAreas.map((area, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-orange-50 rounded">
-                    <span className="text-orange-800">{area}</span>
-                    <span className="text-xs bg-orange-200 text-orange-700 px-2 py-1 rounded">Needs Work</span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500">No weak areas identified yet</p>
-              )}
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Star className="h-5 w-5 text-green-500" />
-              <h3 className="text-lg font-semibold text-gray-900">Strong Areas</h3>
-            </div>
-            <div className="space-y-2">
-              {currentPath.strongAreas.length > 0 ? (
-                currentPath.strongAreas.map((area, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded">
-                    <span className="text-green-800">{area}</span>
-                    <span className="text-xs bg-green-200 text-green-700 px-2 py-1 rounded">Strong</span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500">Building strengths...</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 
@@ -516,16 +544,21 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
       {currentPath && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Learning Path Progress</h3>
-            <div className="flex items-center space-x-2">
-              <Search className="h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search topics..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500"
-              />
+            <h3 className="text-lg font-semibold text-gray-900">Your Learning Journey</h3>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Search className="h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search topics..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="text-sm text-gray-600">
+                {currentPath.nodes.filter(n => contentService.getContent(n.id)).length} topics with full content
+              </div>
             </div>
           </div>
           
@@ -541,7 +574,9 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
                 const hasContent = contentService.getContent(node.id) !== null;
                 
                 return (
-                  <div key={node.id} className="border border-gray-200 rounded-lg p-4">
+                  <div key={node.id} className={`border rounded-lg p-4 transition-all hover:shadow-md ${
+                    hasContent ? 'border-green-200 bg-green-50' : 'border-gray-200'
+                  }`}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <div className="flex-shrink-0">
@@ -562,9 +597,12 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
                             <h4 className="font-medium text-gray-900">{node.title}</h4>
                             {getAddedByIcon(node.addedBy)}
                             {hasContent && (
-                              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                                Content Available
-                              </span>
+                              <div className="flex items-center space-x-1">
+                                <FileText className="h-4 w-4 text-green-600" />
+                                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                  Full Content Available
+                                </span>
+                              </div>
                             )}
                           </div>
                           <p className="text-sm text-gray-600">{node.topic} • {node.subtopic}</p>
@@ -580,6 +618,11 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
                               Added by: {node.addedBy.replace('-', ' ')}
                             </span>
                           </div>
+                          {hasContent && (
+                            <div className="mt-2 text-xs text-green-700 bg-green-100 px-2 py-1 rounded inline-block">
+                              ✓ Theory, Examples & Practice Questions Available
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -591,7 +634,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
                           <button
                             onClick={() => handleStudyNode(node.id)}
                             disabled={studyingNode === node.id}
-                            className={`px-3 py-1 rounded text-sm transition-colors ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
                               studyingNode === node.id
                                 ? 'bg-gray-400 text-white cursor-not-allowed'
                                 : hasContent
@@ -599,7 +642,22 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
                                 : 'bg-blue-600 text-white hover:bg-blue-700'
                             }`}
                           >
-                            {studyingNode === node.id ? 'Studying...' : hasContent ? 'Learn' : 'Study'}
+                            {studyingNode === node.id ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                                <span>Studying...</span>
+                              </>
+                            ) : hasContent ? (
+                              <>
+                                <BookOpen className="h-4 w-4" />
+                                <span>Learn Now</span>
+                              </>
+                            ) : (
+                              <>
+                                <Play className="h-4 w-4" />
+                                <span>Study</span>
+                              </>
+                            )}
                           </button>
                         )}
                       </div>
@@ -622,9 +680,15 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
                       <div className="mt-3">
                         <p className="text-xs font-medium text-gray-700 mb-1">Learning Objectives:</p>
                         <ul className="text-xs text-gray-600 space-y-1">
-                          {node.learningObjectives.map((objective, index) => (
-                            <li key={index}>• {objective}</li>
+                          {node.learningObjectives.slice(0, 3).map((objective, index) => (
+                            <li key={index} className="flex items-start space-x-1">
+                              <span className="text-blue-500 mt-0.5">•</span>
+                              <span>{objective}</span>
+                            </li>
                           ))}
+                          {node.learningObjectives.length > 3 && (
+                            <li className="text-gray-500">+{node.learningObjectives.length - 3} more objectives</li>
+                          )}
                         </ul>
                       </div>
                     )}
@@ -632,6 +696,26 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
                 );
               })}
           </div>
+
+          {/* Call to Action for Empty Results */}
+          {currentPath.nodes.filter(node => 
+            searchTerm === '' || 
+            node.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            node.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            node.subtopic.toLowerCase().includes(searchTerm.toLowerCase())
+          ).length === 0 && (
+            <div className="text-center py-8">
+              <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h4 className="text-lg font-medium text-gray-900 mb-2">No topics found</h4>
+              <p className="text-gray-600 mb-4">Try adjusting your search or add new topics to your learning path</p>
+              <button
+                onClick={() => setActiveTab('add-topics')}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              >
+                Add Topics
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -652,7 +736,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
               <h4 className="font-medium text-blue-900">Ask AI Tutor</h4>
             </div>
             <p className="text-sm text-blue-800 mb-3">
-              Ask the AI tutor about any concept and it will automatically add relevant topics to your path.
+              Ask the AI tutor about any concept and it will automatically add relevant topics with complete study materials to your path.
             </p>
             <button 
               onClick={handleNavigateToAITutor}
@@ -668,7 +752,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
               <h4 className="font-medium text-green-900">Upload Images</h4>
             </div>
             <p className="text-sm text-green-800 mb-3">
-              Upload images of problems and the AI will extract topics and add them to your path.
+              Upload images of problems and the AI will extract topics and add them to your path with comprehensive content.
             </p>
             <button 
               onClick={handleNavigateToAITutor}
@@ -745,9 +829,15 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
             <div className="text-center py-8">
               <Lightbulb className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h4 className="text-lg font-medium text-gray-900 mb-2">No Suggestions Yet</h4>
-              <p className="text-gray-600">
+              <p className="text-gray-600 mb-4">
                 Start studying topics or ask the AI tutor questions to get personalized topic suggestions
               </p>
+              <button
+                onClick={handleNavigateToAITutor}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              >
+                Ask AI Tutor
+              </button>
             </div>
           )}
         </div>
@@ -873,8 +963,8 @@ const LearningPath: React.FC<LearningPathProps> = ({ selectedSubject, onNavigate
                 <Brain className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">AI-Powered Learning Path</h1>
-                <p className="text-gray-600">Comprehensive content with theory, examples, and practice questions</p>
+                <h1 className="text-2xl font-bold text-gray-900">AI Learning Path</h1>
+                <p className="text-gray-600">Comprehensive JEE/NEET content with theory, examples, and practice</p>
               </div>
             </div>
             {!currentPath && (
