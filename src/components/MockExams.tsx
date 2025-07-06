@@ -12,8 +12,8 @@ interface MockExam {
   subject: string;
   duration: number; // in minutes
   totalQuestions: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  type: 'JEE Main' | 'JEE Advanced' | 'NEET' | 'Chapter Test' | 'Previous Year';
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  type: 'JEE Main' | 'JEE Advanced' | 'NEET' | 'Chapter Test' | 'Previous Year' | 'Foundation Test';
   completed: boolean;
   score?: number;
   accuracy?: number;
@@ -21,6 +21,8 @@ interface MockExam {
   completedAt?: Date;
   description: string;
   topics: string[];
+  syllabus: string[];
+  learningObjectives: string[];
 }
 
 interface Question {
@@ -33,6 +35,9 @@ interface Question {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   subject: string;
   topic: string;
+  subtopic: string;
+  bloomsLevel: 'Remember' | 'Understand' | 'Apply' | 'Analyze' | 'Evaluate' | 'Create';
+  estimatedTime: number; // in seconds
 }
 
 const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
@@ -51,248 +56,538 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Comprehensive mock exam data
+    // Comprehensive mock exam data with all difficulty levels
     const mockExamData: MockExam[] = [
-      // JEE Main Tests
+      // PHYSICS EXAMS - ALL LEVELS
+      
+      // BEGINNER PHYSICS
       {
-        id: '1',
-        title: 'JEE Main Physics Mock Test 1',
+        id: 'phy-begin-001',
+        title: 'Physics Foundation - Basic Mechanics',
+        subject: 'Physics',
+        duration: 45,
+        totalQuestions: 20,
+        difficulty: 'Beginner',
+        type: 'Foundation Test',
+        completed: false,
+        description: 'Basic concepts of motion, force, and energy for beginners',
+        topics: ['Motion in Straight Line', 'Basic Forces', 'Work and Energy Basics'],
+        syllabus: ['Kinematics fundamentals', 'Newton\'s first law', 'Simple work calculations'],
+        learningObjectives: [
+          'Understand basic motion concepts',
+          'Apply simple kinematic equations',
+          'Calculate basic work and energy'
+        ]
+      },
+      {
+        id: 'phy-begin-002',
+        title: 'Physics Foundation - Heat and Temperature',
+        subject: 'Physics',
+        duration: 40,
+        totalQuestions: 18,
+        difficulty: 'Beginner',
+        type: 'Foundation Test',
+        completed: false,
+        description: 'Introduction to thermal physics and heat transfer',
+        topics: ['Temperature Scales', 'Heat Transfer', 'Thermal Expansion'],
+        syllabus: ['Celsius and Kelvin scales', 'Conduction basics', 'Linear expansion'],
+        learningObjectives: [
+          'Convert between temperature scales',
+          'Understand heat transfer methods',
+          'Calculate thermal expansion'
+        ]
+      },
+      {
+        id: 'phy-begin-003',
+        title: 'Physics Foundation - Light and Optics Basics',
+        subject: 'Physics',
+        duration: 35,
+        totalQuestions: 15,
+        difficulty: 'Beginner',
+        type: 'Foundation Test',
+        completed: false,
+        description: 'Basic properties of light and simple optical phenomena',
+        topics: ['Properties of Light', 'Reflection', 'Refraction Basics'],
+        syllabus: ['Light as wave and particle', 'Laws of reflection', 'Snell\'s law introduction'],
+        learningObjectives: [
+          'Understand light properties',
+          'Apply reflection laws',
+          'Solve basic refraction problems'
+        ]
+      },
+
+      // INTERMEDIATE PHYSICS
+      {
+        id: 'phy-inter-001',
+        title: 'JEE Main Physics - Mechanics Mastery',
         subject: 'Physics',
         duration: 60,
         totalQuestions: 25,
-        difficulty: 'Medium',
+        difficulty: 'Intermediate',
         type: 'JEE Main',
         completed: true,
         score: 85,
         accuracy: 85,
         timeSpent: 55,
         completedAt: new Date(2024, 0, 10),
-        description: 'Comprehensive test covering Mechanics, Thermodynamics, and Optics',
-        topics: ['Mechanics', 'Thermodynamics', 'Optics']
+        description: 'Comprehensive mechanics test covering kinematics, dynamics, and energy',
+        topics: ['Kinematics 2D', 'Newton\'s Laws', 'Work-Energy Theorem', 'Rotational Motion'],
+        syllabus: ['Projectile motion', 'Force analysis', 'Conservation laws', 'Moment of inertia'],
+        learningObjectives: [
+          'Solve complex motion problems',
+          'Apply Newton\'s laws in multiple dimensions',
+          'Use energy conservation principles'
+        ]
       },
       {
-        id: '2',
-        title: 'JEE Main Physics Mock Test 2',
+        id: 'phy-inter-002',
+        title: 'JEE Main Physics - Waves and Oscillations',
         subject: 'Physics',
-        duration: 60,
-        totalQuestions: 25,
-        difficulty: 'Medium',
+        duration: 55,
+        totalQuestions: 22,
+        difficulty: 'Intermediate',
         type: 'JEE Main',
         completed: false,
-        description: 'Focus on Electricity, Magnetism, and Modern Physics',
-        topics: ['Electricity', 'Magnetism', 'Modern Physics']
+        description: 'Wave motion, sound waves, and simple harmonic motion',
+        topics: ['SHM', 'Wave Motion', 'Sound Waves', 'Doppler Effect'],
+        syllabus: ['Pendulum motion', 'Wave equation', 'Sound properties', 'Frequency changes'],
+        learningObjectives: [
+          'Analyze oscillatory motion',
+          'Understand wave propagation',
+          'Calculate Doppler shifts'
+        ]
       },
       {
-        id: '3',
-        title: 'JEE Main Chemistry Mock Test 1',
+        id: 'phy-inter-003',
+        title: 'JEE Main Physics - Electricity and Magnetism',
+        subject: 'Physics',
+        duration: 65,
+        totalQuestions: 28,
+        difficulty: 'Intermediate',
+        type: 'JEE Main',
+        completed: false,
+        description: 'Electric fields, circuits, and magnetic phenomena',
+        topics: ['Electric Field', 'Current Electricity', 'Magnetic Field', 'Electromagnetic Induction'],
+        syllabus: ['Coulomb\'s law', 'Ohm\'s law', 'Lorentz force', 'Faraday\'s law'],
+        learningObjectives: [
+          'Calculate electric fields and potentials',
+          'Analyze electrical circuits',
+          'Understand electromagnetic induction'
+        ]
+      },
+
+      // ADVANCED PHYSICS
+      {
+        id: 'phy-adv-001',
+        title: 'JEE Advanced Physics - Complex Mechanics',
+        subject: 'Physics',
+        duration: 90,
+        totalQuestions: 35,
+        difficulty: 'Advanced',
+        type: 'JEE Advanced',
+        completed: false,
+        description: 'Advanced mechanics with complex problem-solving',
+        topics: ['Lagrangian Mechanics', 'Rigid Body Dynamics', 'Collision Theory', 'Gravitation'],
+        syllabus: ['Generalized coordinates', 'Angular momentum', 'Elastic collisions', 'Orbital mechanics'],
+        learningObjectives: [
+          'Apply advanced mechanical principles',
+          'Solve multi-body problems',
+          'Understand conservation laws deeply'
+        ]
+      },
+      {
+        id: 'phy-adv-002',
+        title: 'JEE Advanced Physics - Modern Physics',
+        subject: 'Physics',
+        duration: 85,
+        totalQuestions: 32,
+        difficulty: 'Advanced',
+        type: 'JEE Advanced',
+        completed: false,
+        description: 'Quantum mechanics, atomic physics, and nuclear physics',
+        topics: ['Quantum Mechanics', 'Atomic Structure', 'Nuclear Physics', 'Relativity'],
+        syllabus: ['Wave-particle duality', 'Bohr model', 'Radioactivity', 'Time dilation'],
+        learningObjectives: [
+          'Understand quantum principles',
+          'Analyze atomic phenomena',
+          'Apply relativistic concepts'
+        ]
+      },
+
+      // CHEMISTRY EXAMS - ALL LEVELS
+
+      // BEGINNER CHEMISTRY
+      {
+        id: 'chem-begin-001',
+        title: 'Chemistry Foundation - Atomic Structure Basics',
+        subject: 'Chemistry',
+        duration: 40,
+        totalQuestions: 18,
+        difficulty: 'Beginner',
+        type: 'Foundation Test',
+        completed: false,
+        description: 'Introduction to atoms, elements, and periodic table',
+        topics: ['Atomic Structure', 'Periodic Table', 'Chemical Bonding Basics'],
+        syllabus: ['Protons, neutrons, electrons', 'Element properties', 'Ionic and covalent bonds'],
+        learningObjectives: [
+          'Identify atomic components',
+          'Navigate periodic table',
+          'Understand basic bonding'
+        ]
+      },
+      {
+        id: 'chem-begin-002',
+        title: 'Chemistry Foundation - Chemical Reactions',
+        subject: 'Chemistry',
+        duration: 45,
+        totalQuestions: 20,
+        difficulty: 'Beginner',
+        type: 'Foundation Test',
+        completed: false,
+        description: 'Basic chemical reactions and equation balancing',
+        topics: ['Chemical Equations', 'Types of Reactions', 'Stoichiometry Basics'],
+        syllabus: ['Balancing equations', 'Synthesis and decomposition', 'Mole concept'],
+        learningObjectives: [
+          'Balance chemical equations',
+          'Classify reaction types',
+          'Perform basic stoichiometry'
+        ]
+      },
+
+      // INTERMEDIATE CHEMISTRY
+      {
+        id: 'chem-inter-001',
+        title: 'JEE Main Chemistry - Physical Chemistry',
         subject: 'Chemistry',
         duration: 60,
         totalQuestions: 25,
-        difficulty: 'Medium',
+        difficulty: 'Intermediate',
         type: 'JEE Main',
         completed: true,
         score: 78,
         accuracy: 78,
         timeSpent: 58,
         completedAt: new Date(2024, 0, 8),
-        description: 'Organic, Inorganic, and Physical Chemistry',
-        topics: ['Organic Chemistry', 'Inorganic Chemistry', 'Physical Chemistry']
+        description: 'Thermodynamics, kinetics, and equilibrium',
+        topics: ['Thermodynamics', 'Chemical Kinetics', 'Equilibrium', 'Solutions'],
+        syllabus: ['Enthalpy changes', 'Rate laws', 'Le Chatelier principle', 'Colligative properties'],
+        learningObjectives: [
+          'Calculate thermodynamic quantities',
+          'Determine reaction rates',
+          'Predict equilibrium shifts'
+        ]
       },
       {
-        id: '4',
-        title: 'JEE Main Mathematics Mock Test 1',
+        id: 'chem-inter-002',
+        title: 'JEE Main Chemistry - Organic Chemistry',
+        subject: 'Chemistry',
+        duration: 65,
+        totalQuestions: 28,
+        difficulty: 'Intermediate',
+        type: 'JEE Main',
+        completed: false,
+        description: 'Organic compounds, reactions, and mechanisms',
+        topics: ['Hydrocarbons', 'Functional Groups', 'Reaction Mechanisms', 'Stereochemistry'],
+        syllabus: ['Alkanes, alkenes, alkynes', 'Alcohols, ethers, carbonyls', 'SN1, SN2, E1, E2', 'Optical isomerism'],
+        learningObjectives: [
+          'Identify organic compounds',
+          'Predict reaction products',
+          'Understand stereochemistry'
+        ]
+      },
+
+      // ADVANCED CHEMISTRY
+      {
+        id: 'chem-adv-001',
+        title: 'JEE Advanced Chemistry - Complex Equilibria',
+        subject: 'Chemistry',
+        duration: 90,
+        totalQuestions: 35,
+        difficulty: 'Advanced',
+        type: 'JEE Advanced',
+        completed: false,
+        description: 'Advanced equilibrium concepts and calculations',
+        topics: ['Ionic Equilibria', 'Buffer Systems', 'Solubility Equilibria', 'Electrochemistry'],
+        syllabus: ['Acid-base equilibria', 'Henderson-Hasselbalch', 'Ksp calculations', 'Nernst equation'],
+        learningObjectives: [
+          'Solve complex equilibrium problems',
+          'Design buffer systems',
+          'Calculate electrode potentials'
+        ]
+      },
+
+      // MATHEMATICS EXAMS - ALL LEVELS
+
+      // BEGINNER MATHEMATICS
+      {
+        id: 'math-begin-001',
+        title: 'Mathematics Foundation - Algebra Basics',
+        subject: 'Mathematics',
+        duration: 45,
+        totalQuestions: 20,
+        difficulty: 'Beginner',
+        type: 'Foundation Test',
+        completed: false,
+        description: 'Basic algebraic operations and linear equations',
+        topics: ['Linear Equations', 'Quadratic Equations', 'Polynomials', 'Factorization'],
+        syllabus: ['Solving linear equations', 'Quadratic formula', 'Polynomial operations', 'Factoring techniques'],
+        learningObjectives: [
+          'Solve linear and quadratic equations',
+          'Perform polynomial operations',
+          'Apply factorization methods'
+        ]
+      },
+      {
+        id: 'math-begin-002',
+        title: 'Mathematics Foundation - Geometry Basics',
+        subject: 'Mathematics',
+        duration: 40,
+        totalQuestions: 18,
+        difficulty: 'Beginner',
+        type: 'Foundation Test',
+        completed: false,
+        description: 'Basic geometric shapes and properties',
+        topics: ['Triangles', 'Circles', 'Coordinate Geometry', 'Mensuration'],
+        syllabus: ['Triangle properties', 'Circle theorems', 'Distance formula', 'Area and volume'],
+        learningObjectives: [
+          'Apply geometric theorems',
+          'Calculate areas and volumes',
+          'Use coordinate geometry'
+        ]
+      },
+
+      // INTERMEDIATE MATHEMATICS
+      {
+        id: 'math-inter-001',
+        title: 'JEE Main Mathematics - Calculus',
         subject: 'Mathematics',
         duration: 60,
         totalQuestions: 25,
-        difficulty: 'Medium',
+        difficulty: 'Intermediate',
         type: 'JEE Main',
         completed: false,
-        description: 'Calculus, Algebra, and Coordinate Geometry',
-        topics: ['Calculus', 'Algebra', 'Coordinate Geometry']
-      },
-
-      // JEE Advanced Tests
-      {
-        id: '5',
-        title: 'JEE Advanced Physics Paper 1',
-        subject: 'Physics',
-        duration: 180,
-        totalQuestions: 54,
-        difficulty: 'Hard',
-        type: 'JEE Advanced',
-        completed: false,
-        description: 'Advanced level physics with numerical and multiple choice questions',
-        topics: ['Advanced Mechanics', 'Electrodynamics', 'Quantum Physics']
+        description: 'Limits, derivatives, and integration',
+        topics: ['Limits', 'Derivatives', 'Integration', 'Applications of Calculus'],
+        syllabus: ['Limit evaluation', 'Differentiation rules', 'Integration techniques', 'Optimization problems'],
+        learningObjectives: [
+          'Evaluate complex limits',
+          'Apply differentiation rules',
+          'Solve integration problems'
+        ]
       },
       {
-        id: '6',
-        title: 'JEE Advanced Chemistry Paper 1',
-        subject: 'Chemistry',
-        duration: 180,
-        totalQuestions: 54,
-        difficulty: 'Hard',
-        type: 'JEE Advanced',
-        completed: false,
-        description: 'Complex problems in all three branches of chemistry',
-        topics: ['Advanced Organic', 'Coordination Chemistry', 'Chemical Kinetics']
-      },
-      {
-        id: '7',
-        title: 'JEE Advanced Mathematics Paper 1',
+        id: 'math-inter-002',
+        title: 'JEE Main Mathematics - Coordinate Geometry',
         subject: 'Mathematics',
-        duration: 180,
-        totalQuestions: 54,
-        difficulty: 'Hard',
-        type: 'JEE Advanced',
+        duration: 55,
+        totalQuestions: 22,
+        difficulty: 'Intermediate',
+        type: 'JEE Main',
         completed: false,
-        description: 'Higher level mathematics with complex problem solving',
-        topics: ['Advanced Calculus', 'Complex Numbers', 'Probability']
+        description: 'Lines, circles, parabolas, and conic sections',
+        topics: ['Straight Lines', 'Circles', 'Parabola', 'Ellipse', 'Hyperbola'],
+        syllabus: ['Line equations', 'Circle properties', 'Conic section equations', 'Parametric forms'],
+        learningObjectives: [
+          'Derive equations of curves',
+          'Solve geometric problems analytically',
+          'Understand conic properties'
+        ]
       },
 
-      // NEET Tests
+      // ADVANCED MATHEMATICS
       {
-        id: '8',
-        title: 'NEET Physics Mock Test 1',
-        subject: 'Physics',
-        duration: 45,
-        totalQuestions: 45,
-        difficulty: 'Medium',
-        type: 'NEET',
+        id: 'math-adv-001',
+        title: 'JEE Advanced Mathematics - Complex Analysis',
+        subject: 'Mathematics',
+        duration: 90,
+        totalQuestions: 35,
+        difficulty: 'Advanced',
+        type: 'JEE Advanced',
         completed: false,
-        description: 'NEET Physics covering all important topics',
-        topics: ['Mechanics', 'Thermodynamics', 'Optics', 'Modern Physics']
+        description: 'Complex numbers, functions, and advanced calculus',
+        topics: ['Complex Numbers', 'Functions', 'Differential Equations', 'Vector Calculus'],
+        syllabus: ['Complex plane', 'Function properties', 'DE solutions', 'Vector operations'],
+        learningObjectives: [
+          'Manipulate complex numbers',
+          'Analyze function behavior',
+          'Solve differential equations'
+        ]
+      },
+
+      // BIOLOGY EXAMS - ALL LEVELS (NEET FOCUSED)
+
+      // BEGINNER BIOLOGY
+      {
+        id: 'bio-begin-001',
+        title: 'Biology Foundation - Cell Biology Basics',
+        subject: 'Biology',
+        duration: 40,
+        totalQuestions: 18,
+        difficulty: 'Beginner',
+        type: 'Foundation Test',
+        completed: false,
+        description: 'Introduction to cells and basic life processes',
+        topics: ['Cell Structure', 'Cell Functions', 'Cell Division Basics', 'Biomolecules'],
+        syllabus: ['Prokaryotic vs eukaryotic', 'Organelle functions', 'Mitosis basics', 'Proteins and carbohydrates'],
+        learningObjectives: [
+          'Identify cell components',
+          'Understand cell functions',
+          'Recognize biomolecules'
+        ]
       },
       {
-        id: '9',
-        title: 'NEET Chemistry Mock Test 1',
-        subject: 'Chemistry',
-        duration: 45,
-        totalQuestions: 45,
-        difficulty: 'Medium',
-        type: 'NEET',
-        completed: true,
-        score: 92,
-        accuracy: 92,
-        timeSpent: 42,
-        completedAt: new Date(2024, 0, 5),
-        description: 'Complete NEET Chemistry preparation test',
-        topics: ['Organic Chemistry', 'Inorganic Chemistry', 'Physical Chemistry']
-      },
-      {
-        id: '10',
-        title: 'NEET Biology Mock Test 1',
+        id: 'bio-begin-002',
+        title: 'Biology Foundation - Plant Biology',
         subject: 'Biology',
         duration: 45,
+        totalQuestions: 20,
+        difficulty: 'Beginner',
+        type: 'Foundation Test',
+        completed: false,
+        description: 'Basic plant structure and photosynthesis',
+        topics: ['Plant Structure', 'Photosynthesis', 'Plant Nutrition', 'Plant Growth'],
+        syllabus: ['Root, stem, leaf structure', 'Light and dark reactions', 'Mineral nutrition', 'Growth hormones'],
+        learningObjectives: [
+          'Understand plant anatomy',
+          'Explain photosynthesis process',
+          'Identify plant nutrients'
+        ]
+      },
+
+      // INTERMEDIATE BIOLOGY
+      {
+        id: 'bio-inter-001',
+        title: 'NEET Biology - Human Physiology',
+        subject: 'Biology',
+        duration: 60,
         totalQuestions: 45,
-        difficulty: 'Medium',
+        difficulty: 'Intermediate',
         type: 'NEET',
         completed: true,
         score: 88,
         accuracy: 88,
         timeSpent: 43,
         completedAt: new Date(2024, 0, 3),
-        description: 'Botany and Zoology comprehensive test',
-        topics: ['Cell Biology', 'Genetics', 'Ecology', 'Human Physiology']
+        description: 'Human organ systems and their functions',
+        topics: ['Digestive System', 'Respiratory System', 'Circulatory System', 'Nervous System'],
+        syllabus: ['Digestion process', 'Gas exchange', 'Heart function', 'Neuron structure'],
+        learningObjectives: [
+          'Understand organ system functions',
+          'Explain physiological processes',
+          'Relate structure to function'
+        ]
       },
       {
-        id: '11',
-        title: 'NEET Biology Mock Test 2',
+        id: 'bio-inter-002',
+        title: 'NEET Biology - Genetics and Evolution',
         subject: 'Biology',
-        duration: 45,
-        totalQuestions: 45,
-        difficulty: 'Medium',
+        duration: 55,
+        totalQuestions: 40,
+        difficulty: 'Intermediate',
         type: 'NEET',
         completed: false,
-        description: 'Advanced Biology concepts for NEET',
-        topics: ['Plant Physiology', 'Animal Physiology', 'Biotechnology']
+        description: 'Heredity, genetic disorders, and evolutionary concepts',
+        topics: ['Mendelian Genetics', 'Molecular Genetics', 'Evolution', 'Biotechnology'],
+        syllabus: ['Inheritance patterns', 'DNA structure', 'Natural selection', 'Genetic engineering'],
+        learningObjectives: [
+          'Solve genetic problems',
+          'Understand DNA function',
+          'Explain evolutionary mechanisms'
+        ]
       },
 
-      // Chapter Tests
+      // ADVANCED BIOLOGY
       {
-        id: '12',
-        title: 'Mechanics Chapter Test',
-        subject: 'Physics',
-        duration: 30,
-        totalQuestions: 15,
-        difficulty: 'Easy',
-        type: 'Chapter Test',
-        completed: false,
-        description: 'Focused test on Classical Mechanics',
-        topics: ['Kinematics', 'Dynamics', 'Work Energy']
-      },
-      {
-        id: '13',
-        title: 'Organic Chemistry Chapter Test',
-        subject: 'Chemistry',
-        duration: 30,
-        totalQuestions: 15,
-        difficulty: 'Medium',
-        type: 'Chapter Test',
-        completed: false,
-        description: 'Organic reactions and mechanisms',
-        topics: ['Hydrocarbons', 'Functional Groups', 'Reaction Mechanisms']
-      },
-      {
-        id: '14',
-        title: 'Calculus Chapter Test',
-        subject: 'Mathematics',
-        duration: 30,
-        totalQuestions: 15,
-        difficulty: 'Medium',
-        type: 'Chapter Test',
-        completed: false,
-        description: 'Limits, derivatives, and integrals',
-        topics: ['Limits', 'Derivatives', 'Integration']
-      },
-      {
-        id: '15',
-        title: 'Cell Biology Chapter Test',
+        id: 'bio-adv-001',
+        title: 'NEET Biology - Advanced Ecology and Environment',
         subject: 'Biology',
-        duration: 30,
-        totalQuestions: 15,
-        difficulty: 'Easy',
-        type: 'Chapter Test',
+        duration: 70,
+        totalQuestions: 50,
+        difficulty: 'Advanced',
+        type: 'NEET',
         completed: false,
-        description: 'Cell structure and functions',
-        topics: ['Cell Structure', 'Cell Division', 'Biomolecules']
+        description: 'Complex ecological interactions and environmental issues',
+        topics: ['Ecosystem Dynamics', 'Biodiversity', 'Environmental Issues', 'Conservation Biology'],
+        syllabus: ['Food webs', 'Species interactions', 'Pollution effects', 'Conservation strategies'],
+        learningObjectives: [
+          'Analyze ecosystem relationships',
+          'Evaluate environmental impacts',
+          'Propose conservation solutions'
+        ]
       },
 
-      // Previous Year Papers
+      // PREVIOUS YEAR PAPERS
       {
-        id: '16',
-        title: 'JEE Main 2023 Physics',
+        id: 'prev-phy-001',
+        title: 'JEE Main 2023 Physics Paper',
         subject: 'Physics',
         duration: 60,
         totalQuestions: 25,
-        difficulty: 'Medium',
+        difficulty: 'Intermediate',
         type: 'Previous Year',
         completed: false,
-        description: 'Actual JEE Main 2023 Physics paper',
-        topics: ['All Physics Topics']
+        description: 'Actual JEE Main 2023 Physics paper with solutions',
+        topics: ['All Physics Topics'],
+        syllabus: ['Complete JEE Main Physics syllabus'],
+        learningObjectives: [
+          'Experience actual exam difficulty',
+          'Practice time management',
+          'Identify knowledge gaps'
+        ]
       },
       {
-        id: '17',
-        title: 'NEET 2023 Biology',
+        id: 'prev-chem-001',
+        title: 'JEE Advanced 2023 Chemistry Paper 1',
+        subject: 'Chemistry',
+        duration: 90,
+        totalQuestions: 35,
+        difficulty: 'Advanced',
+        type: 'Previous Year',
+        completed: false,
+        description: 'Actual JEE Advanced 2023 Chemistry paper',
+        topics: ['All Chemistry Topics'],
+        syllabus: ['Complete JEE Advanced Chemistry syllabus'],
+        learningObjectives: [
+          'Handle advanced problem complexity',
+          'Apply multiple concepts together',
+          'Develop exam strategy'
+        ]
+      },
+      {
+        id: 'prev-bio-001',
+        title: 'NEET 2023 Biology Paper',
         subject: 'Biology',
         duration: 45,
         totalQuestions: 45,
-        difficulty: 'Medium',
+        difficulty: 'Intermediate',
         type: 'Previous Year',
         completed: false,
         description: 'Actual NEET 2023 Biology paper',
-        topics: ['All Biology Topics']
+        topics: ['All Biology Topics'],
+        syllabus: ['Complete NEET Biology syllabus'],
+        learningObjectives: [
+          'Practice NEET question patterns',
+          'Improve speed and accuracy',
+          'Review all biology concepts'
+        ]
       },
       {
-        id: '18',
-        title: 'JEE Advanced 2022 Mathematics',
+        id: 'prev-math-001',
+        title: 'JEE Main 2023 Mathematics Paper',
         subject: 'Mathematics',
-        duration: 180,
-        totalQuestions: 54,
-        difficulty: 'Hard',
+        duration: 60,
+        totalQuestions: 25,
+        difficulty: 'Intermediate',
         type: 'Previous Year',
         completed: false,
-        description: 'Actual JEE Advanced 2022 Mathematics paper',
-        topics: ['All Mathematics Topics']
+        description: 'Actual JEE Main 2023 Mathematics paper',
+        topics: ['All Mathematics Topics'],
+        syllabus: ['Complete JEE Main Mathematics syllabus'],
+        learningObjectives: [
+          'Master calculation techniques',
+          'Handle time pressure',
+          'Perfect problem-solving approach'
+        ]
       }
     ];
 
@@ -318,7 +613,8 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
       filtered = filtered.filter(exam => 
         exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         exam.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        exam.topics.some(topic => topic.toLowerCase().includes(searchTerm.toLowerCase()))
+        exam.topics.some(topic => topic.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        exam.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -336,166 +632,267 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
   }, [timeLeft, examStarted, examCompleted]);
 
   const generateQuestions = (exam: MockExam): Question[] => {
-    // Comprehensive question bank
+    // Comprehensive question bank organized by difficulty and subject
     const questionBank: Question[] = [
-      // Physics Questions
+      // PHYSICS QUESTIONS - BEGINNER
       {
-        id: 'p1',
-        question: 'A particle moves in a straight line with constant acceleration. If it covers 100m in the first 10s and 150m in the next 10s, what is its acceleration?',
-        options: ['2.5 m/s²', '5 m/s²', '7.5 m/s²', '10 m/s²'],
+        id: 'phy-beg-1',
+        question: 'A car travels 60 km in 1 hour. What is its speed in m/s?',
+        options: ['16.67 m/s', '60 m/s', '3600 m/s', '1 m/s'],
         correctAnswer: 0,
-        explanation: 'Using kinematic equations: For the first 10s: s₁ = u₁t + ½at² = 100. For the next 10s: s₂ = u₂t + ½at² = 150. Since u₂ = u₁ + at, solving gives a = 2.5 m/s².',
-        concept: 'Kinematics',
-        difficulty: 'Medium',
-        subject: 'Physics',
-        topic: 'Mechanics'
-      },
-      {
-        id: 'p2',
-        question: 'The electric field at a distance r from a point charge Q is E. What is the electric field at distance 2r?',
-        options: ['E/4', 'E/2', '2E', '4E'],
-        correctAnswer: 0,
-        explanation: 'Electric field E ∝ 1/r². At distance 2r, field becomes E/(2)² = E/4.',
-        concept: 'Electric Field',
+        explanation: 'Speed = Distance/Time = 60 km/h = 60 × (1000/3600) = 16.67 m/s',
+        concept: 'Speed and Velocity',
         difficulty: 'Easy',
         subject: 'Physics',
-        topic: 'Electricity'
+        topic: 'Kinematics',
+        subtopic: 'Speed',
+        bloomsLevel: 'Apply',
+        estimatedTime: 60
       },
       {
-        id: 'p3',
-        question: 'A convex lens of focal length 20 cm forms a real image at 60 cm. What is the object distance?',
-        options: ['30 cm', '15 cm', '12 cm', '10 cm'],
-        correctAnswer: 0,
-        explanation: 'Using lens formula: 1/f = 1/v - 1/u. Given f = 20 cm, v = 60 cm. So 1/20 = 1/60 - 1/u. Solving: u = 30 cm.',
-        concept: 'Lens Formula',
-        difficulty: 'Medium',
+        id: 'phy-beg-2',
+        question: 'Which of the following is a vector quantity?',
+        options: ['Speed', 'Distance', 'Velocity', 'Time'],
+        correctAnswer: 2,
+        explanation: 'Velocity has both magnitude and direction, making it a vector quantity.',
+        concept: 'Scalars and Vectors',
+        difficulty: 'Easy',
         subject: 'Physics',
-        topic: 'Optics'
+        topic: 'Kinematics',
+        subtopic: 'Vectors',
+        bloomsLevel: 'Remember',
+        estimatedTime: 30
+      },
+      {
+        id: 'phy-beg-3',
+        question: 'What is the SI unit of force?',
+        options: ['Joule', 'Newton', 'Watt', 'Pascal'],
+        correctAnswer: 1,
+        explanation: 'The SI unit of force is Newton (N), named after Sir Isaac Newton.',
+        concept: 'Units and Measurements',
+        difficulty: 'Easy',
+        subject: 'Physics',
+        topic: 'Mechanics',
+        subtopic: 'Force',
+        bloomsLevel: 'Remember',
+        estimatedTime: 20
       },
 
-      // Chemistry Questions
+      // PHYSICS QUESTIONS - INTERMEDIATE
       {
-        id: 'c1',
-        question: 'What is the molecular formula of benzene?',
-        options: ['C₆H₆', 'C₆H₁₂', 'C₆H₁₄', 'C₆H₁₀'],
-        correctAnswer: 0,
-        explanation: 'Benzene has the molecular formula C₆H₆ with a ring structure containing alternating double bonds.',
-        concept: 'Aromatic Compounds',
-        difficulty: 'Easy',
-        subject: 'Chemistry',
-        topic: 'Organic Chemistry'
+        id: 'phy-int-1',
+        question: 'A projectile is launched at 45° with initial velocity 20 m/s. What is the maximum height reached? (g = 10 m/s²)',
+        options: ['5 m', '10 m', '15 m', '20 m'],
+        correctAnswer: 1,
+        explanation: 'Maximum height = (u²sin²θ)/(2g) = (20² × sin²45°)/(2×10) = (400 × 0.5)/20 = 10 m',
+        concept: 'Projectile Motion',
+        difficulty: 'Medium',
+        subject: 'Physics',
+        topic: 'Kinematics',
+        subtopic: 'Projectile Motion',
+        bloomsLevel: 'Apply',
+        estimatedTime: 120
       },
       {
-        id: 'c2',
-        question: 'For the reaction N₂ + 3H₂ ⇌ 2NH₃, if Kc = 4 at 400°C, what is the value of Kc for 2NH₃ ⇌ N₂ + 3H₂?',
+        id: 'phy-int-2',
+        question: 'Two masses 3 kg and 5 kg are connected by a string over a pulley. What is the acceleration of the system?',
+        options: ['2.5 m/s²', '5 m/s²', '7.5 m/s²', '10 m/s²'],
+        correctAnswer: 0,
+        explanation: 'For Atwood machine: a = (m₂-m₁)g/(m₁+m₂) = (5-3)×10/(3+5) = 20/8 = 2.5 m/s²',
+        concept: 'Newton\'s Laws',
+        difficulty: 'Medium',
+        subject: 'Physics',
+        topic: 'Mechanics',
+        subtopic: 'Dynamics',
+        bloomsLevel: 'Apply',
+        estimatedTime: 180
+      },
+
+      // PHYSICS QUESTIONS - ADVANCED
+      {
+        id: 'phy-adv-1',
+        question: 'A uniform rod of length L and mass M rotates about one end. What is its moment of inertia?',
+        options: ['ML²/12', 'ML²/3', 'ML²/2', 'ML²'],
+        correctAnswer: 1,
+        explanation: 'For a rod rotating about one end: I = ∫r²dm = ML²/3',
+        concept: 'Rotational Inertia',
+        difficulty: 'Hard',
+        subject: 'Physics',
+        topic: 'Mechanics',
+        subtopic: 'Rotational Motion',
+        bloomsLevel: 'Analyze',
+        estimatedTime: 240
+      },
+
+      // CHEMISTRY QUESTIONS - BEGINNER
+      {
+        id: 'chem-beg-1',
+        question: 'What is the atomic number of carbon?',
+        options: ['4', '6', '8', '12'],
+        correctAnswer: 1,
+        explanation: 'Carbon has 6 protons, so its atomic number is 6.',
+        concept: 'Atomic Structure',
+        difficulty: 'Easy',
+        subject: 'Chemistry',
+        topic: 'Atomic Structure',
+        subtopic: 'Atomic Number',
+        bloomsLevel: 'Remember',
+        estimatedTime: 20
+      },
+      {
+        id: 'chem-beg-2',
+        question: 'Which of the following is a noble gas?',
+        options: ['Oxygen', 'Nitrogen', 'Helium', 'Hydrogen'],
+        correctAnswer: 2,
+        explanation: 'Helium is a noble gas with complete electron configuration.',
+        concept: 'Periodic Table',
+        difficulty: 'Easy',
+        subject: 'Chemistry',
+        topic: 'Periodic Table',
+        subtopic: 'Noble Gases',
+        bloomsLevel: 'Remember',
+        estimatedTime: 30
+      },
+
+      // CHEMISTRY QUESTIONS - INTERMEDIATE
+      {
+        id: 'chem-int-1',
+        question: 'For the reaction N₂ + 3H₂ ⇌ 2NH₃, if Kc = 4, what is Kc for the reverse reaction?',
         options: ['0.25', '4', '16', '0.5'],
         correctAnswer: 0,
-        explanation: 'For the reverse reaction, Kc(reverse) = 1/Kc(forward) = 1/4 = 0.25.',
+        explanation: 'For reverse reaction, Kc(reverse) = 1/Kc(forward) = 1/4 = 0.25',
         concept: 'Chemical Equilibrium',
         difficulty: 'Medium',
         subject: 'Chemistry',
-        topic: 'Physical Chemistry'
-      },
-      {
-        id: 'c3',
-        question: 'Which of the following has the highest oxidation state of chromium?',
-        options: ['CrO₄²⁻', 'Cr₂O₇²⁻', 'CrO₃', 'All have same'],
-        correctAnswer: 3,
-        explanation: 'In CrO₄²⁻, Cr₂O₇²⁻, and CrO₃, chromium has oxidation state +6 in all cases.',
-        concept: 'Oxidation States',
-        difficulty: 'Medium',
-        subject: 'Chemistry',
-        topic: 'Inorganic Chemistry'
+        topic: 'Physical Chemistry',
+        subtopic: 'Equilibrium',
+        bloomsLevel: 'Apply',
+        estimatedTime: 90
       },
 
-      // Mathematics Questions
+      // MATHEMATICS QUESTIONS - BEGINNER
       {
-        id: 'm1',
-        question: 'What is the value of lim(x→0) (sin x)/x?',
+        id: 'math-beg-1',
+        question: 'Solve for x: 2x + 5 = 13',
+        options: ['x = 3', 'x = 4', 'x = 5', 'x = 6'],
+        correctAnswer: 1,
+        explanation: '2x + 5 = 13 → 2x = 8 → x = 4',
+        concept: 'Linear Equations',
+        difficulty: 'Easy',
+        subject: 'Mathematics',
+        topic: 'Algebra',
+        subtopic: 'Linear Equations',
+        bloomsLevel: 'Apply',
+        estimatedTime: 45
+      },
+      {
+        id: 'math-beg-2',
+        question: 'What is the area of a circle with radius 7 cm? (π = 22/7)',
+        options: ['154 cm²', '44 cm²', '22 cm²', '308 cm²'],
+        correctAnswer: 0,
+        explanation: 'Area = πr² = (22/7) × 7² = 22 × 7 = 154 cm²',
+        concept: 'Mensuration',
+        difficulty: 'Easy',
+        subject: 'Mathematics',
+        topic: 'Geometry',
+        subtopic: 'Circle',
+        bloomsLevel: 'Apply',
+        estimatedTime: 60
+      },
+
+      // MATHEMATICS QUESTIONS - INTERMEDIATE
+      {
+        id: 'math-int-1',
+        question: 'What is lim(x→0) (sin x)/x?',
         options: ['0', '1', '∞', 'Does not exist'],
         correctAnswer: 1,
-        explanation: 'This is a standard limit. lim(x→0) (sin x)/x = 1. This can be proved using L\'Hôpital\'s rule or geometric methods.',
+        explanation: 'This is a standard limit: lim(x→0) (sin x)/x = 1',
         concept: 'Limits',
-        difficulty: 'Easy',
-        subject: 'Mathematics',
-        topic: 'Calculus'
-      },
-      {
-        id: 'm2',
-        question: 'If the roots of x² - 5x + 6 = 0 are α and β, what is the value of α² + β²?',
-        options: ['13', '11', '25', '17'],
-        correctAnswer: 0,
-        explanation: 'From Vieta\'s formulas: α + β = 5, αβ = 6. Now α² + β² = (α + β)² - 2αβ = 25 - 12 = 13.',
-        concept: 'Quadratic Equations',
         difficulty: 'Medium',
         subject: 'Mathematics',
-        topic: 'Algebra'
-      },
-      {
-        id: 'm3',
-        question: 'The derivative of x³ + 2x² - 5x + 1 is:',
-        options: ['3x² + 4x - 5', '3x² + 2x - 5', 'x² + 4x - 5', '3x² + 4x + 5'],
-        correctAnswer: 0,
-        explanation: 'd/dx(x³ + 2x² - 5x + 1) = 3x² + 4x - 5 using power rule of differentiation.',
-        concept: 'Differentiation',
-        difficulty: 'Easy',
-        subject: 'Mathematics',
-        topic: 'Calculus'
+        topic: 'Calculus',
+        subtopic: 'Limits',
+        bloomsLevel: 'Apply',
+        estimatedTime: 90
       },
 
-      // Biology Questions
+      // BIOLOGY QUESTIONS - BEGINNER
       {
-        id: 'b1',
-        question: 'Which phase of mitosis is characterized by chromosome alignment at the cell equator?',
+        id: 'bio-beg-1',
+        question: 'Which organelle is known as the "powerhouse of the cell"?',
+        options: ['Nucleus', 'Mitochondria', 'Ribosome', 'Golgi apparatus'],
+        correctAnswer: 1,
+        explanation: 'Mitochondria produce ATP through cellular respiration, earning the nickname "powerhouse of the cell".',
+        concept: 'Cell Organelles',
+        difficulty: 'Easy',
+        subject: 'Biology',
+        topic: 'Cell Biology',
+        subtopic: 'Organelles',
+        bloomsLevel: 'Remember',
+        estimatedTime: 30
+      },
+      {
+        id: 'bio-beg-2',
+        question: 'What is the basic unit of life?',
+        options: ['Tissue', 'Organ', 'Cell', 'Organism'],
+        correctAnswer: 2,
+        explanation: 'The cell is the basic structural and functional unit of all living organisms.',
+        concept: 'Cell Theory',
+        difficulty: 'Easy',
+        subject: 'Biology',
+        topic: 'Cell Biology',
+        subtopic: 'Cell Theory',
+        bloomsLevel: 'Remember',
+        estimatedTime: 20
+      },
+
+      // BIOLOGY QUESTIONS - INTERMEDIATE
+      {
+        id: 'bio-int-1',
+        question: 'During which phase of mitosis do chromosomes align at the cell equator?',
         options: ['Prophase', 'Metaphase', 'Anaphase', 'Telophase'],
         correctAnswer: 1,
-        explanation: 'During metaphase, chromosomes align at the metaphase plate (cell equator) before separation.',
+        explanation: 'During metaphase, chromosomes align at the metaphase plate (cell equator).',
         concept: 'Cell Division',
-        difficulty: 'Easy',
-        subject: 'Biology',
-        topic: 'Cell Biology'
-      },
-      {
-        id: 'b2',
-        question: 'What is the primary function of the loop of Henle in the nephron?',
-        options: ['Filtration', 'Concentration of urine', 'Secretion', 'Reabsorption of glucose'],
-        correctAnswer: 1,
-        explanation: 'The loop of Henle creates a concentration gradient that allows for the concentration of urine through counter-current mechanism.',
-        concept: 'Excretory System',
         difficulty: 'Medium',
         subject: 'Biology',
-        topic: 'Human Physiology'
+        topic: 'Cell Biology',
+        subtopic: 'Mitosis',
+        bloomsLevel: 'Understand',
+        estimatedTime: 60
       },
       {
-        id: 'b3',
-        question: 'In which organelle does photosynthesis occur?',
-        options: ['Mitochondria', 'Chloroplast', 'Nucleus', 'Ribosome'],
-        correctAnswer: 1,
-        explanation: 'Photosynthesis occurs in chloroplasts, which contain chlorophyll and other pigments necessary for capturing light energy.',
-        concept: 'Photosynthesis',
-        difficulty: 'Easy',
-        subject: 'Biology',
-        topic: 'Plant Physiology'
-      },
-      {
-        id: 'b4',
+        id: 'bio-int-2',
         question: 'What type of inheritance is shown by ABO blood groups?',
         options: ['Complete dominance', 'Incomplete dominance', 'Codominance', 'Multiple allelism'],
         correctAnswer: 3,
-        explanation: 'ABO blood groups show multiple allelism (IA, IB, i) with codominance between IA and IB alleles.',
+        explanation: 'ABO blood groups show multiple allelism with three alleles (IA, IB, i) and codominance between IA and IB.',
         concept: 'Genetics',
         difficulty: 'Medium',
         subject: 'Biology',
-        topic: 'Genetics'
+        topic: 'Genetics',
+        subtopic: 'Inheritance',
+        bloomsLevel: 'Understand',
+        estimatedTime: 90
       }
     ];
 
-    // Filter questions based on exam subject and select appropriate number
-    let examQuestions = questionBank.filter(q => q.subject === exam.subject);
-    
-    // If not enough subject-specific questions, add some general ones
+    // Filter questions based on exam subject and difficulty
+    let examQuestions = questionBank.filter(q => {
+      const subjectMatch = q.subject === exam.subject;
+      const difficultyMatch = 
+        (exam.difficulty === 'Beginner' && q.difficulty === 'Easy') ||
+        (exam.difficulty === 'Intermediate' && ['Easy', 'Medium'].includes(q.difficulty)) ||
+        (exam.difficulty === 'Advanced' && ['Medium', 'Hard'].includes(q.difficulty));
+      
+      return subjectMatch && difficultyMatch;
+    });
+
+    // If not enough questions, add some from other difficulties
     if (examQuestions.length < exam.totalQuestions) {
-      const additionalQuestions = questionBank.filter(q => q.subject !== exam.subject);
+      const additionalQuestions = questionBank.filter(q => 
+        q.subject === exam.subject && !examQuestions.includes(q)
+      );
       examQuestions = [...examQuestions, ...additionalQuestions];
     }
 
@@ -560,21 +957,34 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Easy': return 'bg-green-100 text-green-800';
-      case 'Medium': return 'bg-yellow-100 text-yellow-800';
-      case 'Hard': return 'bg-red-100 text-red-800';
+      case 'Beginner': return 'bg-green-100 text-green-800';
+      case 'Intermediate': return 'bg-yellow-100 text-yellow-800';
+      case 'Advanced': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
+      case 'Foundation Test': return 'bg-green-100 text-green-800';
       case 'JEE Main': return 'bg-blue-100 text-blue-800';
       case 'JEE Advanced': return 'bg-purple-100 text-purple-800';
-      case 'NEET': return 'bg-green-100 text-green-800';
+      case 'NEET': return 'bg-pink-100 text-pink-800';
       case 'Chapter Test': return 'bg-orange-100 text-orange-800';
       case 'Previous Year': return 'bg-indigo-100 text-indigo-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getBloomsColor = (level: string) => {
+    switch (level) {
+      case 'Remember': return 'bg-blue-50 text-blue-700';
+      case 'Understand': return 'bg-green-50 text-green-700';
+      case 'Apply': return 'bg-yellow-50 text-yellow-700';
+      case 'Analyze': return 'bg-orange-50 text-orange-700';
+      case 'Evaluate': return 'bg-red-50 text-red-700';
+      case 'Create': return 'bg-purple-50 text-purple-700';
+      default: return 'bg-gray-50 text-gray-700';
     }
   };
 
@@ -587,7 +997,17 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-xl font-bold text-gray-900">{currentExam.title}</h1>
-                <p className="text-gray-600">Question {currentQuestion + 1} of {questions.length}</p>
+                <div className="flex items-center space-x-4 mt-2">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(currentExam.difficulty)}`}>
+                    {currentExam.difficulty}
+                  </span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(currentExam.type)}`}>
+                    {currentExam.type}
+                  </span>
+                  <span className="text-sm text-gray-600">
+                    Question {currentQuestion + 1} of {questions.length}
+                  </span>
+                </div>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-red-600">
@@ -611,7 +1031,13 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(questions[currentQuestion]?.difficulty || 'Medium')}`}>
                   {questions[currentQuestion]?.difficulty}
                 </span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBloomsColor(questions[currentQuestion]?.bloomsLevel || 'Apply')}`}>
+                  {questions[currentQuestion]?.bloomsLevel}
+                </span>
                 <span className="text-sm text-gray-500">{questions[currentQuestion]?.concept}</span>
+                <span className="text-sm text-gray-400">
+                  Est. {Math.round((questions[currentQuestion]?.estimatedTime || 60) / 60)} min
+                </span>
               </div>
               <h2 className="text-lg font-medium text-gray-900 mb-4">
                 {questions[currentQuestion]?.question}
@@ -637,7 +1063,7 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <button
               onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
               disabled={currentQuestion === 0}
@@ -645,11 +1071,30 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
             >
               Previous
             </button>
-            <div className="flex space-x-2">
-              <span className="text-sm text-gray-500 flex items-center">
+            
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-500">
                 Answered: {answers.filter(a => a !== -1).length}/{questions.length}
               </span>
+              <div className="flex space-x-1">
+                {questions.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentQuestion(index)}
+                    className={`w-8 h-8 rounded text-xs font-medium ${
+                      index === currentQuestion
+                        ? 'bg-blue-600 text-white'
+                        : answers[index] !== -1
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+              </div>
             </div>
+            
             <button
               onClick={() => setCurrentQuestion(Math.min(questions.length - 1, currentQuestion + 1))}
               disabled={currentQuestion === questions.length - 1}
@@ -678,9 +1123,17 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
               </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">Exam Completed!</h1>
               <p className="text-gray-600">{currentExam.title}</p>
+              <div className="flex items-center justify-center space-x-2 mt-2">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(currentExam.difficulty)}`}>
+                  {currentExam.difficulty}
+                </span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(currentExam.type)}`}>
+                  {currentExam.type}
+                </span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">{currentExam.accuracy}%</div>
                 <div className="text-sm text-gray-600">Accuracy</div>
@@ -693,10 +1146,31 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
                 <div className="text-2xl font-bold text-purple-600">{currentExam.timeSpent}m</div>
                 <div className="text-sm text-gray-600">Time Taken</div>
               </div>
+              <div className="text-center p-4 bg-orange-50 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600">
+                  {Math.round((correctAnswers / questions.length) * 100) >= 80 ? 'Excellent' :
+                   Math.round((correctAnswers / questions.length) * 100) >= 60 ? 'Good' :
+                   Math.round((correctAnswers / questions.length) * 100) >= 40 ? 'Average' : 'Needs Work'}
+                </div>
+                <div className="text-sm text-gray-600">Performance</div>
+              </div>
+            </div>
+
+            {/* Learning Objectives Review */}
+            <div className="mb-8">
+              <h3 className="font-semibold text-gray-900 mb-4">Learning Objectives Covered</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {currentExam.learningObjectives.map((objective, index) => (
+                  <div key={index} className="flex items-start space-x-2 p-3 bg-gray-50 rounded-lg">
+                    <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">{objective}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-4 mb-8">
-              <h3 className="font-semibold text-gray-900">Question Review</h3>
+              <h3 className="font-semibold text-gray-900">Detailed Question Review</h3>
               <div className="max-h-96 overflow-y-auto space-y-4">
                 {questions.map((question, index) => (
                   <div key={index} className="border border-gray-200 rounded-lg p-4">
@@ -709,6 +1183,15 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
                         )}
                       </div>
                       <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(question.difficulty)}`}>
+                            {question.difficulty}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBloomsColor(question.bloomsLevel)}`}>
+                            {question.bloomsLevel}
+                          </span>
+                          <span className="text-xs text-gray-500">{question.concept}</span>
+                        </div>
                         <p className="font-medium text-gray-900 mb-2">{question.question}</p>
                         <p className="text-sm text-gray-600 mb-2">
                           <span className="font-medium">Your answer:</span> {
@@ -718,7 +1201,9 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
                         <p className="text-sm text-gray-600 mb-2">
                           <span className="font-medium">Correct answer:</span> {question.options[question.correctAnswer]}
                         </p>
-                        <p className="text-sm text-gray-500">{question.explanation}</p>
+                        <div className="bg-blue-50 p-3 rounded-lg">
+                          <p className="text-sm text-blue-800">{question.explanation}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -759,8 +1244,8 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
               <Target className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Mock Exams</h1>
-              <p className="text-gray-600">Practice with {mockExams.length} comprehensive JEE/NEET mock tests</p>
+              <h1 className="text-2xl font-bold text-gray-900">Comprehensive Mock Exams</h1>
+              <p className="text-gray-600">Complete test series covering all difficulty levels - {mockExams.length} exams available</p>
             </div>
           </div>
         </div>
@@ -801,8 +1286,9 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Best Subject</p>
-                <p className="text-2xl font-bold text-gray-900">Biology</p>
+                <p className="text-sm font-medium text-gray-600">Difficulty Levels</p>
+                <p className="text-2xl font-bold text-gray-900">3</p>
+                <p className="text-xs text-gray-500">Beginner to Advanced</p>
               </div>
               <Award className="h-8 w-8 text-orange-500" />
             </div>
@@ -830,10 +1316,11 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
                 className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="All">All Types</option>
+                <option value="Foundation Test">Foundation Tests</option>
                 <option value="JEE Main">JEE Main</option>
                 <option value="JEE Advanced">JEE Advanced</option>
                 <option value="NEET">NEET</option>
-                <option value="Chapter Test">Chapter Test</option>
+                <option value="Chapter Test">Chapter Tests</option>
                 <option value="Previous Year">Previous Year</option>
               </select>
             </div>
@@ -844,9 +1331,9 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
                 className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="All">All Difficulties</option>
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
               </select>
             </div>
           </div>
@@ -900,6 +1387,21 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
                 </div>
 
                 <div className="mb-4">
+                  <p className="text-xs text-gray-500 mb-2">Learning Objectives:</p>
+                  <div className="space-y-1">
+                    {exam.learningObjectives.slice(0, 2).map((objective, index) => (
+                      <div key={index} className="flex items-start space-x-1">
+                        <div className="w-1 h-1 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-xs text-gray-600">{objective}</span>
+                      </div>
+                    ))}
+                    {exam.learningObjectives.length > 2 && (
+                      <span className="text-xs text-gray-500">+{exam.learningObjectives.length - 2} more objectives</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mb-4">
                   <p className="text-xs text-gray-500 mb-1">Topics:</p>
                   <div className="flex flex-wrap gap-1">
                     {exam.topics.slice(0, 3).map((topic, index) => (
@@ -935,6 +1437,52 @@ const MockExams: React.FC<MockExamsProps> = ({ selectedSubject }) => {
               <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
             </div>
           )}
+        </div>
+
+        {/* Difficulty Level Guide */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 p-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <Target className="h-5 w-5 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Difficulty Level Guide</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-lg p-4 border border-green-100">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Beginner</span>
+              </div>
+              <h3 className="font-medium text-gray-900 mb-2">Foundation Level</h3>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Basic concepts and definitions</li>
+                <li>• Simple numerical problems</li>
+                <li>• Fundamental understanding</li>
+                <li>• Perfect for starting your preparation</li>
+              </ul>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-yellow-100">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Intermediate</span>
+              </div>
+              <h3 className="font-medium text-gray-900 mb-2">JEE Main / NEET Level</h3>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Application of concepts</li>
+                <li>• Multi-step problem solving</li>
+                <li>• Exam-pattern questions</li>
+                <li>• Builds competitive exam readiness</li>
+              </ul>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-red-100">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Advanced</span>
+              </div>
+              <h3 className="font-medium text-gray-900 mb-2">JEE Advanced Level</h3>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Complex problem solving</li>
+                <li>• Multiple concept integration</li>
+                <li>• High-order thinking skills</li>
+                <li>• Prepares for top-tier exams</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
