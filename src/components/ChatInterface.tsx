@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, BookOpen, Target, TrendingUp, AlertTriangle, Lightbulb, Paperclip, BarChart3, Award, Eye, Zap, RefreshCw, Copy, ThumbsUp, ThumbsDown, MessageSquare, Clock, CheckCircle2 } from 'lucide-react';
+import { Send, Loader2, BookOpen, Target, TrendingUp, AlertTriangle, Lightbulb, Paperclip, BarChart3, Award, Eye, Zap, RefreshCw, Copy, ThumbsUp, ThumbsDown, MessageSquare, Clock, CheckCircle2, FileText, Calendar, Trophy } from 'lucide-react';
 import { Subject, ChatMessage, QuestionAnalysis } from '../types';
 import { generateTutorResponse, generateFollowUpSuggestions } from '../services/geminiService';
 import { processUploadedFile, ProcessedFileContent } from '../services/fileProcessingService';
 import { adaptiveLearningService } from '../services/adaptiveLearningService';
+import { examPaperService } from '../services/examPaperService';
 import FileUpload from './FileUpload';
 
 interface ChatInterfaceProps {
@@ -21,6 +22,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
+  const [showExamContext, setShowExamContext] = useState(false);
   const [typingIndicator, setTypingIndicator] = useState(false);
   const [messageRatings, setMessageRatings] = useState<{ [messageId: string]: 'up' | 'down' | null }>({});
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
@@ -45,19 +47,33 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
     // Initialize progress tracking
     adaptiveLearningService.initializeProgress(subject);
     
-    // Get personalized welcome message
+    // Get personalized welcome message with exam context
     const progress = adaptiveLearningService.getProgress(subject);
     const analytics = adaptiveLearningService.getPerformanceAnalytics(subject);
     const suggestions = adaptiveLearningService.generateSuggestions(subject);
     
-    let welcomeMessage = `Hello! I'm your advanced ${subject.name} AI tutor powered by Gemini AI. `;
+    // Get exam context
+    const examPattern = examPaperService.getExamPattern('JEE Main', subject.name) || 
+                       examPaperService.getExamPattern('NEET', subject.name);
+    const highFrequencyConcepts = examPaperService.getHighFrequencyConcepts(subject.name);
+    const trendingQuestions = examPaperService.getTrendingQuestions(subject.name, 2);
+    
+    let welcomeMessage = `Hello! I'm your advanced ${subject.name} AI tutor powered by **Gemini AI** with access to **comprehensive JEE/NEET exam database** (2020-2024). `;
     
     if (progress.totalQuestions === 0) {
-      welcomeMessage += `I'm here to help you excel in JEE/NEET preparation with:\n\n`;
+      welcomeMessage += `I'm here to help you excel in competitive exam preparation with:\n\n`;
       welcomeMessage += `🔍 **AI Text Recognition** - Upload images of problems\n`;
       welcomeMessage += `🧮 **Math Detection** - Automatic formula recognition\n`;
       welcomeMessage += `📊 **Adaptive Learning** - Personalized difficulty adjustment\n`;
-      welcomeMessage += `💡 **Smart Analysis** - Detailed problem breakdowns\n\n`;
+      welcomeMessage += `💡 **Smart Analysis** - Detailed problem breakdowns\n`;
+      welcomeMessage += `📚 **Exam Database** - ${examPaperService.getAllPapers().length}+ past JEE/NEET questions\n\n`;
+      
+      if (examPattern) {
+        welcomeMessage += `**📋 ${examPattern.examType} ${subject.name} Pattern:**\n`;
+        welcomeMessage += `• **Questions:** ${examPattern.totalQuestions} | **Marks:** ${examPattern.totalMarks} | **Time:** ${examPattern.timeLimit} min\n`;
+        welcomeMessage += `• **High-frequency topics:** ${highFrequencyConcepts.slice(0, 3).join(', ')}\n\n`;
+      }
+      
       welcomeMessage += `Let's start with some fundamentals! What would you like to learn about?`;
     } else {
       welcomeMessage += `Welcome back! Here's your progress:\n\n`;
@@ -67,6 +83,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
         welcomeMessage += `🔥 **Streak:** ${analytics.streak} questions\n`;
       }
       welcomeMessage += `📚 **Total Questions:** ${analytics.totalQuestions}\n\n`;
+      
+      if (trendingQuestions.length > 0) {
+        welcomeMessage += `**🔥 Recent Trending Topics:**\n`;
+        trendingQuestions.forEach(q => {
+          welcomeMessage += `• **${q.examType} ${q.year}:** ${q.concepts[0]} (${q.difficulty})\n`;
+        });
+        welcomeMessage += `\n`;
+      }
+      
       welcomeMessage += `Ready to continue your learning journey? Upload an image or ask me anything!`;
     }
     
@@ -80,16 +105,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
     
     setMessages([welcomeChatMessage]);
     
-    // Set initial suggestions
+    // Set initial suggestions with exam context
     if (suggestions.length > 0) {
       setFollowUpSuggestions(suggestions.map(s => s.content));
     } else {
-      // Default suggestions for new users
-      setFollowUpSuggestions([
-        `Explain the basics of ${subject.name}`,
-        `What are the most important topics for JEE/NEET?`,
-        `Help me solve a practice problem`
-      ]);
+      // Default suggestions with exam context
+      const examSuggestions = [
+        `Explain ${highFrequencyConcepts[0]} - high frequency in JEE/NEET`,
+        `Show me ${subject.name} exam patterns and weightages`,
+        `Practice problems from past year papers`
+      ];
+      setFollowUpSuggestions(examSuggestions);
     }
 
     // Update session stats periodically
@@ -133,7 +159,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
       
       setMessages(prev => [...prev, fileUploadMessage]);
       
-      // Auto-generate a response about the uploaded file
+      // Auto-generate a response about the uploaded file with exam context
       setTypingIndicator(true);
       const { response, analysis, suggestedDifficulty } = await generateTutorResponse(
         subject,
@@ -168,7 +194,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
       console.error('Error processing file:', error);
       const errorMessage: ChatMessage = {
         id: Date.now().toString(),
-        content: `❌ **Processing Error:** ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try:\n• Uploading a clearer image\n• Ensuring good lighting and contrast\n• Describing your question in text`,
+        content: `❌ **Processing Error:** ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try:\n• Uploading a clearer image\n• Ensuring good lighting and contrast\n• Describing your question in text\n• Checking if it's a past JEE/NEET question - I can help identify it!`,
         isUser: false,
         timestamp: new Date(),
         subject
@@ -246,7 +272,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
 
       setMessages(prev => [...prev, tutorMessage]);
 
-      // Generate follow-up suggestions
+      // Generate follow-up suggestions with exam context
       const suggestions = await generateFollowUpSuggestions(subject, text || 'file upload question');
       setFollowUpSuggestions(suggestions);
 
@@ -271,7 +297,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
       console.error('Error sending message:', error);
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        content: "🔄 **Connection Issue:** I'm having trouble connecting right now. Please try again in a moment.\n\nIn the meantime, you can:\n• Check your internet connection\n• Try rephrasing your question\n• Upload an image if you haven't already",
+        content: "🔄 **Connection Issue:** I'm having trouble connecting right now. Please try again in a moment.\n\nIn the meantime, you can:\n• Check your internet connection\n• Try rephrasing your question\n• Upload an image if you haven't already\n• Ask about specific JEE/NEET exam patterns",
         isUser: false,
         timestamp: new Date(),
         subject
@@ -463,7 +489,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
       <div className="bg-blue-50 p-3 rounded border border-blue-200">
         <h5 className="font-medium text-blue-900 mb-1 flex items-center space-x-1">
           <TrendingUp className="h-3 w-3" />
-          <span>📈 JEE/NEET Relevance</span>
+          <span>📈 JEE/NEET Exam Relevance</span>
         </h5>
         <p className="text-xs text-blue-800">{analysis.examRelevance}</p>
       </div>
@@ -548,6 +574,87 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
     );
   };
 
+  const ExamContextPanel = () => {
+    const examPattern = examPaperService.getExamPattern('JEE Main', subject.name) || 
+                       examPaperService.getExamPattern('NEET', subject.name);
+    const highFrequencyConcepts = examPaperService.getHighFrequencyConcepts(subject.name);
+    const trendingQuestions = examPaperService.getTrendingQuestions(subject.name, 3);
+    const examStats = examPaperService.getExamStatistics('JEE Main', subject.name);
+    
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
+        <div className="flex items-center space-x-2">
+          <FileText className="h-5 w-5 text-purple-600" />
+          <h3 className="font-semibold text-gray-900">📚 JEE/NEET Exam Context</h3>
+        </div>
+        
+        {examPattern && (
+          <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+            <h4 className="font-medium text-purple-900 mb-2">{examPattern.examType} Pattern</h4>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="text-center">
+                <div className="font-bold text-purple-700">{examPattern.totalQuestions}</div>
+                <div className="text-purple-600">Questions</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-purple-700">{examPattern.totalMarks}</div>
+                <div className="text-purple-600">Marks</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-purple-700">{examPattern.timeLimit}</div>
+                <div className="text-purple-600">Minutes</div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div>
+          <h4 className="font-medium text-gray-700 mb-2 flex items-center space-x-1">
+            <Trophy className="h-4 w-4 text-yellow-500" />
+            <span>🔥 High-Frequency Topics</span>
+          </h4>
+          <div className="flex flex-wrap gap-1">
+            {highFrequencyConcepts.slice(0, 5).map((concept, idx) => (
+              <span key={idx} className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full border border-yellow-200">
+                {concept}
+              </span>
+            ))}
+          </div>
+        </div>
+        
+        {trendingQuestions.length > 0 && (
+          <div>
+            <h4 className="font-medium text-gray-700 mb-2 flex items-center space-x-1">
+              <Calendar className="h-4 w-4 text-green-500" />
+              <span>📈 Recent Trends</span>
+            </h4>
+            <div className="space-y-2">
+              {trendingQuestions.map((question, idx) => (
+                <div key={idx} className="text-xs bg-green-50 p-2 rounded border border-green-200">
+                  <div className="font-medium text-green-800">
+                    {question.examType} {question.year} - {question.concepts[0]}
+                  </div>
+                  <div className="text-green-600">
+                    {question.difficulty} level • Frequency: {question.frequency}/10
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+          <h4 className="font-medium text-blue-900 mb-2">📊 Database Stats</h4>
+          <div className="text-xs text-blue-800">
+            <div>Total Questions: {examPaperService.getAllPapers().length}+</div>
+            <div>Years Covered: 2020-2024</div>
+            <div>Exams: JEE Main, JEE Advanced, NEET</div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Enhanced Header */}
@@ -575,249 +682,272 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
                   <span>Adaptive Learning</span>
                 </div>
                 <div className="flex items-center space-x-1">
+                  <FileText className="h-3 w-3" />
+                  <span>Exam Database</span>
+                </div>
+                <div className="flex items-center space-x-1">
                   <MessageSquare className="h-3 w-3" />
                   <span>{sessionStats.questionsAsked} questions</span>
                 </div>
               </div>
             </div>
           </div>
-          <button
-            onClick={() => setShowProgress(!showProgress)}
-            className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm border border-gray-200"
-          >
-            <Award className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium">Progress</span>
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setShowExamContext(!showExamContext)}
+              className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm border border-gray-200"
+            >
+              <FileText className="h-4 w-4 text-purple-600" />
+              <span className="text-sm font-medium">Exam Context</span>
+            </button>
+            <button
+              onClick={() => setShowProgress(!showProgress)}
+              className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm border border-gray-200"
+            >
+              <Award className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-medium">Progress</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Progress Panel */}
-      {showProgress && (
-        <div className="p-4 border-b border-gray-200 bg-white">
-          <ProgressPanel />
-        </div>
-      )}
-
-      {/* Enhanced Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-3xl rounded-lg p-4 shadow-sm ${
-                message.isUser
-                  ? `${subject.color.replace('text', 'bg')} text-white`
-                  : 'bg-white border border-gray-200 text-gray-800'
-              }`}
-            >
-              <div className="whitespace-pre-wrap">{message.content}</div>
-              
-              {/* Message metadata */}
-              {message.difficulty && !message.isUser && (
-                <div className="mt-3 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      message.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
-                      message.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {message.difficulty} Level
-                    </span>
-                    {message.wasCorrect !== undefined && (
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        message.wasCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                      }`}>
-                        {message.wasCorrect ? '✓ Correct' : '✗ Needs Review'}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Message actions */}
-                  <div className="flex items-center space-x-1">
-                    <button
-                      onClick={() => handleRateMessage(message.id, 'up')}
-                      className={`p-1 rounded hover:bg-gray-100 transition-colors ${
-                        messageRatings[message.id] === 'up' ? 'text-green-600' : 'text-gray-400'
-                      }`}
-                    >
-                      <ThumbsUp className="h-3 w-3" />
-                    </button>
-                    <button
-                      onClick={() => handleRateMessage(message.id, 'down')}
-                      className={`p-1 rounded hover:bg-gray-100 transition-colors ${
-                        messageRatings[message.id] === 'down' ? 'text-red-600' : 'text-gray-400'
-                      }`}
-                    >
-                      <ThumbsDown className="h-3 w-3" />
-                    </button>
-                    <button
-                      onClick={() => handleCopyMessage(message.id, message.content)}
-                      className="p-1 rounded hover:bg-gray-100 transition-colors text-gray-400"
-                    >
-                      {copiedMessageId === message.id ? (
-                        <CheckCircle2 className="h-3 w-3 text-green-600" />
-                      ) : (
-                        <Copy className="h-3 w-3" />
-                      )}
-                    </button>
-                    <button
-                      onClick={() => handleRegenerateResponse(message.id)}
-                      className="p-1 rounded hover:bg-gray-100 transition-colors text-gray-400"
-                    >
-                      <RefreshCw className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-              )}
-              
-              {/* File content display */}
-              {message.fileContent && (
-                <div className="mt-3 p-3 bg-gray-100 rounded-lg text-xs text-gray-600 border">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span>📎 {message.fileContent.type.toUpperCase()} file: {message.fileContent.fileName}</span>
-                    {message.fileContent.confidence !== undefined && (
-                      <span className="text-blue-600 font-medium">
-                        ({(message.fileContent.confidence * 100).toFixed(1)}% confidence)
-                      </span>
-                    )}
-                  </div>
-                  {message.fileContent.mathContent?.hasMath && (
-                    <div className="text-green-600 font-medium">
-                      🧮 Math detected: {message.fileContent.mathContent.mathIndicators.join(', ')}
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {/* Analysis panel */}
-              {!message.isUser && message.analysis && (
-                <div className="mt-3">
-                  <button
-                    onClick={() => setShowAnalysis(
-                      showAnalysis === message.id ? null : message.id
-                    )}
-                    className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <BookOpen className="h-4 w-4" />
-                    <span>
-                      {showAnalysis === message.id ? 'Hide' : 'Show'} Detailed Analysis
-                    </span>
-                  </button>
-                  
-                  {showAnalysis === message.id && (
-                    <AnalysisPanel analysis={message.analysis} messageId={message.id} />
-                  )}
-                </div>
-              )}
-              
-              <div className="text-xs opacity-70 mt-2 flex items-center space-x-2">
-                <Clock className="h-3 w-3" />
-                <span>{message.timestamp.toLocaleTimeString()}</span>
-              </div>
-            </div>
+      {/* Progress and Exam Context Panels */}
+      <div className="flex">
+        {showProgress && (
+          <div className="w-80 p-4 border-r border-gray-200 bg-white">
+            <ProgressPanel />
           </div>
-        ))}
-        
-        {/* Enhanced typing indicator */}
-        {(isLoading || isProcessingFile || typingIndicator) && (
-          <div className="flex justify-start">
-            <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center space-x-3 shadow-sm">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-              </div>
-              <span className="text-gray-600 text-sm">
-                {isProcessingFile ? 'Reading text from image with AI...' : 'AI is thinking...'}
-              </span>
-            </div>
+        )}
+        {showExamContext && (
+          <div className="w-80 p-4 border-r border-gray-200 bg-white">
+            <ExamContextPanel />
           </div>
         )}
         
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Enhanced Follow-up Suggestions */}
-      {followUpSuggestions.length > 0 && (
-        <div className="px-4 py-3 bg-white border-t border-gray-200">
-          <div className="flex items-center space-x-2 mb-3">
-            <Lightbulb className="h-4 w-4 text-yellow-500" />
-            <span className="text-sm font-medium text-gray-700">💡 Suggested questions:</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {followUpSuggestions.map((suggestion, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSendMessage(suggestion)}
-                className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-full transition-colors border border-gray-300 hover:border-gray-400"
-                disabled={isLoading}
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col">
+          {/* Enhanced Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
               >
-                {suggestion}
-              </button>
+                <div
+                  className={`max-w-3xl rounded-lg p-4 shadow-sm ${
+                    message.isUser
+                      ? `${subject.color.replace('text', 'bg')} text-white`
+                      : 'bg-white border border-gray-200 text-gray-800'
+                  }`}
+                >
+                  <div className="whitespace-pre-wrap">{message.content}</div>
+                  
+                  {/* Message metadata */}
+                  {message.difficulty && !message.isUser && (
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          message.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
+                          message.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {message.difficulty} Level
+                        </span>
+                        {message.wasCorrect !== undefined && (
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            message.wasCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                          }`}>
+                            {message.wasCorrect ? '✓ Correct' : '✗ Needs Review'}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Message actions */}
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={() => handleRateMessage(message.id, 'up')}
+                          className={`p-1 rounded hover:bg-gray-100 transition-colors ${
+                            messageRatings[message.id] === 'up' ? 'text-green-600' : 'text-gray-400'
+                          }`}
+                        >
+                          <ThumbsUp className="h-3 w-3" />
+                        </button>
+                        <button
+                          onClick={() => handleRateMessage(message.id, 'down')}
+                          className={`p-1 rounded hover:bg-gray-100 transition-colors ${
+                            messageRatings[message.id] === 'down' ? 'text-red-600' : 'text-gray-400'
+                          }`}
+                        >
+                          <ThumbsDown className="h-3 w-3" />
+                        </button>
+                        <button
+                          onClick={() => handleCopyMessage(message.id, message.content)}
+                          className="p-1 rounded hover:bg-gray-100 transition-colors text-gray-400"
+                        >
+                          {copiedMessageId === message.id ? (
+                            <CheckCircle2 className="h-3 w-3 text-green-600" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleRegenerateResponse(message.id)}
+                          className="p-1 rounded hover:bg-gray-100 transition-colors text-gray-400"
+                        >
+                          <RefreshCw className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* File content display */}
+                  {message.fileContent && (
+                    <div className="mt-3 p-3 bg-gray-100 rounded-lg text-xs text-gray-600 border">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <span>📎 {message.fileContent.type.toUpperCase()} file: {message.fileContent.fileName}</span>
+                        {message.fileContent.confidence !== undefined && (
+                          <span className="text-blue-600 font-medium">
+                            ({(message.fileContent.confidence * 100).toFixed(1)}% confidence)
+                          </span>
+                        )}
+                      </div>
+                      {message.fileContent.mathContent?.hasMath && (
+                        <div className="text-green-600 font-medium">
+                          🧮 Math detected: {message.fileContent.mathContent.mathIndicators.join(', ')}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Analysis panel */}
+                  {!message.isUser && message.analysis && (
+                    <div className="mt-3">
+                      <button
+                        onClick={() => setShowAnalysis(
+                          showAnalysis === message.id ? null : message.id
+                        )}
+                        className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        <span>
+                          {showAnalysis === message.id ? 'Hide' : 'Show'} Detailed Analysis
+                        </span>
+                      </button>
+                      
+                      {showAnalysis === message.id && (
+                        <AnalysisPanel analysis={message.analysis} messageId={message.id} />
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="text-xs opacity-70 mt-2 flex items-center space-x-2">
+                    <Clock className="h-3 w-3" />
+                    <span>{message.timestamp.toLocaleTimeString()}</span>
+                  </div>
+                </div>
+              </div>
             ))}
+            
+            {/* Enhanced typing indicator */}
+            {(isLoading || isProcessingFile || typingIndicator) && (
+              <div className="flex justify-start">
+                <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center space-x-3 shadow-sm">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                  <span className="text-gray-600 text-sm">
+                    {isProcessingFile ? 'Reading text from image with AI...' : 'AI is analyzing with exam database...'}
+                  </span>
+                </div>
+              </div>
+            )}
+            
+            <div ref={messagesEndRef} />
           </div>
-        </div>
-      )}
 
-      {/* Enhanced File Upload Area */}
-      {showFileUpload && (
-        <div className="px-4 py-3 bg-white border-t border-gray-200">
-          <FileUpload
-            onFileSelect={handleFileSelect}
-            onRemoveFile={handleRemoveFile}
-            selectedFile={selectedFile}
-            isUploading={isProcessingFile}
-          />
-        </div>
-      )}
+          {/* Enhanced Follow-up Suggestions */}
+          {followUpSuggestions.length > 0 && (
+            <div className="px-4 py-3 bg-white border-t border-gray-200">
+              <div className="flex items-center space-x-2 mb-3">
+                <Lightbulb className="h-4 w-4 text-yellow-500" />
+                <span className="text-sm font-medium text-gray-700">💡 Suggested questions:</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {followUpSuggestions.map((suggestion, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSendMessage(suggestion)}
+                    className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-full transition-colors border border-gray-300 hover:border-gray-400"
+                    disabled={isLoading}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-      {/* Enhanced Input */}
-      <div className="p-4 bg-white border-t border-gray-200">
-        <div className="flex space-x-2">
-          <button
-            onClick={() => setShowFileUpload(!showFileUpload)}
-            className={`p-3 rounded-lg transition-colors ${
-              showFileUpload
-                ? `${subject.color.replace('text', 'bg')} text-white`
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-            }`}
-            disabled={isLoading || isProcessingFile}
-            title="Upload images, PDFs, or text files with AI text recognition"
-          >
-            <Paperclip className="h-5 w-5" />
-          </button>
-          <div className="flex-1 relative">
-            <textarea
-              ref={inputRef}
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={`Ask your ${subject.name} question or upload an image with AI text recognition...`}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              rows={2}
-              disabled={isLoading || isProcessingFile}
-            />
-            <div className="absolute bottom-2 right-2 text-xs text-gray-400">
-              Press Enter to send, Shift+Enter for new line
+          {/* Enhanced File Upload Area */}
+          {showFileUpload && (
+            <div className="px-4 py-3 bg-white border-t border-gray-200">
+              <FileUpload
+                onFileSelect={handleFileSelect}
+                onRemoveFile={handleRemoveFile}
+                selectedFile={selectedFile}
+                isUploading={isProcessingFile}
+              />
+            </div>
+          )}
+
+          {/* Enhanced Input */}
+          <div className="p-4 bg-white border-t border-gray-200">
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setShowFileUpload(!showFileUpload)}
+                className={`p-3 rounded-lg transition-colors ${
+                  showFileUpload
+                    ? `${subject.color.replace('text', 'bg')} text-white`
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                }`}
+                disabled={isLoading || isProcessingFile}
+                title="Upload images, PDFs, or text files with AI text recognition"
+              >
+                <Paperclip className="h-5 w-5" />
+              </button>
+              <div className="flex-1 relative">
+                <textarea
+                  ref={inputRef}
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder={`Ask your ${subject.name} question, upload an image, or ask about JEE/NEET exam patterns...`}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows={2}
+                  disabled={isLoading || isProcessingFile}
+                />
+                <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+                  Press Enter to send, Shift+Enter for new line
+                </div>
+              </div>
+              <button
+                onClick={() => handleSendMessage()}
+                disabled={(!inputMessage.trim() && !selectedFile) || isLoading || isProcessingFile}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  (!inputMessage.trim() && !selectedFile) || isLoading || isProcessingFile
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : `${subject.color.replace('text', 'bg')} text-white hover:opacity-90`
+                }`}
+              >
+                {isLoading || isProcessingFile ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Send className="h-5 w-5" />
+                )}
+              </button>
             </div>
           </div>
-          <button
-            onClick={() => handleSendMessage()}
-            disabled={(!inputMessage.trim() && !selectedFile) || isLoading || isProcessingFile}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              (!inputMessage.trim() && !selectedFile) || isLoading || isProcessingFile
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : `${subject.color.replace('text', 'bg')} text-white hover:opacity-90`
-            }`}
-          >
-            {isLoading || isProcessingFile ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Send className="h-5 w-5" />
-            )}
-          </button>
         </div>
       </div>
     </div>

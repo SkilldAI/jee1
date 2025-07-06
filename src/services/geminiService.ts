@@ -2,35 +2,44 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Subject, QuestionAnalysis } from '../types';
 import { adaptiveLearningService } from './adaptiveLearningService';
 import { learningPathService } from './learningPathService';
+import { examPaperService } from './examPaperService';
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || 'demo-key');
 
 const TUTOR_SYSTEM_PROMPT = `You are an advanced AI tutor specializing in JEE (Joint Entrance Examination) and NEET (National Eligibility cum Entrance Test) subjects, with extensive knowledge in Physics, Chemistry, Biology, and Mathematics. Your primary goal is to provide clear, systematic, and helpful answers to students' questions, tailoring your explanations to the JEE/NEET level.
 
-You have access to the student's learning progress and personalized learning path data, and should adapt your responses accordingly:
-- For beginners: Use simpler language, more examples, step-by-step explanations
-- For intermediate: Provide moderate complexity with some advanced concepts
-- For advanced: Use technical terminology, complex problem-solving approaches
+You have access to:
+1. Student's learning progress and personalized learning path data
+2. Comprehensive database of past JEE/NEET exam papers (2020-2024)
+3. Exam patterns, weightages, and trending topics
+4. Similar questions from previous years
+5. High-frequency concepts and common question types
 
 When a student asks a question, you should:
 
 1. Provide a clear, conversational response that directly addresses their question
-2. Use scientific terminology appropriate for their current level
+2. Reference similar questions from past JEE/NEET papers when relevant
 3. Include step-by-step solutions when applicable
-4. Mention key concepts and formulas
+4. Mention key concepts and formulas with exam context
 5. Be encouraging and supportive
 6. Ask follow-up questions to ensure understanding
 7. Relate concepts to exam patterns and real-world applications
-8. Adjust difficulty based on their performance history and learning path progress
+8. Show exam statistics and trends when helpful
 9. Recommend specific topics from their learning path when relevant
 10. Identify knowledge gaps and suggest prerequisite concepts if needed
+
+IMPORTANT: When referencing past exam papers, always mention:
+- The specific exam (JEE Main 2024, NEET 2023, etc.)
+- Question difficulty and frequency in exams
+- Similar questions from other years
+- Topic weightage and importance for the exam
 
 Keep your responses conversational but educational. If the question is complex, break it down into digestible parts. Always maintain an encouraging tone and help build the student's confidence.
 
 For mathematical problems, show clear step-by-step solutions. For conceptual questions, provide thorough explanations with examples. Always end with a question or suggestion to keep the conversation going.
 
-When a student uploads a file (image, PDF, or document), acknowledge the upload and provide detailed analysis of the content.
+When a student uploads a file (image, PDF, or document), acknowledge the upload and provide detailed analysis of the content with references to similar exam questions.
 
 IMPORTANT: When you identify new concepts or topics in the student's question that aren't in their current learning path, you should mention these concepts clearly so they can be automatically added to their personalized learning path.
 
@@ -70,6 +79,16 @@ export const generateTutorResponse = async (
     // Determine appropriate difficulty if not specified
     const difficulty = targetDifficulty || adaptiveLearningService.getNextDifficulty(subject);
     
+    // Get exam paper context
+    const examPattern = examPaperService.getExamPattern('JEE Main', subject.name) || 
+                       examPaperService.getExamPattern('NEET', subject.name);
+    
+    // Extract concepts from question for finding similar papers
+    const questionConcepts = extractConceptsFromQuestion(question, subject.name);
+    const similarPapers = examPaperService.getSimilarQuestions(questionConcepts, subject.name, difficulty);
+    const trendingQuestions = examPaperService.getTrendingQuestions(subject.name, 3);
+    const highFrequencyConcepts = examPaperService.getHighFrequencyConcepts(subject.name);
+    
     // Build conversation context
     const context = conversationHistory.length > 0 
       ? `**Previous conversation:**\n${conversationHistory.slice(-4).join('\n')}\n\n`
@@ -92,6 +111,38 @@ export const generateTutorResponse = async (
 - **Strong Areas:** ${progress.strongAreas.join(', ') || 'Building foundation'}
 `;
 
+    // Add exam paper context
+    let examContext = `
+**JEE/NEET Exam Context:**
+- **High-Frequency Concepts:** ${highFrequencyConcepts.slice(0, 5).join(', ')}
+`;
+
+    if (examPattern) {
+      examContext += `
+- **Exam Pattern (${examPattern.examType}):** ${examPattern.totalQuestions} questions, ${examPattern.totalMarks} marks
+- **Topic Weightage:** ${Object.entries(examPattern.topicWeightage).slice(0, 3).map(([topic, weight]) => `${topic} (${weight}%)`).join(', ')}
+- **Trending Topics:** ${examPattern.trendingTopics.join(', ')}
+`;
+    }
+
+    if (similarPapers.length > 0) {
+      examContext += `
+**Similar Past Exam Questions:**
+${similarPapers.slice(0, 3).map(paper => 
+  `- **${paper.examType} ${paper.year}** (Q${paper.questionNumber || 'N/A'}): ${paper.question.substring(0, 100)}... [${paper.difficulty} level, Frequency: ${paper.frequency}/10]`
+).join('\n')}
+`;
+    }
+
+    if (trendingQuestions.length > 0) {
+      examContext += `
+**Recent Trending Questions:**
+${trendingQuestions.map(paper => 
+  `- **${paper.examType} ${paper.year}**: ${paper.concepts.join(', ')} [${paper.difficulty}]`
+).join('\n')}
+`;
+    }
+
     // Add learning path context if available
     if (currentPath) {
       const pathAnalytics = learningPathService.getPathAnalytics(currentPath.id);
@@ -107,21 +158,27 @@ When relevant, suggest specific topics from their learning path or identify prer
     }
 
     adaptiveContext += `
-Please adapt your response to match the student's current level and target difficulty. Provide personalized recommendations based on their learning path progress.
+Please adapt your response to match the student's current level and target difficulty. Provide personalized recommendations based on their learning path progress and reference relevant past exam questions.
 
-**IMPORTANT:** If you identify any new concepts or topics in the student's question that would benefit their learning, mention them clearly in your response so they can be added to their learning path automatically.
+**IMPORTANT:** 
+1. Reference specific past JEE/NEET questions when they relate to the student's question
+2. Mention exam patterns, weightages, and frequency of similar questions
+3. If you identify any new concepts or topics in the student's question that would benefit their learning, mention them clearly in your response so they can be added to their learning path automatically
+4. Always provide exam-specific context and preparation tips
 `;
 
     const prompt = `${TUTOR_SYSTEM_PROMPT}
 
 ${adaptiveContext}
 
+${examContext}
+
 **Subject:** ${subject.name}
 ${context}${fileContext}**Student Question:** ${question}
 
-Please provide a helpful, conversational response appropriate for their ${analytics.level} level. Target difficulty should be ${difficulty}. Be encouraging and educational. If relevant, reference their learning path progress and suggest specific next steps. Clearly mention any new concepts or topics that should be added to their learning path.
+Please provide a helpful, conversational response appropriate for their ${analytics.level} level. Target difficulty should be ${difficulty}. Be encouraging and educational. Reference relevant past exam questions and patterns. If relevant, reference their learning path progress and suggest specific next steps. Clearly mention any new concepts or topics that should be added to their learning path.
 
-Use proper markdown formatting for better readability.`;
+Use proper markdown formatting for better readability and include specific exam references where applicable.`;
 
     const result = await model.generateContent(prompt);
     const response = result.response.text();
@@ -163,7 +220,7 @@ Focus on specific, actionable topics that can be studied, not general statements
       }
     }
 
-    // Generate analysis with adaptive considerations and learning path integration
+    // Generate enhanced analysis with exam paper references
     const analysisPrompt = `Analyze this ${subject.name} question for JEE/NEET preparation: "${question}"
 ${fileContent ? `\nContext from uploaded file: ${fileContent.substring(0, 500)}...` : ''}
 
@@ -173,19 +230,24 @@ ${fileContent ? `\nContext from uploaded file: ${fileContent.substring(0, 500)}.
 - Target Difficulty: ${difficulty}
 ${currentPath ? `- Learning Path Progress: ${Math.round(currentPath.overallProgress)}%` : ''}
 
+**Exam Context:**
+- High-frequency concepts: ${highFrequencyConcepts.slice(0, 5).join(', ')}
+- Similar past questions available: ${similarPapers.length}
+- Recent exam trends: ${trendingQuestions.map(p => p.concepts[0]).join(', ')}
+
 Provide analysis in this exact JSON format (ensure valid JSON):
 {
   "concepts": ["concept1", "concept2", "concept3"],
   "complexityLevel": 3,
-  "complexityJustification": "explanation considering student level and learning path",
-  "examRelevance": "how this relates to JEE/NEET for their level",
+  "complexityJustification": "explanation considering student level, learning path, and exam frequency",
+  "examRelevance": "how this relates to JEE/NEET with specific exam references and frequency data",
   "commonTraps": ["trap1", "trap2"],
   "realWorldApplications": ["application1", "application2"],
   "furtherStudy": ["topic1", "topic2"],
-  "progressNote": "personalized study recommendations based on their progress and learning path"
+  "progressNote": "personalized study recommendations based on progress, learning path, and exam patterns"
 }
 
-Ensure the response is valid JSON only, no additional text.`;
+Ensure the response is valid JSON only, no additional text. Include specific exam references in examRelevance.`;
 
     const analysisResult = await model.generateContent(analysisPrompt);
     let analysis: QuestionAnalysis;
@@ -202,16 +264,20 @@ Ensure the response is valid JSON only, no additional text.`;
       }
     } catch (error) {
       console.warn('Analysis parsing failed:', error);
-      // Fallback analysis if parsing fails
+      // Enhanced fallback analysis with exam context
+      const examRef = similarPapers.length > 0 ? 
+        `Similar to ${similarPapers[0].examType} ${similarPapers[0].year} Q${similarPapers[0].questionNumber}` :
+        'Important for JEE/NEET examinations';
+      
       analysis = {
         concepts: identifiedConcepts.length > 0 ? identifiedConcepts : [subject.name + ' concepts'],
         complexityLevel: difficulty === 'Easy' ? 2 : difficulty === 'Medium' ? 3 : 4,
-        complexityJustification: `${difficulty} level question appropriate for ${analytics.level} student`,
-        examRelevance: 'This topic is important for JEE/NEET examinations and appears frequently in competitive exams',
-        commonTraps: ['Pay attention to units and signs', 'Verify your final answer'],
-        realWorldApplications: ['Applied in engineering and medical fields', 'Used in scientific research'],
-        furtherStudy: ['Practice more problems in this area', 'Review related concepts'],
-        progressNote: `Continue practicing similar problems to build confidence. Current accuracy: ${analytics.accuracy}%${currentPath ? ` Learning path progress: ${Math.round(currentPath.overallProgress)}%` : ''}`
+        complexityJustification: `${difficulty} level question appropriate for ${analytics.level} student. ${examRef}`,
+        examRelevance: `This topic appears frequently in JEE/NEET exams. ${examRef}. High-frequency concepts include: ${highFrequencyConcepts.slice(0, 3).join(', ')}.`,
+        commonTraps: ['Pay attention to units and signs', 'Verify your final answer', 'Check for special cases'],
+        realWorldApplications: ['Applied in engineering and medical fields', 'Used in scientific research', 'Important for technology development'],
+        furtherStudy: ['Practice more problems in this area', 'Review related concepts', 'Solve past year questions'],
+        progressNote: `Continue practicing similar problems to build confidence. Current accuracy: ${analytics.accuracy}%. Focus on ${highFrequencyConcepts[0]} as it's high-frequency in exams.${currentPath ? ` Learning path progress: ${Math.round(currentPath.overallProgress)}%` : ''}`
       };
     }
 
@@ -245,9 +311,14 @@ Ensure the response is valid JSON only, no additional text.`;
     
     const fallbackDifficulty = targetDifficulty || 'Medium';
     
-    // Enhanced fallback response
+    // Enhanced fallback response with exam context
     return {
       response: `I understand you're asking about **${subject.name}**. While I'm having trouble connecting to my advanced AI right now, I can still help! 
+
+**📚 Quick Exam Tips:**
+- This topic frequently appears in JEE/NEET exams
+- Focus on understanding concepts rather than memorization
+- Practice with past year questions for better preparation
 
 Could you try:
 - **Rephrasing your question** or breaking it down into smaller parts
@@ -259,11 +330,11 @@ I'm here to support your **JEE/NEET preparation** journey! 🚀`,
         concepts: [subject.name],
         complexityLevel: 3,
         complexityJustification: 'Unable to analyze due to connection issue',
-        examRelevance: 'Important for JEE/NEET preparation',
-        commonTraps: ['Ensure clear understanding of fundamentals'],
-        realWorldApplications: ['Widely applicable in science and engineering'],
-        furtherStudy: ['Review basic concepts and practice problems'],
-        progressNote: 'Keep practicing and asking questions - consistency is key to success!'
+        examRelevance: 'Important for JEE/NEET preparation - appears frequently in competitive exams',
+        commonTraps: ['Ensure clear understanding of fundamentals', 'Practice with past year questions'],
+        realWorldApplications: ['Widely applicable in science and engineering', 'Foundation for advanced studies'],
+        furtherStudy: ['Review basic concepts and practice problems', 'Solve previous year questions'],
+        progressNote: 'Keep practicing and asking questions - consistency is key to success in competitive exams!'
       },
       suggestedDifficulty: fallbackDifficulty
     };
@@ -288,6 +359,12 @@ export const generateFollowUpSuggestions = async (
     const adaptiveSuggestions = adaptiveLearningService.generateSuggestions(subject);
     const progress = adaptiveLearningService.getProgress(subject);
     
+    // Get exam paper context
+    const questionConcepts = extractConceptsFromQuestion(lastQuestion, subject.name);
+    const similarPapers = examPaperService.getSimilarQuestions(questionConcepts, subject.name);
+    const trendingQuestions = examPaperService.getTrendingQuestions(subject.name, 2);
+    const highFrequencyConcepts = examPaperService.getHighFrequencyConcepts(subject.name);
+    
     // Get learning path recommendations
     const learningPaths = learningPathService.getAllLearningPaths('current-user');
     const currentPath = learningPaths.find(path => path.subject === subject.name);
@@ -309,23 +386,29 @@ export const generateFollowUpSuggestions = async (
 - Strong Areas: ${progress.strongAreas.join(', ') || 'Building foundation'}
 ${currentPath ? `- Learning Path Progress: ${Math.round(currentPath.overallProgress)}%` : ''}
 
+**Exam Context:**
+- High-frequency concepts: ${highFrequencyConcepts.slice(0, 3).join(', ')}
+- Similar past questions: ${similarPapers.length} found
+- Recent trending topics: ${trendingQuestions.map(q => q.concepts[0]).join(', ')}
+
 **Learning Path Recommendations:**
 ${pathRecommendations.join('\n')}
 
-Generate 3 adaptive follow-up questions that would help the student improve based on their current level, performance, and learning path. Make them specific and relevant to JEE/NEET preparation.
+Generate 3 adaptive follow-up questions that would help the student improve based on their current level, performance, learning path, and exam patterns. Make them specific and relevant to JEE/NEET preparation.
 
 Consider:
 1. If they have weak areas, suggest questions targeting those concepts
 2. If they're doing well, suggest slightly more challenging questions
-3. Include a mix of conceptual and problem-solving questions
+3. Include references to past exam questions or high-frequency topics
 4. Reference their learning path progress when relevant
+5. Include exam-specific preparation tips
 
 Format as a simple numbered list:
 1. Question 1
 2. Question 2  
 3. Question 3
 
-Keep each question under 15 words and make them engaging.`;
+Keep each question under 15 words and make them engaging with exam context.`;
 
     const result = await model.generateContent(prompt);
     const suggestions = result.response.text()
@@ -334,33 +417,93 @@ Keep each question under 15 words and make them engaging.`;
       .map(line => line.replace(/^\d+\.\s*/, '').trim())
       .slice(0, 3);
 
-    // If AI suggestions are available, use them; otherwise use adaptive suggestions
+    // If AI suggestions are available, use them; otherwise use adaptive suggestions with exam context
     if (suggestions.length > 0) {
       return suggestions;
     } else {
+      const examContextSuggestions = [
+        `Practice ${highFrequencyConcepts[0]} - high frequency in JEE/NEET`,
+        `Solve similar problems from past ${subject.name} papers`,
+        `Review ${progress.weakAreas[0] || 'fundamental concepts'} for exam prep`
+      ];
+      
       return adaptiveSuggestions
         .filter(s => s.type === 'question')
         .map(s => s.content)
-        .slice(0, 3);
+        .slice(0, 2)
+        .concat(examContextSuggestions.slice(0, 1));
     }
   } catch (error) {
     console.error('Error generating follow-up suggestions:', error);
     
-    // Use adaptive suggestions as fallback
+    // Enhanced fallback with exam context
+    const highFrequencyConcepts = examPaperService.getHighFrequencyConcepts(subject.name);
     const adaptiveSuggestions = adaptiveLearningService.generateSuggestions(subject);
     const questionSuggestions = adaptiveSuggestions
       .filter(s => s.type === 'question')
       .map(s => s.content);
     
     if (questionSuggestions.length > 0) {
-      return questionSuggestions.slice(0, 3);
+      return questionSuggestions.slice(0, 2).concat([
+        `Practice ${highFrequencyConcepts[0]} - appears frequently in exams`
+      ]);
     }
     
-    // Ultimate fallback suggestions
+    // Ultimate fallback suggestions with exam context
     return [
       `Explain key ${subject.name} concepts for JEE/NEET`,
-      `What are common mistakes in this topic?`,
-      `How does this relate to exam questions?`
+      `Show me past year questions on this topic`,
+      `What are exam patterns for ${subject.name}?`
     ];
   }
 };
+
+// Helper function to extract concepts from question text
+function extractConceptsFromQuestion(question: string, subject: string): string[] {
+  const concepts: string[] = [];
+  const lowercaseQuestion = question.toLowerCase();
+  
+  // Subject-specific concept extraction
+  if (subject === 'Physics') {
+    const physicsTerms = [
+      'kinematics', 'dynamics', 'force', 'motion', 'velocity', 'acceleration',
+      'energy', 'work', 'power', 'momentum', 'collision', 'rotation',
+      'oscillation', 'wave', 'sound', 'light', 'optics', 'electricity',
+      'magnetism', 'electromagnetic', 'thermodynamics', 'heat', 'temperature',
+      'modern physics', 'quantum', 'nuclear', 'semiconductor'
+    ];
+    physicsTerms.forEach(term => {
+      if (lowercaseQuestion.includes(term)) concepts.push(term);
+    });
+  } else if (subject === 'Chemistry') {
+    const chemistryTerms = [
+      'atomic structure', 'periodic table', 'chemical bonding', 'molecular structure',
+      'thermodynamics', 'equilibrium', 'kinetics', 'electrochemistry',
+      'organic chemistry', 'inorganic chemistry', 'coordination compounds',
+      'biomolecules', 'polymers', 'environmental chemistry'
+    ];
+    chemistryTerms.forEach(term => {
+      if (lowercaseQuestion.includes(term)) concepts.push(term);
+    });
+  } else if (subject === 'Biology') {
+    const biologyTerms = [
+      'cell biology', 'genetics', 'evolution', 'plant physiology',
+      'human physiology', 'reproduction', 'ecology', 'biotechnology',
+      'molecular biology', 'diversity', 'classification'
+    ];
+    biologyTerms.forEach(term => {
+      if (lowercaseQuestion.includes(term)) concepts.push(term);
+    });
+  } else if (subject === 'Mathematics') {
+    const mathTerms = [
+      'algebra', 'calculus', 'coordinate geometry', 'trigonometry',
+      'statistics', 'probability', 'vectors', 'complex numbers',
+      'matrices', 'determinants', 'limits', 'derivatives', 'integrals'
+    ];
+    mathTerms.forEach(term => {
+      if (lowercaseQuestion.includes(term)) concepts.push(term);
+    });
+  }
+  
+  return concepts.length > 0 ? concepts : [subject.toLowerCase()];
+}
