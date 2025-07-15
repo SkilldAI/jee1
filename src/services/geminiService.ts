@@ -4,6 +4,81 @@ import { adaptiveLearningService } from './adaptiveLearningService';
 import { learningPathService } from './learningPathService';
 import { examPaperService } from './examPaperService';
 
+// Connection test function
+export const testGeminiConnection = async (): Promise<{
+  success: boolean;
+  error?: string;
+  responseTime?: number;
+}> => {
+  const startTime = Date.now();
+  
+  try {
+    // Check if API key is configured
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey || apiKey === 'demo-key') {
+      return {
+        success: false,
+        error: 'Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your .env file.'
+      };
+    }
+
+    // Test with a simple prompt
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 50,
+      }
+    });
+
+    const result = await model.generateContent('Respond with exactly: "Connection test successful"');
+    const response = result.response.text();
+    const responseTime = Date.now() - startTime;
+
+    if (response.toLowerCase().includes('connection test successful')) {
+      return {
+        success: true,
+        responseTime
+      };
+    } else {
+      return {
+        success: false,
+        error: 'Unexpected response from Gemini API'
+      };
+    }
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    
+    if (error instanceof Error) {
+      let errorMessage = error.message;
+      
+      // Provide more specific error messages
+      if (errorMessage.includes('API_KEY_INVALID')) {
+        errorMessage = 'Invalid Gemini API key. Please check your VITE_GEMINI_API_KEY.';
+      } else if (errorMessage.includes('PERMISSION_DENIED')) {
+        errorMessage = 'Permission denied. Please check your API key permissions.';
+      } else if (errorMessage.includes('QUOTA_EXCEEDED')) {
+        errorMessage = 'API quota exceeded. Please check your Google AI Studio usage.';
+      } else if (errorMessage.includes('Failed to fetch')) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      }
+      
+      return {
+        success: false,
+        error: errorMessage,
+        responseTime
+      };
+    }
+    
+    return {
+      success: false,
+      error: 'Unknown error occurred during connection test',
+      responseTime
+    };
+  }
+};
+
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || 'demo-key');
 

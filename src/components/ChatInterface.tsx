@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, BookOpen, Target, TrendingUp, AlertTriangle, Lightbulb, Paperclip, BarChart3, Award, Eye, Zap, RefreshCw, Copy, ThumbsUp, ThumbsDown, MessageSquare, Clock, CheckCircle2, FileText, Calendar, Trophy } from 'lucide-react';
 import { Subject, ChatMessage, QuestionAnalysis } from '../types';
-import { generateTutorResponse, generateFollowUpSuggestions } from '../services/geminiService';
+import { generateTutorResponse, generateFollowUpSuggestions, testGeminiConnection } from '../services/geminiService';
 import { processUploadedFile, ProcessedFileContent } from '../services/fileProcessingService';
 import { adaptiveLearningService } from '../services/adaptiveLearningService';
 import { examPaperService } from '../services/examPaperService';
+import ConnectionStatus from './ConnectionStatus';
 import FileUpload from './FileUpload';
 
 interface ChatInterfaceProps {
@@ -31,6 +32,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
     timeSpent: 0,
     accuracy: 0
   });
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const sessionStartTime = useRef<Date>(new Date());
@@ -247,8 +249,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
     setIsLoading(true);
     setTypingIndicator(true);
     setFollowUpSuggestions([]);
+    setConnectionError(null);
 
     try {
+      // Test connection before making the request
+      const connectionTest = await testGeminiConnection();
+      if (!connectionTest.success) {
+        setConnectionError(connectionTest.error || 'AI connection failed');
+        throw new Error(connectionTest.error || 'AI connection failed');
+      }
+
       const conversationHistory = messages
         .slice(-6) // Last 6 messages for context
         .map(msg => `${msg.isUser ? 'Student' : 'Tutor'}: ${msg.content}`);
@@ -295,9 +305,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
 
     } catch (error) {
       console.error('Error sending message:', error);
+      
+      // Set connection error for display
+      if (error instanceof Error) {
+        setConnectionError(error.message);
+      }
+      
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        content: "🔄 **Connection Issue:** I'm having trouble connecting right now. Please try again in a moment.\n\nIn the meantime, you can:\n• Check your internet connection\n• Try rephrasing your question\n• Upload an image if you haven't already\n• Ask about specific JEE/NEET exam patterns",
+        content: `🔄 **Connection Issue:** ${error instanceof Error ? error.message : 'Unknown error'}\n\nPossible solutions:\n• Check your internet connection\n• Verify API key configuration\n• Try again in a moment\n• Contact support if the issue persists`,
         isUser: false,
         timestamp: new Date(),
         subject
@@ -693,6 +709,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
             </div>
           </div>
           <div className="flex space-x-2">
+            <ConnectionStatus className="hidden md:block" />
             <button
               onClick={() => setShowExamContext(!showExamContext)}
               className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm border border-gray-200"
@@ -710,6 +727,26 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
           </div>
         </div>
       </div>
+
+      {/* Connection Error Banner */}
+      {connectionError && (
+        <div className="bg-red-50 border-b border-red-200 p-3">
+          <div className="flex items-center justify-between max-w-7xl mx-auto">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <span className="text-sm text-red-800">
+                <strong>AI Connection Issue:</strong> {connectionError}
+              </span>
+            </div>
+            <button
+              onClick={() => setConnectionError(null)}
+              className="text-red-600 hover:text-red-800"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Progress and Exam Context Panels */}
       <div className="flex">

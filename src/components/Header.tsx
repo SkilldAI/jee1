@@ -1,6 +1,7 @@
 import React from 'react';
 import { GraduationCap, Brain } from 'lucide-react';
 import UserProfile from './UserProfile';
+import ConnectionStatus from './ConnectionStatus';
 import { useAuth } from '../contexts/AuthContext';
 
 const Header: React.FC = () => {
@@ -24,6 +25,7 @@ const Header: React.FC = () => {
               <Brain className="h-4 w-4" />
               <span>Advanced AI Chat</span>
             </div>
+            <ConnectionStatus />
             {user && <UserProfile />}
           </div>
         </div>

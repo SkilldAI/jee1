@@ -1,5 +1,6 @@
 import React from 'react';
 import { Atom, FlaskConical, Dna, Calculator } from 'lucide-react';
+import ConnectionStatus from './ConnectionStatus';
 import { Subject } from '../types';
 
 interface SubjectSelectorProps {
@@ -60,6 +61,11 @@ const SubjectSelector: React.FC<SubjectSelectorProps> = ({ onSelectSubject }) =>
           <p className="text-xl text-gray-600">
             Select a subject to start your AI-powered learning session
           </p>
+          
+          {/* Connection Status */}
+          <div className="flex justify-center mt-6">
+            <ConnectionStatus />
+          </div>
         </div>
 
         {/* Subject Cards */}
