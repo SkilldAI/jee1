@@ -35,9 +35,10 @@ const LoginPage: React.FC = () => {
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
                   JEE/NEET AI Tutor
-                JEE/NEET AI Teaching Assistant
+                </h1>
                 <p className="text-xl text-blue-100 font-medium">Your Personal Learning Revolution</p>
-              <p className="text-xl text-blue-100 font-medium">The Complete AI Teaching Platform</p>
+                <p className="text-xl text-blue-100 font-medium">The Complete AI Teaching Platform</p>
+              </div>
             </div>
 
             {/* Hero headline */}
@@ -81,7 +82,7 @@ const LoginPage: React.FC = () => {
               {/* Enhanced trust indicators */}
               <div className="flex flex-wrap items-center gap-8 text-blue-100">
                 <div className="flex items-center space-x-2">
-                        <span>Get Started with Google</span>
+                  <div className="flex items-center space-x-1">
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full border-2 border-white"></div>
                     <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full border-2 border-white"></div>
                     <div className="w-8 h-8 bg-gradient-to-r from-pink-400 to-red-500 rounded-full border-2 border-white"></div>
