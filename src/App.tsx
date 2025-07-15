@@ -33,8 +33,8 @@ function App() {
     <AuthProvider>
       <AuthGuard>
         <div className="min-h-screen bg-gray-50">
-          {/* Show header only on subject selection page */}
-          {!selectedSubject && currentPage === 'chat' && <Header />}
+          {/* Show header on all pages except when in chat with a subject */}
+          {!(currentPage === 'chat' && selectedSubject) && <Header />}
           
           {/* Show navigation when not in chat with a subject */}
           {!(currentPage === 'chat' && selectedSubject) && (
