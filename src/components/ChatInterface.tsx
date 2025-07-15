@@ -5,8 +5,12 @@ import { generateTutorResponse, generateFollowUpSuggestions, testGeminiConnectio
 import { processUploadedFile, ProcessedFileContent } from '../services/fileProcessingService';
 import { adaptiveLearningService } from '../services/adaptiveLearningService';
 import { examPaperService } from '../services/examPaperService';
+import { usageTrackingService } from '../services/usageTrackingService';
+import { useAuth } from '../contexts/AuthContext';
 import ConnectionStatus from './ConnectionStatus';
 import FileUpload from './FileUpload';
+import UsageLimitModal from './UsageLimitModal';
+import UsageIndicator from './UsageIndicator';
 
 interface ChatInterfaceProps {
   subject: Subject;
@@ -14,6 +18,7 @@ interface ChatInterfaceProps {
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -24,9 +29,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [showExamContext, setShowExamContext] = useState(false);
+  const [showUsage, setShowUsage] = useState(false);
   const [typingIndicator, setTypingIndicator] = useState(false);
   const [messageRatings, setMessageRatings] = useState<{ [messageId: string]: 'up' | 'down' | null }>({});
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [usageLimitModal, setUsageLimitModal] = useState<{
+    isOpen: boolean;
+    limitType: 'questions' | 'fileUpload' | 'mockTest' | 'studyPlanner' | 'analytics';
+    message: string;
+  }>({
+    isOpen: false,
+    limitType: 'questions',
+    message: ''
+  });
   const [sessionStats, setSessionStats] = useState({
     questionsAsked: 0,
     timeSpent: 0,
@@ -36,6 +51,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const sessionStartTime = useRef<Date>(new Date());
+
+  const userId = user?.id || 'anonymous';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,6 +65,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
   useEffect(() => {
     // Initialize progress tracking
     adaptiveLearningService.initializeProgress(subject);
+    
+    // Initialize usage tracking
+    usageTrackingService.initializeUser(userId, 'free'); // Default to free tier
     
     // Get personalized welcome message with exam context
     const progress = adaptiveLearningService.getProgress(subject);
@@ -130,12 +150,26 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
   }, [subject]);
 
   const handleFileSelect = async (file: File) => {
+    // Check file upload limit
+    const canUpload = usageTrackingService.canPerformAction(userId, 'fileUpload');
+    if (!canUpload.allowed) {
+      setUsageLimitModal({
+        isOpen: true,
+        limitType: 'fileUpload',
+        message: canUpload.reason || 'File upload limit reached'
+      });
+      return;
+    }
+
     setSelectedFile(file);
     setIsProcessingFile(true);
     setTypingIndicator(true);
     
     try {
       const processedContent = await processUploadedFile(file);
+      
+      // Record file upload usage
+      usageTrackingService.recordUsage(userId, 'fileUpload');
       
       // Create a message showing the file was uploaded with enhanced info
       let fileMessage = `📎 **Uploaded:** ${file.name}`;
@@ -217,14 +251,37 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
     const text = messageText || inputMessage.trim();
     if ((!text && !selectedFile) || isLoading) return;
 
+    // Check question limit
+    const canAsk = usageTrackingService.canPerformAction(userId, 'question');
+    if (!canAsk.allowed) {
+      setUsageLimitModal({
+        isOpen: true,
+        limitType: 'questions',
+        message: canAsk.reason || 'Question limit reached'
+      });
+      return;
+    }
     let fileContent: ProcessedFileContent | undefined;
     
     // Process file if one is selected
     if (selectedFile && !isProcessingFile) {
+      // Check file upload limit again
+      const canUpload = usageTrackingService.canPerformAction(userId, 'fileUpload');
+      if (!canUpload.allowed) {
+        setUsageLimitModal({
+          isOpen: true,
+          limitType: 'fileUpload',
+          message: canUpload.reason || 'File upload limit reached'
+        });
+        return;
+      }
+
       setIsProcessingFile(true);
       setTypingIndicator(true);
       try {
         fileContent = await processUploadedFile(selectedFile);
+        // Record file upload usage
+        usageTrackingService.recordUsage(userId, 'fileUpload');
       } catch (error) {
         console.error('Error processing file:', error);
         setIsProcessingFile(false);
@@ -285,6 +342,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
       // Generate follow-up suggestions with exam context
       const suggestions = await generateFollowUpSuggestions(subject, text || 'file upload question');
       setFollowUpSuggestions(suggestions);
+
+      // Record question usage
+      usageTrackingService.recordUsage(userId, 'question');
 
       // Update progress (simulate user understanding - in real app, you'd have user feedback)
       const wasCorrect = Math.random() > 0.3; // 70% success rate simulation
@@ -406,6 +466,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
       setIsLoading(false);
       setTypingIndicator(false);
     }
+  };
+
+  const handleUpgrade = () => {
+    // In a real app, this would redirect to payment/subscription page
+    alert('Redirecting to upgrade page...');
+    setUsageLimitModal({ ...usageLimitModal, isOpen: false });
   };
 
   const AnalysisPanel = ({ analysis, messageId }: { analysis: QuestionAnalysis; messageId: string }) => (
@@ -711,6 +777,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
           <div className="flex space-x-2">
             <ConnectionStatus className="hidden md:block" />
             <button
+              onClick={() => setShowUsage(!showUsage)}
+              className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm border border-gray-200"
+            >
+              <BarChart3 className="h-4 w-4 text-green-600" />
+              <span className="text-sm font-medium">Usage</span>
+            </button>
+            <button
               onClick={() => setShowExamContext(!showExamContext)}
               className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm border border-gray-200"
             >
@@ -750,6 +823,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
 
       {/* Progress and Exam Context Panels */}
       <div className="flex">
+        {showUsage && (
+          <div className="w-80 p-4 border-r border-gray-200 bg-white">
+            <UsageIndicator userId={userId} onUpgrade={handleUpgrade} />
+          </div>
+        )}
         {showProgress && (
           <div className="w-80 p-4 border-r border-gray-200 bg-white">
             <ProgressPanel />
@@ -986,6 +1064,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
             </div>
           </div>
         </div>
+
+        {/* Usage Limit Modal */}
+        <UsageLimitModal
+          isOpen={usageLimitModal.isOpen}
+          onClose={() => setUsageLimitModal({ ...usageLimitModal, isOpen: false })}
+          limitType={usageLimitModal.limitType}
+          message={usageLimitModal.message}
+          onUpgrade={handleUpgrade}
+        />
       </div>
     </div>
   );
