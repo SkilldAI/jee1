@@ -30,12 +30,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
+      // Handle OAuth redirect with URL fragments
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      if (hashParams.get('access_token')) {
+        console.log('OAuth redirect detected, processing session...');
+        // Clear the hash to clean up the URL
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+      
       const { data: { session }, error } = await supabase.auth.getSession()
       
       if (error) {
         console.error('Error getting session:', error)
         setError(error.message)
       } else {
+        console.log('Session retrieved:', session ? 'Found' : 'None')
         setSession(session)
         setUser(session?.user ?? null)
       }
@@ -48,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session)
+        console.log('Auth state changed:', event, session ? 'Session found' : 'No session')
         setSession(session)
         setUser(session?.user ?? null)
         setLoading(false)
