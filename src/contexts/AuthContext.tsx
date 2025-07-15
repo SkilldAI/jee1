@@ -146,12 +146,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setError(null)
       const { error } = await supabase.auth.signOut()
-      if (error) {
+      if (error && error.message !== 'Session from session_id claim in JWT does not exist') {
         throw error
       }
+      // If session doesn't exist on server, treat as successful logout
+      // since the user is effectively already signed out
     } catch (error) {
-      console.error('Error signing out:', error)
-      setError(error instanceof Error ? error.message : 'An error occurred during sign out')
+      // Only show error if it's not a session-related issue
+      if (error instanceof Error && !error.message.includes('Session from session_id claim in JWT does not exist')) {
+        console.error('Error signing out:', error)
+        setError(error.message)
+      }
+      // For session-related errors, silently treat as successful logout
     }
   }
 
