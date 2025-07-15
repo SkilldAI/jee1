@@ -104,6 +104,13 @@ const LoginPage: React.FC = () => {
               </div>
             )}
 
+            {/* Debug Info */}
+            <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs">
+              <p><strong>Debug Info:</strong></p>
+              <p>Current URL: {window.location.href}</p>
+              <p>Origin: {window.location.origin}</p>
+            </div>
+
             {/* Google Sign In Button */}
             <button
               onClick={signInWithGoogle}

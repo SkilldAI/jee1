@@ -64,10 +64,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null)
       setLoading(true)
       
+      console.log('Starting Google OAuth sign in...')
+      console.log('Current URL:', window.location.origin)
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: `${window.location.origin}/`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -76,8 +79,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })
       
       if (error) {
+        console.error('OAuth error:', error)
         throw error
       }
+      
+      console.log('OAuth request initiated successfully')
     } catch (error) {
       console.error('Error signing in with Google:', error)
       setError(error instanceof Error ? error.message : 'An error occurred during sign in')
