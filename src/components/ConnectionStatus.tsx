@@ -60,7 +60,7 @@ const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ className = '' }) =
       case 'checking':
         return 'Checking AI connection...';
       case 'connected':
-        return 'Gemini AI Connected';
+        return 'AI Model Connected';
       case 'disconnected':
         return 'AI Disconnected';
       case 'error':
