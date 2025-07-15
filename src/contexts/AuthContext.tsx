@@ -30,6 +30,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
+      console.log('=== Getting initial session ===')
+      console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL)
+      console.log('Supabase Anon Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY)
+      console.log('Supabase Anon Key length:', import.meta.env.VITE_SUPABASE_ANON_KEY?.length)
+      
       // Handle OAuth redirect with URL fragments
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       if (hashParams.get('access_token')) {
@@ -38,18 +43,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         window.history.replaceState(null, '', window.location.pathname);
       }
       
+      console.log('Calling supabase.auth.getSession()...')
       const { data: { session }, error } = await supabase.auth.getSession()
       
       if (error) {
-        console.error('Error getting session:', error)
+        console.error('=== Session Error ===', error)
+        console.error('Error message:', error.message)
+        console.error('Error details:', error)
         setError(error.message)
       } else {
-        console.log('Session retrieved:', session ? 'Found' : 'None')
+        console.log('=== Session Result ===')
+        console.log('Session found:', !!session)
+        if (session) {
+          console.log('User ID:', session.user?.id)
+          console.log('User email:', session.user?.email)
+          console.log('Access token exists:', !!session.access_token)
+        }
         setSession(session)
         setUser(session?.user ?? null)
       }
       
       setLoading(false)
+      console.log('=== Initial session check complete ===')
     }
 
     getInitialSession()
@@ -57,7 +72,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session ? 'Session found' : 'No session')
+        console.log('=== Auth State Change ===')
+        console.log('Event:', event)
+        console.log('Session exists:', !!session)
+        if (session) {
+          console.log('User email:', session.user?.email)
+        }
         setSession(session)
         setUser(session?.user ?? null)
         setLoading(false)
