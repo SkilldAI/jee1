@@ -25,6 +25,33 @@ const Header: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
+            {/* User Profile Info */}
+            {user && (
+              <div className="flex items-center space-x-3 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                {user.user_metadata?.avatar_url ? (
+                  <img
+                    src={user.user_metadata.avatar_url}
+                    alt={user.user_metadata?.full_name || 'User'}
+                    className="h-8 w-8 rounded-full"
+                  />
+                ) : (
+                  <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-medium">
+                      {user.email?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                <div className="text-left">
+                  <p className="text-sm font-medium text-gray-900">
+                    {user.user_metadata?.full_name || 'Student'}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {user.email}
+                  </p>
+                </div>
+              </div>
+            )}
+            
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Brain className="h-4 w-4" />
               <span>Advanced AI Chat</span>
@@ -32,7 +59,7 @@ const Header: React.FC = () => {
             <ConnectionStatus />
             <button
               onClick={handleSignOut}
-              className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              className="flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
             >
               <LogOut className="h-4 w-4" />
               <span>Sign Out</span>
