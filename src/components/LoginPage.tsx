@@ -35,20 +35,20 @@ const LoginPage: React.FC = () => {
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
                   JEE/NEET AI Tutor
-                </h1>
+                JEE/NEET AI Teaching Assistant
                 <p className="text-xl text-blue-100 font-medium">Your Personal Learning Revolution</p>
-              </div>
+              <p className="text-xl text-blue-100 font-medium">The Complete AI Teaching Platform</p>
             </div>
 
             {/* Hero headline */}
             <div className="mb-12">
               <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-                Master
+                Empower Your
                 <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent"> JEE & NEET </span>
-                with AI
+                Institute with AI
               </h2>
               <p className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
-                Experience the future of learning with our advanced AI tutor that adapts to your unique learning style and accelerates your success.
+                Enhance your teaching capabilities with our advanced AI teaching assistant that helps your students learn faster, tracks their progress, and reduces your workload - so you can focus on what matters most: great teaching.
               </p>
               
               {/* Enhanced CTA buttons */}
@@ -64,7 +64,7 @@ const LoginPage: React.FC = () => {
                     ) : (
                       <>
                         <Sparkles className="h-6 w-6" />
-                        <span>Start Learning Now</span>
+                        <span>Try For Your Institute</span>
                         <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
@@ -81,12 +81,12 @@ const LoginPage: React.FC = () => {
               {/* Enhanced trust indicators */}
               <div className="flex flex-wrap items-center gap-8 text-blue-100">
                 <div className="flex items-center space-x-2">
-                  <div className="flex -space-x-2">
+                        <span>Get Started with Google</span>
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full border-2 border-white"></div>
                     <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full border-2 border-white"></div>
                     <div className="w-8 h-8 bg-gradient-to-r from-pink-400 to-red-500 rounded-full border-2 border-white"></div>
                   </div>
-                  <span className="font-medium">10,000+ students</span>
+                  <span className="font-medium">500+ institutes</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="flex text-yellow-400">
@@ -94,11 +94,11 @@ const LoginPage: React.FC = () => {
                       <Star key={i} className="h-4 w-4 fill-current" />
                     ))}
                   </div>
-                  <span className="font-medium">4.9/5 rating</span>
+                  <span className="font-medium">4.9/5 institute rating</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Award className="h-5 w-5 text-green-400" />
-                  <span className="font-medium">95% success rate</span>
+                  <span className="font-medium">40% better results</span>
                 </div>
               </div>
             </div>
@@ -108,26 +108,26 @@ const LoginPage: React.FC = () => {
               {[
                 {
                   icon: Brain,
-                  title: 'AI-Powered Tutoring',
-                  description: 'Personalized learning that adapts to your pace',
+                  title: 'AI Teaching Assistant',
+                  description: '24/7 support for your students, reducing teacher workload',
                   color: 'from-blue-400 to-purple-500'
                 },
                 {
                   icon: Target,
-                  title: 'Exam-Focused Content',
-                  description: 'Tailored specifically for JEE & NEET success',
+                  title: 'Better Student Outcomes',
+                  description: 'Track progress and improve results across your institute',
                   color: 'from-green-400 to-blue-500'
                 },
                 {
                   icon: Globe,
-                  title: '500+ Past Papers',
-                  description: 'Comprehensive question bank with solutions',
+                  title: 'Comprehensive Content Library',
+                  description: '500+ past papers and solutions for your curriculum',
                   color: 'from-purple-400 to-pink-500'
                 },
                 {
                   icon: Clock,
-                  title: '24/7 Availability',
-                  description: 'Learn anytime, anywhere with instant support',
+                  title: 'Scale Your Teaching',
+                  description: 'Provide instant help to more students simultaneously',
                   color: 'from-orange-400 to-red-500'
                 }
               ].map((feature, index) => (
@@ -155,10 +155,10 @@ const LoginPage: React.FC = () => {
                   <Sparkles className="h-8 w-8 text-black" />
                 </div>
                 <h2 className="text-3xl font-bold text-white mb-2">
-                  Welcome Back!
+                  Transform Your Institute
                 </h2>
                 <p className="text-blue-100">
-                  Continue your learning journey
+                  Join leading institutes using AI
                 </p>
               </div>
 
@@ -219,24 +219,24 @@ const LoginPage: React.FC = () => {
               <div className="mt-8 p-6 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl border border-blue-400/30 backdrop-blur-sm">
                 <div className="flex items-center mb-3">
                   <Zap className="h-5 w-5 text-yellow-400 mr-2" />
-                  <h4 className="font-bold text-white">What's Inside?</h4>
+                  <h4 className="font-bold text-white">How It Helps Your Institute</h4>
                 </div>
                 <ul className="text-sm text-blue-100 space-y-2">
                   <li className="flex items-center">
                     <CheckCircle className="h-4 w-4 text-green-400 mr-2 flex-shrink-0" />
-                    AI-powered tutoring for all JEE/NEET subjects
+                    Reduce teacher workload with 24/7 AI assistance
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-4 w-4 text-green-400 mr-2 flex-shrink-0" />
-                    Smart image upload with text recognition
+                    Track student progress across your entire institute
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-4 w-4 text-green-400 mr-2 flex-shrink-0" />
-                    500+ past papers with detailed solutions
+                    Comprehensive content library for all subjects
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-4 w-4 text-green-400 mr-2 flex-shrink-0" />
-                    Personalized study planning & mock exams
+                    Institutional dashboard with detailed analytics
                   </li>
                 </ul>
               </div>
@@ -246,17 +246,17 @@ const LoginPage: React.FC = () => {
                 <div className="flex items-center justify-center space-x-4 text-sm text-blue-200">
                   <div className="flex items-center">
                     <Users className="h-4 w-4 mr-1" />
-                    <span>10K+ students</span>
+                    <span>500+ institutes</span>
                   </div>
                   <div className="w-1 h-1 bg-blue-300 rounded-full"></div>
                   <div className="flex items-center">
                     <TrendingUp className="h-4 w-4 mr-1" />
-                    <span>95% success rate</span>
+                    <span>40% better results</span>
                   </div>
                   <div className="w-1 h-1 bg-blue-300 rounded-full"></div>
                   <div className="flex items-center">
                     <Shield className="h-4 w-4 mr-1" />
-                    <span>Secure & Private</span>
+                    <span>Institute-grade security</span>
                   </div>
                 </div>
               </div>
