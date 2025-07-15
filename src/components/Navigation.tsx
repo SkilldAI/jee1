@@ -24,12 +24,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChange }) =>
       description: 'Chat with AI'
     },
     {
-      id: 'study-planner' as const,
-      name: 'Study Planner',
-      icon: Calendar,
-      description: 'Plan & Schedule'
-    },
-    {
       id: 'mock-exams' as const,
       name: 'Mock Exams',
       icon: Target,
