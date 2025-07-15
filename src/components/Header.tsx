@@ -26,7 +26,6 @@ const Header: React.FC = () => {
               <span>Advanced AI Chat</span>
             </div>
             <ConnectionStatus />
-            {user && <UserProfile />}
           </div>
         </div>
       </div>
