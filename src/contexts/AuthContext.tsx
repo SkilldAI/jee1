@@ -35,36 +35,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Supabase Anon Key exists:', !!import.meta.env.VITE_SUPABASE_ANON_KEY)
       console.log('Supabase Anon Key length:', import.meta.env.VITE_SUPABASE_ANON_KEY?.length)
       
-      // Handle OAuth redirect with URL fragments
+      // Check if this is an OAuth redirect
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      if (hashParams.get('access_token')) {
-        console.log('OAuth redirect detected, processing session...');
-        // Clear the hash to clean up the URL
-        window.history.replaceState(null, '', window.location.pathname);
+      const hasOAuthParams = hashParams.get('access_token') || hashParams.get('error');
+      
+      if (hasOAuthParams) {
+        console.log('OAuth redirect detected, letting Supabase process it...');
+        console.log('Hash params:', Object.fromEntries(hashParams.entries()));
       }
       
-      console.log('Calling supabase.auth.getSession()...')
+      console.log('Calling supabase.auth.getSession()...');
       const { data: { session }, error } = await supabase.auth.getSession()
       
       if (error) {
-        console.error('=== Session Error ===', error)
-        console.error('Error message:', error.message)
-        console.error('Error details:', error)
+        console.error('=== Session Error ===', error);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error);
         setError(error.message)
       } else {
-        console.log('=== Session Result ===')
-        console.log('Session found:', !!session)
+        console.log('=== Session Result ===');
+        console.log('Session found:', !!session);
         if (session) {
-          console.log('User ID:', session.user?.id)
-          console.log('User email:', session.user?.email)
-          console.log('Access token exists:', !!session.access_token)
+          console.log('User ID:', session.user?.id);
+          console.log('User email:', session.user?.email);
+          console.log('Access token exists:', !!session.access_token);
+          
+          // Clear the hash after successful session detection
+          if (hasOAuthParams) {
+            console.log('Clearing OAuth hash from URL...');
+            window.history.replaceState(null, '', window.location.pathname);
+          }
         }
         setSession(session)
         setUser(session?.user ?? null)
       }
       
       setLoading(false)
-      console.log('=== Initial session check complete ===')
+      console.log('=== Initial session check complete ===');
     }
 
     getInitialSession()
@@ -72,11 +79,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('=== Auth State Change ===')
-        console.log('Event:', event)
-        console.log('Session exists:', !!session)
+        console.log('=== Auth State Change ===');
+        console.log('Event:', event);
+        console.log('Session exists:', !!session);
         if (session) {
-          console.log('User email:', session.user?.email)
+          console.log('User email:', session.user?.email);
+          
+          // Clear OAuth hash when session is established
+          const hashParams = new URLSearchParams(window.location.hash.substring(1));
+          if (hashParams.get('access_token')) {
+            console.log('Clearing OAuth hash after auth state change...');
+            window.history.replaceState(null, '', window.location.pathname);
+          }
         }
         setSession(session)
         setUser(session?.user ?? null)
