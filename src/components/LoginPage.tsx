@@ -34,10 +34,10 @@ const LoginPage: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
-                  JEE/NEET AI Tutor
+                  JEE/NEET AI Teaching Assistant
                 </h1>
-                <p className="text-xl text-blue-100 font-medium">Your Personal Learning Revolution</p>
                 <p className="text-xl text-blue-100 font-medium">The Complete AI Teaching Platform</p>
+              </div>
             </div>
 
             {/* Hero headline */}
