@@ -2,8 +2,8 @@ import React from 'react';
 import { BarChart3, BookOpen, MessageCircle, Target, Calendar, Brain, Database } from 'lucide-react';
 
 interface NavigationProps {
-  currentPage: 'chat' | 'analytics' | 'mock-exams' | 'study-planner';
-  onPageChange: (page: 'chat' | 'analytics' | 'mock-exams' | 'study-planner') => void;
+  currentPage: 'chat' | 'mock-exams' | 'study-planner';
+  onPageChange: (page: 'chat' | 'mock-exams' | 'study-planner') => void;
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChange }) => {
@@ -19,12 +19,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChange }) =>
       name: 'Study Planner',
       icon: Calendar,
       description: 'Plan & Schedule'
-    },
-    {
-      id: 'analytics' as const,
-      name: 'Analytics',
-      icon: BarChart3,
-      description: 'Track Progress'
     },
     {
       id: 'mock-exams' as const,

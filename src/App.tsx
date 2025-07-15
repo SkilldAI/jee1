@@ -10,7 +10,7 @@ import { Subject } from './types';
 
 function App() {
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
-  const [currentPage, setCurrentPage] = useState<'chat' | 'analytics' | 'mock-exams' | 'study-planner'>('chat');
+  const [currentPage, setCurrentPage] = useState<'chat' | 'mock-exams' | 'study-planner'>('chat');
 
   const handleSelectSubject = (subject: Subject) => {
     setSelectedSubject(subject);
@@ -20,7 +20,7 @@ function App() {
     setSelectedSubject(null);
   };
 
-  const handlePageChange = (page: 'chat' | 'analytics' | 'mock-exams' | 'study-planner') => {
+  const handlePageChange = (page: 'chat' | 'mock-exams' | 'study-planner') => {
     setCurrentPage(page);
     // Reset subject selection when changing pages
     if (page !== 'chat') {
@@ -47,10 +47,6 @@ function App() {
         ) : (
           <SubjectSelector onSelectSubject={handleSelectSubject} />
         )
-      )}
-      
-      {currentPage === 'analytics' && (
-        <Analytics selectedSubject={selectedSubject} />
       )}
       
       {currentPage === 'mock-exams' && (
