@@ -51,53 +51,40 @@ const UsageLimitModal: React.FC<UsageLimitModalProps> = ({
         </button>
 
         <div className="text-center mb-6">
-          <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-3 rounded-full inline-block mb-4">
-            <Crown className="h-8 w-8 text-white" />
+          <div className="bg-gradient-to-r from-red-400 to-red-500 p-3 rounded-full inline-block mb-4">
+            <AlertCircle className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Upgrade to Premium
+            Daily Limit Reached
           </h2>
           <p className="text-gray-600">
             {message}
           </p>
         </div>
 
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 mb-6">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4 mb-6">
           <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-            <Zap className="h-5 w-5 text-yellow-500 mr-2" />
-            Premium Features
+            <Clock className="h-5 w-5 text-blue-500 mr-2" />
+            Come Back Tomorrow!
           </h3>
-          <div className="space-y-2">
-            {premiumFeatures.slice(0, 4).map((feature, index) => (
-              <div key={index} className="flex items-center text-sm text-gray-700">
-                <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                {feature}
-              </div>
-            ))}
-          </div>
+          <p className="text-sm text-gray-700">
+            Your daily limit helps us provide quality AI responses to all students. 
+            Your usage will reset at midnight. Thank you for understanding!
+          </p>
         </div>
 
         <div className="space-y-3">
           <button
-            onClick={onUpgrade}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center space-x-2"
-          >
-            <Crown className="h-5 w-5" />
-            <span>Upgrade Now</span>
-            <ArrowRight className="h-4 w-4" />
-          </button>
-          
-          <button
             onClick={onClose}
-            className="w-full border border-gray-300 text-gray-700 font-medium py-3 px-4 rounded-xl hover:bg-gray-50 transition-colors"
+            className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors"
           >
-            Continue with Free Plan
+            Got it, thanks!
           </button>
         </div>
 
         <div className="mt-4 text-center">
           <p className="text-xs text-gray-500">
-            ✨ Join 500+ institutes already using Premium
+            ✨ Helping students prepare for JEE/NEET success
           </p>
         </div>
       </div>

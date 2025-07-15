@@ -35,12 +35,12 @@ export class UsageTrackingService {
     switch (tier) {
       case 'free':
         return {
-          questionsPerDay: 10,
+          questionsPerDay: 5,
           questionsPerMonth: 100,
           fileUploadsPerDay: 3,
           mockTestsPerMonth: 2,
-          studyPlannerAccess: false,
-          analyticsAccess: false,
+          studyPlannerAccess: true,
+          analyticsAccess: true,
           prioritySupport: false
         };
       case 'premium':

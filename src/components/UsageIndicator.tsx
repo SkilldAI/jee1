@@ -27,17 +27,8 @@ const UsageIndicator: React.FC<UsageIndicatorProps> = ({ userId, onUpgrade }) =>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <BarChart3 className="h-5 w-5 text-blue-600" />
-          <h3 className="font-semibold text-gray-900">Usage Today</h3>
+          <h3 className="font-semibold text-gray-900">Daily Usage</h3>
         </div>
-        {stats.tier === 'free' && (
-          <button
-            onClick={onUpgrade}
-            className="flex items-center space-x-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-medium px-3 py-1 rounded-full hover:from-yellow-500 hover:to-orange-600 transition-all"
-          >
-            <Crown className="h-3 w-3" />
-            <span>Upgrade</span>
-          </button>
-        )}
       </div>
 
       <div className="space-y-3">
@@ -88,53 +79,17 @@ const UsageIndicator: React.FC<UsageIndicatorProps> = ({ userId, onUpgrade }) =>
         </div>
 
         {/* Mock Tests Usage */}
-        <div>
-          <div className="flex justify-between text-sm mb-1">
-            <span className="text-gray-600">Mock Tests (Month)</span>
-            <span className="font-medium">
-              {stats.mockTestsUsed}/{formatLimit(stats.mockTestsLimit)}
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className={`h-2 rounded-full transition-all ${getProgressColor(
-                stats.mockTestsUsed,
-                stats.mockTestsLimit
-              )}`}
-              style={{
-                width: stats.mockTestsLimit === -1 
-                  ? '100%' 
-                  : `${Math.min(100, (stats.mockTestsUsed / stats.mockTestsLimit) * 100)}%`
-              }}
-            />
-          </div>
-        </div>
       </div>
 
       {/* Tier Display */}
       <div className="mt-4 pt-3 border-t border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            {stats.tier === 'free' ? (
-              <div className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                Free Plan
-              </div>
-            ) : (
-              <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
-                <Crown className="h-3 w-3" />
-                <span>{stats.tier === 'premium' ? 'Premium' : 'Institute'}</span>
-              </div>
-            )}
+        <div className="text-center">
+          <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+            JEE/NEET AI Tutor - MVP
           </div>
-          {stats.upgradeAvailable && (
-            <button
-              onClick={onUpgrade}
-              className="text-blue-600 hover:text-blue-800 text-xs font-medium flex items-center space-x-1"
-            >
-              <Zap className="h-3 w-3" />
-              <span>Upgrade</span>
-            </button>
-          )}
+          <p className="text-xs text-gray-500 mt-2">
+            Limits reset daily at midnight
+          </p>
         </div>
       </div>
     </div>

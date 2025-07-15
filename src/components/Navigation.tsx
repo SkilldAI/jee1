@@ -13,23 +13,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChange }) =>
   const userId = user?.id || 'anonymous';
 
   const handlePageChange = (page: 'chat' | 'mock-exams' | 'study-planner') => {
-    // Check access for premium features
-    if (page === 'study-planner') {
-      const canAccess = usageTrackingService.canPerformAction(userId, 'studyPlanner');
-      if (!canAccess.allowed) {
-        alert(canAccess.reason + '\n\nUpgrade to Premium to access the Study Planner!');
-        return;
-      }
-    }
-    
-    if (page === 'mock-exams') {
-      const canAccess = usageTrackingService.canPerformAction(userId, 'mockTest');
-      if (!canAccess.allowed) {
-        alert(canAccess.reason + '\n\nUpgrade to Premium for unlimited mock tests!');
-        return;
-      }
-    }
-    
     onPageChange(page);
   };
 
@@ -76,13 +59,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChange }) =>
                 <div className="font-medium">{item.name}</div>
                 <div className="text-xs opacity-75">{item.description}</div>
               </div>
-              {/* Premium badge for restricted features */}
-              {(item.id === 'study-planner' || item.id === 'mock-exams') && 
-               !usageTrackingService.canPerformAction(userId, item.id === 'study-planner' ? 'studyPlanner' : 'mockTest').allowed && (
-                <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                  Pro
-                </span>
-              )}
             </button>
           );
         })}
