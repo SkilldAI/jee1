@@ -109,9 +109,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       console.log('Starting Google OAuth sign in...')
       
-      // Always use production URL for OAuth redirect
-      const redirectUrl = 'https://jee.skilld.ai/'
+      // Determine the correct redirect URL based on environment
+      const isProduction = window.location.hostname === 'jee.skilld.ai'
+      const redirectUrl = isProduction ? 'https://jee.skilld.ai/' : window.location.origin + '/'
+      
       console.log('Redirect URL:', redirectUrl)
+      console.log('Current hostname:', window.location.hostname)
+      console.log('Is production:', isProduction)
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
