@@ -52,10 +52,6 @@ const Header: React.FC = () => {
               </div>
             )}
             
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Brain className="h-4 w-4" />
-              <span>Advanced AI Chat</span>
-            </div>
             <ConnectionStatus />
             <button
               onClick={handleSignOut}
