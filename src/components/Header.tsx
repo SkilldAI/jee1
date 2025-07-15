@@ -1,11 +1,15 @@
 import React from 'react';
-import { GraduationCap, Brain } from 'lucide-react';
+import { GraduationCap, Brain, LogOut } from 'lucide-react';
 import UserProfile from './UserProfile';
 import ConnectionStatus from './ConnectionStatus';
 import { useAuth } from '../contexts/AuthContext';
 
 const Header: React.FC = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -26,6 +30,13 @@ const Header: React.FC = () => {
               <span>Advanced AI Chat</span>
             </div>
             <ConnectionStatus />
+            <button
+              onClick={handleSignOut}
+              className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Sign Out</span>
+            </button>
           </div>
         </div>
       </div>
