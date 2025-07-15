@@ -6,11 +6,13 @@ import { processUploadedFile, ProcessedFileContent } from '../services/fileProce
 import { adaptiveLearningService } from '../services/adaptiveLearningService';
 import { examPaperService } from '../services/examPaperService';
 import { usageTrackingService } from '../services/usageTrackingService';
+import { gamificationService } from '../services/gamificationService';
 import { useAuth } from '../contexts/AuthContext';
 import ConnectionStatus from './ConnectionStatus';
 import FileUpload from './FileUpload';
 import UsageLimitModal from './UsageLimitModal';
 import UsageIndicator from './UsageIndicator';
+import AchievementNotification from './AchievementNotification';
 
 interface ChatInterfaceProps {
   subject: Subject;
@@ -33,6 +35,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
   const [typingIndicator, setTypingIndicator] = useState(false);
   const [messageRatings, setMessageRatings] = useState<{ [messageId: string]: 'up' | 'down' | null }>({});
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [newAchievements, setNewAchievements] = useState<any[]>([]);
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const [studentStats, setStudentStats] = useState<any>(null);
+  const [dailyChallenge, setDailyChallenge] = useState<any>(null);
+  
   const [usageLimitModal, setUsageLimitModal] = useState<{
     isOpen: boolean;
     limitType: 'questions' | 'fileUpload' | 'mockTest' | 'studyPlanner' | 'analytics';
@@ -68,6 +76,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
     
     // Initialize usage tracking
     usageTrackingService.initializeUser(userId, 'free'); // Default to free tier
+    
+    // Initialize gamification
+    const stats = gamificationService.initializeStudent(userId);
+    setStudentStats(stats);
+    
+    // Generate daily challenge
+    const challenge = gamificationService.generateDailyChallenge(userId, subject.name);
+    setDailyChallenge(challenge);
     
     // Get personalized welcome message with exam context
     const progress = adaptiveLearningService.getProgress(subject);
@@ -348,6 +364,27 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
 
       // Update progress (simulate user understanding - in real app, you'd have user feedback)
       const wasCorrect = Math.random() > 0.3; // 70% success rate simulation
+      
+      // Update gamification stats
+      const gamificationResult = gamificationService.updateStats(
+        userId,
+        subject.name,
+        wasCorrect,
+        30, // time spent in seconds
+        suggestedDifficulty
+      );
+      
+      if (gamificationResult.newAchievements.length > 0) {
+        setNewAchievements(gamificationResult.newAchievements);
+      }
+      
+      if (gamificationResult.levelUp) {
+        setShowLevelUp(true);
+      }
+      
+      // Update student stats
+      setStudentStats(gamificationService.getStats(userId));
+      
       adaptiveLearningService.updateProgress(
         subject,
         wasCorrect,
@@ -737,6 +774,72 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
     );
   };
 
+  const GamificationPanel = () => {
+    if (!studentStats) return null;
+    
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
+        <div className="flex items-center space-x-2">
+          <Award className="h-5 w-5 text-yellow-600" />
+          <h3 className="font-semibold text-gray-900">🏆 Your Achievements</h3>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div className="text-lg font-bold text-yellow-600">Level {studentStats.level}</div>
+            <div className="text-xs text-gray-600">Current Level</div>
+          </div>
+          <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="text-lg font-bold text-blue-600">{studentStats.totalPoints}</div>
+            <div className="text-xs text-gray-600">Total Points</div>
+          </div>
+          <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
+            <div className="text-lg font-bold text-red-600">{studentStats.currentStreak}</div>
+            <div className="text-xs text-gray-600">Current Streak</div>
+          </div>
+          <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+            <div className="text-lg font-bold text-green-600">{studentStats.achievements.length}</div>
+            <div className="text-xs text-gray-600">Achievements</div>
+          </div>
+        </div>
+        
+        {/* Recent Achievements */}
+        {studentStats.achievements.length > 0 && (
+          <div>
+            <h4 className="font-medium text-gray-700 mb-2">🏅 Recent Achievements</h4>
+            <div className="space-y-2">
+              {studentStats.achievements.slice(-3).map((achievement: any, idx: number) => (
+                <div key={idx} className="flex items-center space-x-2 p-2 bg-gray-50 rounded">
+                  <span className="text-lg">{achievement.icon}</span>
+                  <div>
+                    <div className="text-sm font-medium">{achievement.title}</div>
+                    <div className="text-xs text-gray-600">{achievement.description}</div>
+                  </div>
+                  <div className="ml-auto text-xs text-blue-600 font-medium">
+                    +{achievement.points}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Daily Challenge */}
+        {dailyChallenge && !dailyChallenge.completed && (
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border border-purple-200">
+            <h4 className="font-medium text-purple-900 mb-2">🎯 Daily Challenge</h4>
+            <p className="text-sm text-purple-800 mb-2">
+              Complete a {dailyChallenge.subject} question for bonus points!
+            </p>
+            <div className="text-xs text-purple-600 font-medium">
+              Bonus: +{dailyChallenge.bonusPoints} points
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Enhanced Header */}
@@ -797,6 +900,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
               <Award className="h-4 w-4 text-blue-600" />
               <span className="text-sm font-medium">Progress</span>
             </button>
+            <button
+              onClick={() => setShowAchievements(!showAchievements)}
+              className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm border border-gray-200"
+            >
+              <Award className="h-4 w-4 text-yellow-600" />
+              <span className="text-sm font-medium">Achievements</span>
+            </button>
           </div>
         </div>
       </div>
@@ -823,6 +933,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
 
       {/* Progress and Exam Context Panels */}
       <div className="flex">
+        {showAchievements && (
+          <div className="w-80 p-4 border-r border-gray-200 bg-white">
+            <GamificationPanel />
+          </div>
+        )}
         {showUsage && (
           <div className="w-80 p-4 border-r border-gray-200 bg-white">
             <UsageIndicator userId={userId} onUpgrade={handleUpgrade} />
@@ -1074,6 +1189,43 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ subject, onBack }) => {
           onUpgrade={handleUpgrade}
         />
       </div>
+      
+      {/* Achievement Notifications */}
+      {newAchievements.map((achievement, idx) => (
+        <div
+          key={idx}
+          className="fixed top-4 right-4 bg-yellow-100 border border-yellow-300 rounded-lg p-4 shadow-lg z-50 animate-bounce"
+          style={{ animationDelay: `${idx * 500}ms` }}
+        >
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl">{achievement.icon}</span>
+            <div>
+              <div className="font-bold text-yellow-800">Achievement Unlocked!</div>
+              <div className="text-sm text-yellow-700">{achievement.title}</div>
+              <div className="text-xs text-yellow-600">+{achievement.points} points</div>
+            </div>
+          </div>
+        </div>
+      ))}
+      
+      {/* Level Up Notification */}
+      {showLevelUp && studentStats && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 text-center shadow-2xl">
+            <div className="text-6xl mb-4">🎉</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Level Up!</h2>
+            <p className="text-lg text-gray-600 mb-4">
+              You've reached Level {studentStats.level}!
+            </p>
+            <button
+              onClick={() => setShowLevelUp(false)}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+            >
+              Continue Learning
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
