@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { AuthProvider } from './contexts/AuthContext';
+import AuthGuard from './components/AuthGuard';
 import Header from './components/Header';
 import SubjectSelector from './components/SubjectSelector';
 import ChatInterface from './components/ChatInterface';
-import Analytics from './components/Analytics';
 import MockExams from './components/MockExams';
 import StudyPlanner from './components/StudyPlanner';
 import Navigation from './components/Navigation';
@@ -29,34 +30,38 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Show header only on subject selection page */}
-      {!selectedSubject && currentPage === 'chat' && <Header />}
-      
-      {/* Show navigation when not in chat with a subject */}
-      {!(currentPage === 'chat' && selectedSubject) && (
-        <Navigation currentPage={currentPage} onPageChange={handlePageChange} />
-      )}
-      
-      {currentPage === 'chat' && (
-        selectedSubject ? (
-          <ChatInterface 
-            subject={selectedSubject} 
-            onBack={handleBackToSubjects}
-          />
-        ) : (
-          <SubjectSelector onSelectSubject={handleSelectSubject} />
-        )
-      )}
-      
-      {currentPage === 'mock-exams' && (
-        <MockExams selectedSubject={selectedSubject} />
-      )}
-      
-      {currentPage === 'study-planner' && (
-        <StudyPlanner selectedSubject={selectedSubject?.name} />
-      )}
-    </div>
+    <AuthProvider>
+      <AuthGuard>
+        <div className="min-h-screen bg-gray-50">
+          {/* Show header only on subject selection page */}
+          {!selectedSubject && currentPage === 'chat' && <Header />}
+          
+          {/* Show navigation when not in chat with a subject */}
+          {!(currentPage === 'chat' && selectedSubject) && (
+            <Navigation currentPage={currentPage} onPageChange={handlePageChange} />
+          )}
+          
+          {currentPage === 'chat' && (
+            selectedSubject ? (
+              <ChatInterface 
+                subject={selectedSubject} 
+                onBack={handleBackToSubjects}
+              />
+            ) : (
+              <SubjectSelector onSelectSubject={handleSelectSubject} />
+            )
+          )}
+          
+          {currentPage === 'mock-exams' && (
+            <MockExams selectedSubject={selectedSubject} />
+          )}
+          
+          {currentPage === 'study-planner' && (
+            <StudyPlanner selectedSubject={selectedSubject?.name} />
+          )}
+        </div>
+      </AuthGuard>
+    </AuthProvider>
   );
 }
 
